@@ -1,1 +1,120 @@
+# Dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+.pnp.cjs
+
+# Package manager locks (keep one; npm is default for this project)
+# Uncomment if you standardize on pnpm/yarn and want to ignore others:
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Next.js
+/.next/
+/out/
+next-env.d.ts
+
+# Production / build output
+/build
+/dist
+*.tsbuildinfo
+
+# Environment variables (never commit secrets)
 .env
+.env.*
+!.env.example
+
+# Vercel
+.vercel
+
+# Supabase
+.branches
+.temp
+supabase/.branches
+supabase/.temp
+
+# Testing
+/coverage
+*.lcov
+.nyc_output
+/playwright-report/
+/test-results/
+/blob-report/
+/playwright/.cache/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime / cache
+.cache
+.parcel-cache
+.turbo
+.eslintcache
+.stylelintcache
+
+# Debug
+*.pem
+*.key
+*.crt
+*.p12
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# IDE / editors
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Cursor (local agent/IDE state)
+.cursor/
+
+# TypeScript
+*.tsbuildinfo
+
+# Optional: local-only overrides
+*.local
+
+# Sentry / monitoring (if added later)
+.sentryclirc
+
+# Storybook (if added later)
+storybook-static
+
+# PWA / service worker generated files (if added later)
+**/public/sw.js
+**/public/workbox-*.js
+**/public/worker-*.js
