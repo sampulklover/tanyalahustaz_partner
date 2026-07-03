@@ -1,27 +1,26 @@
-import { NextResponse } from "next/server";
-import { authenticateApiRequest, recordApiUsage } from "@/lib/api-auth";
+import { apiError, apiSuccess, withApiAuth } from "@/lib/api/handler";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function GET(request: Request) {
-  const auth = await authenticateApiRequest(request);
+  return withApiAuth(request, async (_request, context) => {
+    const admin = createAdminClient();
 
-  if (!auth.ok) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
-  }
+    const [{ data: profile }, { data: apiKey }] = await Promise.all([
+      admin
+        .from("profiles")
+        .select("id, email, company_name, created_at")
+        .eq("id", context.userId)
+        .single(),
+      admin.from("api_keys").select("id, name, last_used_at").eq("id", context.apiKeyId).single(),
+    ]);
 
-  const admin = createAdminClient();
+    if (!profile || !apiKey) {
+      return apiError("Partner profile not found.", 404);
+    }
 
-  const [{ data: profile }, { data: apiKey }] = await Promise.all([
-    admin.from("profiles").select("id, email, company_name").eq("id", auth.context.userId).single(),
-    admin.from("api_keys").select("id, name").eq("id", auth.context.apiKeyId).single(),
-  ]);
-
-  const response = NextResponse.json({
-    partner: profile,
-    api_key: apiKey,
+    return apiSuccess({
+      partner: profile,
+      api_key: apiKey,
+    });
   });
-
-  await recordApiUsage(auth.context, request, response.status);
-
-  return response;
 }

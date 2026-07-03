@@ -1,25 +1,26 @@
-# TanyaLah Ustaz Partner API
+# TanyaLah Ustaz Partner AI API
 
-Developer portal and API platform built with **Next.js** and **Supabase**.
+Partner platform for websites that want to offer **TanyaLah Ustaz Islamic AI** to their users.
 
-Partners can sign up, log in, create API keys, read documentation, and call a versioned REST API. Supabase handles auth and data storage; the Next.js API layer validates keys and proxies requests — clients never get direct Supabase access.
+Built with **Next.js**, **Supabase**, and **OpenRouter**. Partners get API keys and call `/api/v1/chat`. We retrieve relevant knowledge articles, build a grounded prompt, and return AI answers — partners never touch OpenRouter or Supabase directly.
 
 ## Architecture
 
 ```
-Partner apps  →  Next.js /api/v1/*  →  Supabase (Postgres + Auth)
-Developers    →  Next.js portal     →  Supabase Auth + api_keys table
+Partner website  →  POST /api/v1/chat  →  Knowledge lookup (Supabase)
+                                       →  OpenRouter (AI generation)
+                                       →  Reply + sources back to partner
+
+Partner portal   →  Next.js dashboard  →  API keys, chat logs, usage
 ```
 
 ## Features
 
-- Landing page and documentation (`/docs`)
-- Partner signup/login (Supabase Auth)
-- Dashboard with API key create/revoke
-- SHA-256 hashed API keys (shown once at creation)
-- Public API: `GET /api/v1/health`, `GET /api/v1/me`
-- Usage logging per API key
-- Row Level Security on all tables
+- **AI chat API** — `POST /api/v1/chat` with knowledge-backed prompts
+- **Knowledge base** — curated Islamic articles managed by TanyaLah Ustaz, used as AI context
+- **Knowledge browse API** — `GET /api/v1/knowledge` for partners to inspect available content
+- **Developer portal** — signup, API keys, chat logs, usage stats
+- **OpenRouter integration** — server-side only; model configurable via env
 
 ## Setup
 
@@ -33,21 +34,16 @@ npm install
 
 1. Go to [supabase.com](https://supabase.com) and create a project.
 2. Copy your project URL and anon key.
-3. Copy your **service role key** (Settings → API) — server-only.
+3. Copy your **service role key** (Settings → API).
 
-### 3. Run the database migration
+### 3. Run database migrations
 
-In the Supabase SQL Editor, run the migration:
+In Supabase SQL Editor, run both files in order:
 
-```
-supabase/migrations/20250702000000_initial_schema.sql
-```
+- `supabase/migrations/20250702000000_initial_schema.sql`
+- `supabase/migrations/20250703000000_ai_knowledge.sql`
 
-Or, if using the Supabase CLI:
-
-```bash
-supabase db push
-```
+The second migration seeds sample knowledge articles for development.
 
 ### 4. Configure environment
 
@@ -55,13 +51,20 @@ supabase db push
 cp .env.example .env.local
 ```
 
-Fill in your Supabase credentials and app URL.
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only admin access |
+| `OPENROUTER_API_KEY` | Your OpenRouter API key ([openrouter.ai](https://openrouter.ai)) |
+| `OPENROUTER_MODEL` | Model slug (default: `google/gemini-2.0-flash-001`) |
+| `NEXT_PUBLIC_APP_URL` | App URL for auth redirects |
 
 ### 5. Configure Supabase Auth redirect
 
-In Supabase → Authentication → URL Configuration, add:
+In Supabase → Authentication → URL Configuration:
 
-- **Site URL**: `http://localhost:3000` (or your production URL)
+- **Site URL**: `http://localhost:3000`
 - **Redirect URLs**: `http://localhost:3000/auth/callback`
 
 ### 6. Start the dev server
@@ -70,13 +73,22 @@ In Supabase → Authentication → URL Configuration, add:
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
-
 ## API usage
 
 Create an API key in the dashboard, then:
 
 ```bash
+# AI chat (main partner integration)
+curl -X POST http://localhost:3000/api/v1/chat \
+  -H "Authorization: Bearer tlh_live_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"message":"Can a traveler combine Dhuhr and Asr?","category":"fiqh","session_id":"user-123"}'
+
+# Browse knowledge articles
+curl "http://localhost:3000/api/v1/knowledge?category=fiqh" \
+  -H "Authorization: Bearer tlh_live_YOUR_KEY"
+
+# Partner profile
 curl http://localhost:3000/api/v1/me \
   -H "Authorization: Bearer tlh_live_YOUR_KEY"
 ```
@@ -85,27 +97,42 @@ curl http://localhost:3000/api/v1/me \
 
 ```
 app/
-  api/v1/          # Public partner API
-  dashboard/       # Protected partner portal
-  docs/            # API documentation
-  actions/         # Server actions (auth, keys)
+  api/v1/
+    chat/           # AI chat endpoint (OpenRouter + knowledge)
+    knowledge/      # Browse knowledge articles
+    me/             # Partner profile
+    usage/          # API usage stats
+  dashboard/        # Partner portal
+  docs/             # API documentation
 lib/
-  supabase/        # Browser, server, and admin clients
-  api-auth.ts      # API key validation
-  api-keys.ts      # Key generation and hashing
+  knowledge.ts      # Knowledge retrieval for AI context
+  openrouter.ts     # OpenRouter client
+  api-auth.ts       # API key validation
 supabase/migrations/
+  knowledge_articles   # Platform-managed AI knowledge
+  partner_chat_logs  # Per-partner chat history
 ```
+
+## How chat works
+
+1. Partner sends `{ message, category?, session_id? }` to `/api/v1/chat`
+2. Server searches `knowledge_articles` for relevant published content
+3. Matching articles are injected into the system prompt
+4. OpenRouter generates the reply
+5. Response includes `reply`, `sources`, `model`, and `session_id`
+6. Request is logged in `partner_chat_logs` (visible in dashboard)
 
 ## Security notes
 
-- Never expose `SUPABASE_SERVICE_ROLE_KEY` to the client.
-- API keys are hashed before storage; the full key is shown only once.
-- RLS is enabled on `profiles`, `api_keys`, and `api_usage`.
-- Add rate limiting before production (e.g. Upstash, Vercel KV).
+- `OPENROUTER_API_KEY` and `SUPABASE_SERVICE_ROLE_KEY` are server-only
+- Partner API keys are SHA-256 hashed
+- Knowledge articles are read-only for partners via API
+- Add rate limiting and per-key quotas before production
 
 ## Next steps
 
-- Add your real business endpoints under `app/api/v1/`
-- Add rate limiting and billing per key
-- Generate OpenAPI spec from route handlers
-- Deploy to Vercel and set production env vars
+- Admin UI to manage `knowledge_articles` (CMS)
+- Better retrieval (embeddings / vector search instead of keyword match)
+- Rate limiting and billing per partner
+- Streaming responses for chat widgets
+- Deploy to Vercel with production env vars

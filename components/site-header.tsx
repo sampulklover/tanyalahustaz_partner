@@ -47,6 +47,12 @@ export function DashboardHeader({ email }: { email: string }) {
           Partner Dashboard
         </Link>
         <div className="flex items-center gap-4 text-sm">
+          <Link href="/dashboard/chat" className="text-zinc-600 hover:text-zinc-950 dark:text-zinc-400">
+            Chat logs
+          </Link>
+          <Link href="/dashboard/api-keys" className="text-zinc-600 hover:text-zinc-950 dark:text-zinc-400">
+            API Keys
+          </Link>
           <span className="hidden text-zinc-500 sm:inline">{email}</span>
           <Link href="/docs" className="text-zinc-600 hover:text-zinc-950 dark:text-zinc-400">
             Docs
