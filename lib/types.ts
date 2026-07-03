@@ -25,3 +25,56 @@ export type AuthenticatedApiContext = {
   userId: string;
   keyName: string;
 };
+
+export type ApiUsageEntry = {
+  id: number;
+  api_key_id: string | null;
+  endpoint: string;
+  method: string;
+  status_code: number | null;
+  created_at: string;
+};
+
+export type KnowledgeArticle = {
+  id: string;
+  slug: string;
+  title: string;
+  category: string;
+  summary: string;
+  content: string;
+  tags: string[];
+  published: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type KnowledgeSource = {
+  slug: string;
+  title: string;
+  category: string;
+};
+
+export type PartnerChatLog = {
+  id: string;
+  partner_id: string;
+  api_key_id: string | null;
+  session_id: string;
+  user_message: string;
+  assistant_message: string;
+  model: string;
+  sources: KnowledgeSource[];
+  created_at: string;
+};
+
+export type ChatRequestBody = {
+  message: string;
+  session_id?: string;
+  category?: string;
+};
+
+export type ChatResponse = {
+  reply: string;
+  session_id: string;
+  model: string;
+  sources: KnowledgeSource[];
+};
