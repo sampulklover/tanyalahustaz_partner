@@ -39,7 +39,13 @@ export function SiteHeader() {
   );
 }
 
-export function DashboardHeader({ email }: { email: string }) {
+export function DashboardHeader({
+  email,
+  knowledgeAccess = false,
+}: {
+  email: string;
+  knowledgeAccess?: boolean;
+}) {
   return (
     <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
@@ -47,6 +53,17 @@ export function DashboardHeader({ email }: { email: string }) {
           Partner Dashboard
         </Link>
         <div className="flex items-center gap-4 text-sm">
+          {knowledgeAccess && (
+            <Link
+              href="/dashboard/knowledge"
+              className="font-medium text-emerald-600 hover:text-emerald-700"
+            >
+              Knowledge
+            </Link>
+          )}
+          <Link href="/dashboard/playground" className="text-zinc-600 hover:text-zinc-950 dark:text-zinc-400">
+            Playground
+          </Link>
           <Link href="/dashboard/chat" className="text-zinc-600 hover:text-zinc-950 dark:text-zinc-400">
             Chat logs
           </Link>

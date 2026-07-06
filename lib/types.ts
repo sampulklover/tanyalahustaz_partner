@@ -1,7 +1,21 @@
+export type KnowledgeTeamMember = {
+  user_id: string;
+  role: import("@/lib/roles").KnowledgeTeamRole;
+  granted_by: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type KnowledgeTeamMemberWithProfile = KnowledgeTeamMember & {
+  email: string;
+  company_name: string | null;
+};
+
 export type Profile = {
   id: string;
   email: string;
   company_name: string | null;
+  is_admin: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -52,6 +66,15 @@ export type KnowledgeSource = {
   slug: string;
   title: string;
   category: string;
+};
+
+export type RetrievedKnowledge = {
+  articleId: string;
+  slug: string;
+  title: string;
+  category: string;
+  content: string;
+  similarity?: number;
 };
 
 export type PartnerChatLog = {

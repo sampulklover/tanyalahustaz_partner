@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import type { ChatHistoryMessage } from "@/lib/chat-history";
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
@@ -10,9 +11,11 @@ type ChatMessage = {
 export async function generateChatReply({
   userMessage,
   knowledgeContext,
+  history = [],
 }: {
   userMessage: string;
   knowledgeContext: string;
+  history?: ChatHistoryMessage[];
 }) {
   const apiKey = process.env.OPENROUTER_API_KEY;
   const model = process.env.OPENROUTER_MODEL ?? "google/gemini-2.0-flash-001";
@@ -21,18 +24,25 @@ export async function generateChatReply({
     throw new Error("OPENROUTER_API_KEY is not configured on the server.");
   }
 
-  const messages: ChatMessage[] = [
-    {
-      role: "system",
-      content: `You are the TanyaLah Ustaz AI assistant for partner websites.
+  const systemMessage: ChatMessage = {
+    role: "system",
+    content: `You are the TanyaLah Ustaz AI assistant for partner websites.
 Answer in clear, respectful language suitable for Muslim users seeking Islamic guidance.
 Use the KNOWLEDGE CONTEXT below as your primary source. If the context does not cover the question, say you are unsure and recommend consulting a qualified local scholar.
 Do not invent fatwas or cite sources not in the context.
 Keep answers concise and practical for website visitors.
+When the user refers to earlier messages in this conversation, use the chat history together with the knowledge context.
 
 KNOWLEDGE CONTEXT:
 ${knowledgeContext}`,
-    },
+  };
+
+  const messages: ChatMessage[] = [
+    systemMessage,
+    ...history.map((entry) => ({
+      role: entry.role,
+      content: entry.content,
+    })),
     {
       role: "user",
       content: userMessage,
@@ -56,6 +66,13 @@ ${knowledgeContext}`,
 
   if (!response.ok) {
     const errorBody = await response.text();
+
+    if (response.status === 401 || errorBody.toLowerCase().includes("invalid api key")) {
+      throw new Error(
+        "OpenRouter rejected the API key. Check OPENROUTER_API_KEY in .env.local (openrouter.ai → Keys).",
+      );
+    }
+
     throw new Error(`OpenRouter request failed (${response.status}): ${errorBody}`);
   }
 

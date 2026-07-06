@@ -1,4 +1,4 @@
-import { DashboardHeader } from "@/components/site-header";
+import { ChatMarkdown } from "@/components/chat-markdown";
 import { createClient } from "@/lib/supabase/server";
 import type { PartnerChatLog } from "@/lib/types";
 
@@ -20,9 +20,7 @@ export default async function ChatLogsPage() {
   const items = (logs ?? []) as PartnerChatLog[];
 
   return (
-    <>
-      <DashboardHeader email={user!.email ?? ""} />
-      <main className="mx-auto max-w-4xl px-6 py-10">
+    <main className="mx-auto max-w-4xl px-6 py-10">
         <h1 className="text-3xl font-bold tracking-tight">Chat logs</h1>
         <p className="mt-2 text-zinc-600 dark:text-zinc-400">
           AI chat requests made by your website via <code>/api/v1/chat</code>.
@@ -59,7 +57,9 @@ export default async function ChatLogsPage() {
                     <p className="text-xs font-medium uppercase tracking-wide text-emerald-600">
                       Assistant
                     </p>
-                    <p className="mt-1 text-sm leading-relaxed">{log.assistant_message}</p>
+                    <div className="mt-1">
+                      <ChatMarkdown content={log.assistant_message} />
+                    </div>
                   </div>
                 </div>
 
@@ -85,6 +85,5 @@ export default async function ChatLogsPage() {
           </ul>
         )}
       </main>
-    </>
   );
 }

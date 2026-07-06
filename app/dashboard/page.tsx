@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { DashboardHeader } from "@/components/site-header";
 import { createClient } from "@/lib/supabase/server";
 import type { ApiUsageEntry, KnowledgeArticle, PartnerChatLog } from "@/lib/types";
+import { getDashboardContext } from "@/lib/dashboard";
 
 export const metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
   const supabase = await createClient();
+  const context = await getDashboardContext();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -63,9 +64,7 @@ export default async function DashboardPage() {
   const knowledge = (knowledgePreview ?? []) as Pick<KnowledgeArticle, "slug" | "title" | "category">[];
 
   return (
-    <>
-      <DashboardHeader email={user!.email ?? ""} />
-      <main className="mx-auto max-w-6xl px-6 py-10">
+    <main className="mx-auto max-w-6xl px-6 py-10">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="mt-2 text-zinc-600 dark:text-zinc-400">
           Welcome back{profile?.company_name ? `, ${profile.company_name}` : ""}. Integrate Islamic
@@ -96,12 +95,21 @@ export default async function DashboardPage() {
           <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
             <p className="text-sm text-zinc-500">Knowledge articles</p>
             <p className="mt-2 text-3xl font-bold">{knowledgeCount ?? 0}</p>
-            <Link
-              href="/docs/endpoints"
-              className="mt-4 inline-block text-sm font-medium text-emerald-600 hover:underline"
-            >
-              Browse via API →
-            </Link>
+            {context?.knowledge.canViewKnowledge ? (
+              <Link
+                href="/dashboard/knowledge"
+                className="mt-4 inline-block text-sm font-medium text-emerald-600 hover:underline"
+              >
+                Manage knowledge →
+              </Link>
+            ) : (
+              <Link
+                href="/docs/endpoints"
+                className="mt-4 inline-block text-sm font-medium text-emerald-600 hover:underline"
+              >
+                Browse via API →
+              </Link>
+            )}
           </div>
           <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
             <p className="text-sm text-zinc-500">API base URL</p>
@@ -114,6 +122,25 @@ export default async function DashboardPage() {
             </Link>
           </div>
         </div>
+
+        <section className="mt-10 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 dark:border-emerald-900 dark:bg-emerald-950/30">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-emerald-900 dark:text-emerald-100">
+                Test the AI in the playground
+              </h2>
+              <p className="mt-1 text-sm text-emerald-800 dark:text-emerald-300">
+                No curl needed — chat directly with the same pipeline as <code>POST /api/v1/chat</code>.
+              </p>
+            </div>
+            <Link
+              href="/dashboard/playground"
+              className="inline-flex shrink-0 items-center justify-center rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-700"
+            >
+              Open playground
+            </Link>
+          </div>
+        </section>
 
         <section className="mt-10 rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
           <h2 className="text-lg font-semibold">Try the AI chat API</h2>
@@ -219,6 +246,5 @@ export default async function DashboardPage() {
           </section>
         </div>
       </main>
-    </>
   );
 }
