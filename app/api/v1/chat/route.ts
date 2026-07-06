@@ -1,12 +1,6 @@
-import { apiError, apiSuccess, parsePagination, withApiAuth } from "@/lib/api/handler";
-import {
-  buildKnowledgeContext,
-  findRelevantKnowledge,
-  toKnowledgeSource,
-} from "@/lib/knowledge";
-import { createSessionId, generateChatReply } from "@/lib/openrouter";
-import { createAdminClient } from "@/lib/supabase/admin";
-import type { ChatRequestBody, KnowledgeArticle } from "@/lib/types";
+import { apiError, apiSuccess, withApiAuth } from "@/lib/api/handler";
+import { executeChat } from "@/lib/chat";
+import type { ChatRequestBody } from "@/lib/types";
 
 export async function POST(request: Request) {
   return withApiAuth(request, async (req, context) => {
@@ -24,12 +18,8 @@ export async function POST(request: Request) {
 
     const { message, session_id, category } = body as ChatRequestBody;
 
-    if (typeof message !== "string" || message.trim().length < 3) {
-      return apiError("Field 'message' is required and must be at least 3 characters.");
-    }
-
-    if (message.trim().length > 4000) {
-      return apiError("Field 'message' must be 4000 characters or fewer.");
+    if (typeof message !== "string") {
+      return apiError("Field 'message' is required.");
     }
 
     if (session_id !== undefined && typeof session_id !== "string") {
@@ -40,38 +30,18 @@ export async function POST(request: Request) {
       return apiError("Field 'category' must be a string.");
     }
 
-    try {
-      const articles = await findRelevantKnowledge(message.trim(), category?.trim());
-      const knowledgeContext = buildKnowledgeContext(articles);
-      const { reply, model } = await generateChatReply({
-        userMessage: message.trim(),
-        knowledgeContext,
-      });
+    const result = await executeChat({
+      message,
+      sessionId: session_id,
+      category,
+      partnerId: context.userId,
+      apiKeyId: context.apiKeyId,
+    });
 
-      const sessionId = createSessionId(session_id);
-      const sources = articles.map(toKnowledgeSource);
-      const admin = createAdminClient();
-
-      await admin.from("partner_chat_logs").insert({
-        partner_id: context.userId,
-        api_key_id: context.apiKeyId,
-        session_id: sessionId,
-        user_message: message.trim(),
-        assistant_message: reply,
-        model,
-        sources,
-      });
-
-      return apiSuccess({
-        reply,
-        session_id: sessionId,
-        model,
-        sources,
-      });
-    } catch (error) {
-      const message_text =
-        error instanceof Error ? error.message : "Failed to generate AI response.";
-      return apiError(message_text, 502);
+    if (!result.ok) {
+      return apiError(result.error, result.error.includes("OpenRouter") ? 502 : 400);
     }
+
+    return apiSuccess(result.data);
   });
 }

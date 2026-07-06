@@ -4,6 +4,8 @@ Partner platform for websites that want to offer **TanyaLah Ustaz Islamic AI** t
 
 Built with **Next.js**, **Supabase**, and **OpenRouter**. Partners get API keys and call `/api/v1/chat`. We retrieve relevant knowledge articles, build a grounded prompt, and return AI answers — partners never touch OpenRouter or Supabase directly.
 
+> **Internal:** [System evolution doc](docs/SYSTEM_EVOLUTION.md) — phases, architecture, key concepts.
+
 ## Architecture
 
 ```
@@ -38,14 +40,57 @@ npm install
 
 ### 3. Run database migrations
 
-In Supabase SQL Editor, run both files in order:
+In Supabase SQL Editor, run all files in order:
 
 - `supabase/migrations/20250702000000_initial_schema.sql`
 - `supabase/migrations/20250703000000_ai_knowledge.sql`
+- `supabase/migrations/20250706000000_vector_rag.sql`
+- `supabase/migrations/20250706000001_embedding_2048_nvidia.sql` (only if you already ran vector_rag with 1536-dim)
+- `supabase/migrations/20250707000000_admin_knowledge.sql`
+- `supabase/migrations/20250708000000_knowledge_team_roles.sql`
 
-The second migration seeds sample knowledge articles for development.
+Then add your first **knowledge admin** (Supabase SQL Editor):
 
-### 4. Configure environment
+```sql
+insert into public.knowledge_team_members (user_id, role)
+select id, 'admin' from public.profiles where email = 'you@example.com';
+```
+
+Knowledge admins can invite colleagues at **Dashboard → Knowledge → Team & roles** with:
+
+| Role | Can do |
+|------|--------|
+| **Admin** | Assign roles + full article access |
+| **Editor** | Create, edit, publish, delete articles |
+| **Viewer** | Read drafts (read-only) |
+
+### 4. Generate vector embeddings (required for semantic RAG)
+
+After migrations, embed your knowledge articles:
+
+```bash
+npm install
+npm run embed-knowledge
+```
+
+Re-run this whenever you add or update articles outside the admin UI, or use **Re-embed all published** in `/dashboard/knowledge`.
+
+### Changing the embedding model
+
+If you change `OPENROUTER_EMBEDDING_MODEL` (e.g. NVIDIA 2048-dim ↔ OpenAI small 1536-dim):
+
+1. Update `OPENROUTER_EMBEDDING_MODEL` in `.env`
+2. Update `EMBEDDING_DIMENSIONS` in `lib/embeddings.ts` to match the new model
+3. If vector size changed: run a Supabase migration on `knowledge_chunks.embedding` (truncate table, alter `vector(N)`)
+4. **Re-embed everything** (old vectors are not compatible with a new model):
+
+```bash
+npm run embed-knowledge
+```
+
+You cannot mix embeddings from different models. See [docs/SYSTEM_EVOLUTION.md](docs/SYSTEM_EVOLUTION.md) for details.
+
+### 5. Configure environment
 
 ```bash
 cp .env.example .env.local
@@ -57,17 +102,17 @@ cp .env.example .env.local
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-only admin access |
 | `OPENROUTER_API_KEY` | Your OpenRouter API key ([openrouter.ai](https://openrouter.ai)) |
-| `OPENROUTER_MODEL` | Model slug (default: `google/gemini-2.0-flash-001`) |
+| `OPENROUTER_EMBEDDING_MODEL` | Embedding model for RAG (default: `nvidia/llama-nemotron-embed-vl-1b-v2:free`, 2048-dim) |
 | `NEXT_PUBLIC_APP_URL` | App URL for auth redirects |
 
-### 5. Configure Supabase Auth redirect
+### 6. Configure Supabase Auth redirect
 
 In Supabase → Authentication → URL Configuration:
 
 - **Site URL**: `http://localhost:3000`
 - **Redirect URLs**: `http://localhost:3000/auth/callback`
 
-### 6. Start the dev server
+### 7. Start the dev server
 
 ```bash
 npm run dev
@@ -105,22 +150,27 @@ app/
   dashboard/        # Partner portal
   docs/             # API documentation
 lib/
-  knowledge.ts      # Knowledge retrieval for AI context
-  openrouter.ts     # OpenRouter client
-  api-auth.ts       # API key validation
+  knowledge.ts      # Vector RAG retrieval + keyword fallback
+  embeddings.ts     # OpenRouter embeddings
+  chat-history.ts   # Multi-turn session memory
+  embed-knowledge.ts
+  openrouter.ts     # OpenRouter chat client
 supabase/migrations/
-  knowledge_articles   # Platform-managed AI knowledge
-  partner_chat_logs  # Per-partner chat history
+  knowledge_articles
+  knowledge_chunks    # Chunked vectors for semantic search
+  partner_chat_logs
 ```
 
 ## How chat works
 
 1. Partner sends `{ message, category?, session_id? }` to `/api/v1/chat`
-2. Server searches `knowledge_articles` for relevant published content
-3. Matching articles are injected into the system prompt
-4. OpenRouter generates the reply
-5. Response includes `reply`, `sources`, `model`, and `session_id`
-6. Request is logged in `partner_chat_logs` (visible in dashboard)
+2. Server embeds the user message and searches `knowledge_chunks` via **pgvector** (semantic RAG)
+3. If no vectors exist yet, falls back to keyword search on `knowledge_articles`
+4. Optional `category` narrows retrieval (e.g. `"fiqh"`)
+5. Previous messages for the same `session_id` are loaded from `partner_chat_logs` (up to 8 turns)
+6. Top chunks + chat history are sent to OpenRouter
+7. Response includes `reply`, `sources`, `model`, and `session_id`
+8. Request is logged in `partner_chat_logs` (visible in dashboard)
 
 ## Security notes
 
@@ -131,8 +181,7 @@ supabase/migrations/
 
 ## Next steps
 
-- Admin UI to manage `knowledge_articles` (CMS)
-- Better retrieval (embeddings / vector search instead of keyword match)
+- Rate limiting and usage billing per partner
 - Rate limiting and billing per partner
 - Streaming responses for chat widgets
 - Deploy to Vercel with production env vars

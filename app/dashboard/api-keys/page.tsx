@@ -1,4 +1,3 @@
-import { DashboardHeader } from "@/components/site-header";
 import { ApiKeyManager } from "@/components/api-key-manager";
 import { createClient } from "@/lib/supabase/server";
 import type { ApiKey } from "@/lib/types";
@@ -18,9 +17,7 @@ export default async function ApiKeysPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <>
-      <DashboardHeader email={user!.email ?? ""} />
-      <main className="mx-auto max-w-3xl px-6 py-10">
+    <main className="mx-auto max-w-3xl px-6 py-10">
         <h1 className="text-3xl font-bold tracking-tight">API Keys</h1>
         <p className="mt-2 text-zinc-600 dark:text-zinc-400">
           Create and revoke keys used to authenticate API requests.
@@ -29,6 +26,5 @@ export default async function ApiKeysPage() {
           <ApiKeyManager keys={(keys ?? []) as ApiKey[]} />
         </div>
       </main>
-    </>
   );
 }

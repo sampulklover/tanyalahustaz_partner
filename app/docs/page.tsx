@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export const metadata = { title: "Documentation" };
 
 export default function DocsPage() {
@@ -15,8 +17,9 @@ export default function DocsPage() {
         <h2 className="text-xl font-semibold">How it works</h2>
         <ol className="list-decimal space-y-2 pl-5 text-zinc-600 dark:text-zinc-400">
           <li>Your website sends a user question to <code>POST /api/v1/chat</code>.</li>
-          <li>We search the TanyaLah Ustaz knowledge base for relevant articles.</li>
-          <li>Those articles are injected into the AI prompt as context.</li>
+          <li>We embed the question and search <code>knowledge_chunks</code> with pgvector (semantic RAG).</li>
+          <li>Relevant chunks are injected into the AI prompt as context.</li>
+          <li>Earlier messages in the same <code>session_id</code> are included for follow-up questions.</li>
           <li>OpenRouter generates the answer; we return it with source references.</li>
         </ol>
       </section>
@@ -34,7 +37,7 @@ export default function DocsPage() {
           <li>Create a partner account and sign in.</li>
           <li>Go to Dashboard → API Keys and create a key.</li>
           <li>Set <code>OPENROUTER_API_KEY</code> on the server (platform side, not partner side).</li>
-          <li>POST a message to <code>/api/v1/chat</code> from your website.</li>
+          <li>POST a message to <code>/api/v1/chat</code> from your website — or use the <Link href="/dashboard/playground" className="text-emerald-600 hover:underline">playground</Link> to test first.</li>
         </ol>
       </section>
 
