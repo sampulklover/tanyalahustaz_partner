@@ -7,10 +7,11 @@ export default function DocsPage() {
 
   return (
     <article className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">Partner AI API</h1>
-      <p className="text-zinc-600 dark:text-zinc-400">
-        Integrate TanyaLah Ustaz Islamic AI into your website. Partners call our API; we retrieve
-        relevant knowledge articles, build a grounded prompt, and generate answers through OpenRouter.
+      <h1 className="text-3xl font-bold tracking-tight">Partner API overview</h1>
+      <p className="lead text-[color:var(--muted)]">
+        Integrate TanyaLah Ustaz Islamic AI into your product. You send a user question; we
+        retrieve relevant knowledge, build a grounded prompt, and return an AI answer with cited
+        sources — no AI infrastructure required on your side.
       </p>
 
       <section className="space-y-3">
@@ -26,7 +27,7 @@ export default function DocsPage() {
 
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">Base URL</h2>
-        <pre className="overflow-x-auto rounded-xl border border-zinc-200 bg-white p-4 text-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <pre className="overflow-x-auto rounded-xl border border-border bg-background-subtle p-4 text-sm">
           {baseUrl}/api/v1
         </pre>
       </section>
@@ -43,7 +44,7 @@ export default function DocsPage() {
 
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">Example: AI chat</h2>
-        <pre className="overflow-x-auto rounded-xl border border-zinc-200 bg-white p-4 text-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <pre className="overflow-x-auto rounded-xl border border-border bg-background-subtle p-4 text-sm">
 {`curl -X POST ${baseUrl}/api/v1/chat \\
   -H "Authorization: Bearer tlh_live_YOUR_KEY" \\
   -H "Content-Type: application/json" \\

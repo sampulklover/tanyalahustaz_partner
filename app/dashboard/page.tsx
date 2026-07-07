@@ -66,13 +66,13 @@ export default async function DashboardPage() {
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-          Welcome back{profile?.company_name ? `, ${profile.company_name}` : ""}. Integrate Islamic
-          AI into your website using our knowledge-backed chat API.
+        <p className="mt-2 text-[color:var(--muted)]">
+          Welcome back{profile?.company_name ? `, ${profile.company_name}` : ""}. Integrate
+          knowledge-backed Islamic AI into your product with our chat API.
         </p>
 
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="rounded-2xl border border-border bg-card p-6">
             <p className="text-sm text-zinc-500">Active API keys</p>
             <p className="mt-2 text-3xl font-bold">{activeKeys ?? 0}</p>
             <Link
@@ -82,7 +82,7 @@ export default async function DashboardPage() {
               Manage keys →
             </Link>
           </div>
-          <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="rounded-2xl border border-border bg-card p-6">
             <p className="text-sm text-zinc-500">Chat requests</p>
             <p className="mt-2 text-3xl font-bold">{chatCount ?? 0}</p>
             <Link
@@ -92,7 +92,7 @@ export default async function DashboardPage() {
               View chat logs →
             </Link>
           </div>
-          <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="rounded-2xl border border-border bg-card p-6">
             <p className="text-sm text-zinc-500">Knowledge articles</p>
             <p className="mt-2 text-3xl font-bold">{knowledgeCount ?? 0}</p>
             {context?.knowledge.canViewKnowledge ? (
@@ -111,7 +111,7 @@ export default async function DashboardPage() {
               </Link>
             )}
           </div>
-          <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="rounded-2xl border border-border bg-card p-6">
             <p className="text-sm text-zinc-500">API base URL</p>
             <code className="mt-2 block text-sm break-all">{baseUrl}/api/v1</code>
             <Link
@@ -142,7 +142,7 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        <section className="mt-10 rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+        <section className="mt-10 rounded-2xl border border-border bg-card p-6">
           <h2 className="text-lg font-semibold">Try the AI chat API</h2>
           <p className="mt-1 text-sm text-zinc-500">
             We enrich prompts with TanyaLah Ustaz knowledge, then generate answers via OpenRouter.
@@ -172,7 +172,7 @@ export default async function DashboardPage() {
         </section>
 
         <div className="mt-10 grid gap-6 lg:grid-cols-2">
-          <section className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+          <section className="rounded-2xl border border-border bg-card p-6">
             <h2 className="text-lg font-semibold">Recent chat requests</h2>
             {chats.length === 0 ? (
               <p className="mt-3 text-sm text-zinc-500">
@@ -199,7 +199,7 @@ export default async function DashboardPage() {
           </section>
 
           <section className="space-y-6">
-            <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="rounded-2xl border border-border bg-card p-6">
               <h2 className="text-lg font-semibold">Knowledge base preview</h2>
               <p className="mt-1 text-sm text-zinc-500">
                 Curated content used as AI context. Managed by TanyaLah Ustaz.
@@ -220,7 +220,7 @@ export default async function DashboardPage() {
               )}
             </div>
 
-            <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="rounded-2xl border border-border bg-card p-6">
               <h2 className="text-lg font-semibold">Recent API activity</h2>
               {usage.length === 0 ? (
                 <p className="mt-3 text-sm text-zinc-500">No API calls logged yet.</p>
