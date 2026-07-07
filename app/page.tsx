@@ -1,69 +1,508 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
+
+export const metadata = {
+  title: "Islamic AI API for developers",
+};
+
+const features = [
+  {
+    title: "Grounded in real knowledge",
+    body: "Every answer is retrieved from a curated library of Islamic articles on fiqh, ibadah, aqidah, and akhlak — not generic model guesses. You get scholarship-backed responses, not hallucinations.",
+    icon: (
+      <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v14H6.5A2.5 2.5 0 0 0 4 19.5V5.5ZM4 19.5A2.5 2.5 0 0 0 6.5 22H20" />
+    ),
+  },
+  {
+    title: "Cited sources on every reply",
+    body: "Responses come with references to the source articles used. Build trust with your users by showing exactly where each answer comes from.",
+    icon: (
+      <>
+        <path d="M9 11l3 3 8-8" />
+        <path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9" />
+      </>
+    ),
+  },
+  {
+    title: "One simple endpoint",
+    body: "Send a user message to POST /api/v1/chat and get a reply back. No prompt engineering, no vector databases to run, no LLM provider to manage.",
+    icon: (
+      <>
+        <polyline points="16 18 22 12 16 6" />
+        <polyline points="8 6 2 12 8 18" />
+      </>
+    ),
+  },
+  {
+    title: "Conversation memory",
+    body: "Pass a session_id and the API remembers the thread, so follow-up questions stay in context across multiple turns — just like a real conversation.",
+    icon: (
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10Z" />
+    ),
+  },
+  {
+    title: "Category filtering",
+    body: "Scope answers to fiqh, ibadah, aqidah, akhlak, or general so responses match the context of the page your users are on.",
+    icon: (
+      <>
+        <line x1="4" y1="6" x2="20" y2="6" />
+        <line x1="7" y1="12" x2="17" y2="12" />
+        <line x1="10" y1="18" x2="14" y2="18" />
+      </>
+    ),
+  },
+  {
+    title: "Built for partners",
+    body: "A full portal with API keys, a live playground, chat logs, and usage analytics. Your backend credentials stay yours — you never touch the AI provider directly.",
+    icon: (
+      <>
+        <path d="M20 7h-9" />
+        <path d="M14 17H5" />
+        <circle cx="17" cy="17" r="3" />
+        <circle cx="7" cy="7" r="3" />
+      </>
+    ),
+  },
+];
+
+const steps = [
+  {
+    title: "Create your API key",
+    body: "Sign up for a partner account and generate a key from the dashboard in seconds.",
+  },
+  {
+    title: "Send a question",
+    body: "POST the user's message to /api/v1/chat with your key. Optionally pass a category and session_id.",
+  },
+  {
+    title: "We retrieve & ground",
+    body: "We embed the question, run semantic search over the knowledge base, and build a grounded prompt.",
+  },
+  {
+    title: "Return a cited answer",
+    body: "Your users get a clear, knowledge-backed reply — complete with the source articles behind it.",
+  },
+];
+
+const useCases = [
+  {
+    title: "Islamic education platforms",
+    body: "Give students an always-available assistant that answers questions with references to real material.",
+  },
+  {
+    title: "Mosque & community apps",
+    body: "Add a Q&A helper for prayer, fasting, and daily practice — grounded in vetted content.",
+  },
+  {
+    title: "Fintech & halal commerce",
+    body: "Answer shariah-compliance questions inline, with sources your compliance team can verify.",
+  },
+  {
+    title: "Content & media sites",
+    body: "Turn your articles into an interactive assistant that keeps readers engaged and informed.",
+  },
+];
+
+const faqs = [
+  {
+    q: "Where do the answers come from?",
+    a: "Answers are generated from a curated knowledge base of Islamic articles using retrieval-augmented generation (RAG). We embed each question, find the most relevant passages, and pass them to the language model as grounding context — so responses stay tied to real material.",
+  },
+  {
+    q: "Do I need to run my own AI infrastructure?",
+    a: "No. We handle embeddings, semantic search, prompt construction, and the language model. You make a single authenticated API call and receive a finished reply with sources.",
+  },
+  {
+    q: "How is the API authenticated?",
+    a: "Each request uses a partner API key (prefixed tlh_live_) sent as a Bearer token or X-API-Key header. Keys are stored as SHA-256 hashes and can be revoked any time from the dashboard.",
+  },
+  {
+    q: "Can I test before integrating?",
+    a: "Yes. The dashboard includes a live playground that uses the exact same pipeline as production, so you can try prompts and categories before writing any code.",
+  },
+  {
+    q: "Are the answers a substitute for a scholar?",
+    a: "No. Responses are AI-generated for guidance and convenience. For rulings on sensitive or personal matters, users should consult a qualified scholar. We recommend surfacing this clearly in your product.",
+  },
+];
 
 export default function HomePage() {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+
   return (
     <>
       <SiteHeader />
       <main className="flex-1">
-        <section className="mx-auto max-w-6xl px-6 py-20">
-          <div className="max-w-3xl">
-            <p className="mb-4 text-sm font-medium uppercase tracking-wider text-emerald-600">
-              Partner AI API
-            </p>
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-              Add TanyaLah Ustaz Islamic AI to your website
-            </h1>
-            <p className="mt-6 text-lg text-zinc-600 dark:text-zinc-400">
-              Partners integrate one API to offer AI-powered Islamic guidance on their own sites.
-              We manage the knowledge base, enrich prompts with curated content, and generate
-              answers via OpenRouter — you never touch the AI provider directly.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Link
-                href="/signup"
-                className="rounded-lg bg-emerald-600 px-6 py-3 font-medium text-white transition hover:bg-emerald-700"
-              >
-                Get API access
-              </Link>
-              <Link
-                href="/docs"
-                className="rounded-lg border border-zinc-300 px-6 py-3 font-medium transition hover:bg-white dark:border-zinc-700 dark:hover:bg-zinc-900"
-              >
-                Read the docs
-              </Link>
+        {/* Hero */}
+        <section className="relative overflow-hidden border-b border-border">
+          <div className="pointer-events-none absolute inset-0 bg-dot-grid opacity-70" />
+          <div className="pointer-events-none absolute inset-0 bg-brand-glow" />
+          <div className="relative mx-auto grid max-w-6xl gap-14 px-6 py-20 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-28">
+            <div className="animate-fade-up">
+              <span className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700 dark:border-brand-900 dark:bg-brand-900/30 dark:text-brand-200">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
+                Knowledge-backed Islamic AI
+              </span>
+              <h1 className="mt-5 text-4xl font-bold tracking-tight sm:text-5xl lg:text-[3.4rem] lg:leading-[1.05]">
+                Add trustworthy Islamic AI to your product
+              </h1>
+              <p className="mt-6 max-w-xl text-lg leading-relaxed text-[color:var(--muted)]">
+                One API call gives your users clear, grounded answers on fiqh, ibadah, and
+                more — each backed by curated scholarship and cited sources. We run the
+                knowledge base, retrieval, and models. You just ship.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link
+                  href="/signup"
+                  className="rounded-lg bg-brand-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-brand-700"
+                >
+                  Get your API key
+                </Link>
+                <Link
+                  href="/docs"
+                  className="rounded-lg border border-border bg-card px-6 py-3 font-semibold transition hover:bg-background-subtle"
+                >
+                  Read the docs
+                </Link>
+              </div>
+              <p className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[color:var(--muted)]">
+                <span className="inline-flex items-center gap-1.5">
+                  <CheckIcon /> Free to start
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <CheckIcon /> No AI setup required
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <CheckIcon /> Sources on every answer
+                </span>
+              </p>
+            </div>
+
+            {/* Code / response preview */}
+            <div className="animate-fade-up">
+              <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-xl shadow-black/5">
+                <div className="flex items-center gap-2 border-b border-border bg-background-subtle px-4 py-3">
+                  <span className="h-3 w-3 rounded-full bg-red-400/70" />
+                  <span className="h-3 w-3 rounded-full bg-amber-400/70" />
+                  <span className="h-3 w-3 rounded-full bg-brand-400/70" />
+                  <span className="ml-2 font-mono text-xs text-[color:var(--muted)]">
+                    POST /api/v1/chat
+                  </span>
+                </div>
+                <pre className="overflow-x-auto px-4 py-4 text-[13px] leading-relaxed">
+                  <code className="text-[color:var(--muted)]">
+{`curl -X POST ${baseUrl.replace(/^https?:\/\//, "")}/api/v1/chat \\
+  -H "Authorization: Bearer `}
+                    <span className="text-brand-600 dark:text-brand-400">tlh_live_•••</span>
+{`" \\
+  -d '{ "message": "Can a traveler combine
+        Dhuhr and Asr?", "category": "fiqh" }'`}
+                  </code>
+                </pre>
+                <div className="border-t border-border px-4 py-4">
+                  <p className="mb-2 font-mono text-[11px] uppercase tracking-wider text-[color:var(--muted)]">
+                    200 OK
+                  </p>
+                  <p className="text-sm leading-relaxed">
+                    Yes. A traveler may combine Dhuhr and Asr (jama&apos;) during a journey,
+                    either advancing Asr into Dhuhr&apos;s time or delaying Dhuhr into
+                    Asr&apos;s time…
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-medium text-brand-700 dark:bg-brand-900/40 dark:text-brand-200">
+                      source: jamak-solat-musafir
+                    </span>
+                    <span className="rounded-full bg-background-subtle px-2.5 py-0.5 text-xs text-[color:var(--muted)]">
+                      category: fiqh
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+        </section>
 
-          <div className="mt-20 grid gap-6 sm:grid-cols-3">
+        {/* Stats / trust */}
+        <section className="border-b border-border bg-background-subtle">
+          <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-6 py-10 sm:grid-cols-4">
             {[
-              {
-                title: "Knowledge-backed AI",
-                body: "Answers are grounded in TanyaLah Ustaz curated articles on fiqh, ibadah, and more — not generic LLM guesses.",
-              },
-              {
-                title: "Simple chat API",
-                body: "POST /api/v1/chat from your website. Pass a user message, get an AI reply with source references.",
-              },
-              {
-                title: "Partner portal",
-                body: "Sign up, create API keys, view chat logs, and monitor usage — all without exposing backend credentials.",
-              },
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900"
-              >
-                <h2 className="font-semibold">{item.title}</h2>
-                <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{item.body}</p>
+              { value: "1", label: "Endpoint to integrate" },
+              { value: "5", label: "Knowledge categories" },
+              { value: "RAG", label: "Grounded retrieval" },
+              { value: "100%", label: "Answers with sources" },
+            ].map((stat) => (
+              <div key={stat.label} className="text-center sm:text-left">
+                <p className="text-3xl font-bold tracking-tight text-brand-600 dark:text-brand-500">
+                  {stat.value}
+                </p>
+                <p className="mt-1 text-sm text-[color:var(--muted)]">{stat.label}</p>
               </div>
             ))}
           </div>
         </section>
+
+        {/* Features */}
+        <section id="features" className="scroll-mt-20 border-b border-border">
+          <div className="mx-auto max-w-6xl px-6 py-20">
+            <SectionHeading
+              eyebrow="Why TanyaLah Ustaz"
+              title="Everything you need to ship Islamic AI"
+              subtitle="A complete, grounded pipeline behind a single API — so you focus on your product, not on infrastructure."
+            />
+            <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {features.map((f) => (
+                <div
+                  key={f.title}
+                  className="group rounded-2xl border border-border bg-card p-6 transition hover:border-brand-200 hover:shadow-lg hover:shadow-black/5 dark:hover:border-brand-900"
+                >
+                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-900/40 dark:text-brand-400">
+                    <svg
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.7"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      {f.icon}
+                    </svg>
+                  </span>
+                  <h3 className="mt-5 text-lg font-semibold">{f.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[color:var(--muted)]">
+                    {f.body}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* How it works */}
+        <section id="how-it-works" className="scroll-mt-20 border-b border-border bg-background-subtle">
+          <div className="mx-auto max-w-6xl px-6 py-20">
+            <SectionHeading
+              eyebrow="How it works"
+              title="From question to cited answer in one call"
+              subtitle="You send a message. We do the retrieval, grounding, and generation. Your users get an answer they can trust."
+            />
+            <div className="mt-14 grid gap-6 md:grid-cols-4">
+              {steps.map((step, i) => (
+                <div key={step.title} className="relative rounded-2xl border border-border bg-card p-6">
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">
+                    {i + 1}
+                  </span>
+                  <h3 className="mt-4 font-semibold">{step.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[color:var(--muted)]">
+                    {step.body}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Use cases */}
+        <section id="use-cases" className="scroll-mt-20 border-b border-border">
+          <div className="mx-auto max-w-6xl px-6 py-20">
+            <SectionHeading
+              eyebrow="Use cases"
+              title="Built for products that serve Muslims"
+              subtitle="Wherever your users have questions about their faith, give them grounded answers in context."
+            />
+            <div className="mt-14 grid gap-6 sm:grid-cols-2">
+              {useCases.map((u) => (
+                <div
+                  key={u.title}
+                  className="flex gap-4 rounded-2xl border border-border bg-card p-6"
+                >
+                  <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-900/40 dark:text-brand-400">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 6 9 17l-5-5" />
+                    </svg>
+                  </span>
+                  <div>
+                    <h3 className="font-semibold">{u.title}</h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-[color:var(--muted)]">
+                      {u.body}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing */}
+        <section id="pricing" className="scroll-mt-20 border-b border-border bg-background-subtle">
+          <div className="mx-auto max-w-6xl px-6 py-20">
+            <SectionHeading
+              eyebrow="Pricing"
+              title="Start free, scale when you're ready"
+              subtitle="Create an account and get an API key today. Talk to us when you need higher volume or a custom knowledge base."
+            />
+            <div className="mx-auto mt-14 grid max-w-4xl gap-6 md:grid-cols-2">
+              <div className="rounded-2xl border border-border bg-card p-8">
+                <h3 className="text-lg font-semibold">Developer</h3>
+                <p className="mt-1 text-sm text-[color:var(--muted)]">
+                  For building, testing, and early integrations.
+                </p>
+                <p className="mt-6 text-4xl font-bold tracking-tight">Free</p>
+                <ul className="mt-6 space-y-3 text-sm">
+                  {[
+                    "API key + live playground",
+                    "Full knowledge-backed chat API",
+                    "Usage analytics & chat logs",
+                    "Complete documentation",
+                  ].map((item) => (
+                    <li key={item} className="flex items-center gap-2.5">
+                      <CheckIcon /> {item}
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href="/signup"
+                  className="mt-8 block rounded-lg bg-brand-600 px-5 py-2.5 text-center font-semibold text-white transition hover:bg-brand-700"
+                >
+                  Get started free
+                </Link>
+              </div>
+
+              <div className="rounded-2xl border border-brand-200 bg-card p-8 ring-1 ring-brand-200 dark:border-brand-900 dark:ring-brand-900">
+                <h3 className="text-lg font-semibold">Partner</h3>
+                <p className="mt-1 text-sm text-[color:var(--muted)]">
+                  For production apps and growing teams.
+                </p>
+                <p className="mt-6 text-4xl font-bold tracking-tight">Let&apos;s talk</p>
+                <ul className="mt-6 space-y-3 text-sm">
+                  {[
+                    "Everything in Developer",
+                    "Higher rate limits & volume",
+                    "Custom knowledge base content",
+                    "Priority support",
+                  ].map((item) => (
+                    <li key={item} className="flex items-center gap-2.5">
+                      <CheckIcon /> {item}
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href="/signup"
+                  className="mt-8 block rounded-lg border border-border px-5 py-2.5 text-center font-semibold transition hover:bg-background-subtle"
+                >
+                  Contact us
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="border-b border-border">
+          <div className="mx-auto max-w-3xl px-6 py-20">
+            <SectionHeading
+              eyebrow="FAQ"
+              title="Questions, answered"
+              subtitle="Everything you need to know before you integrate."
+            />
+            <div className="mt-12 divide-y divide-border rounded-2xl border border-border bg-card">
+              {faqs.map((faq) => (
+                <details key={faq.q} className="group px-6">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-5 font-medium [&::-webkit-details-marker]:hidden">
+                    {faq.q}
+                    <svg
+                      className="h-5 w-5 shrink-0 text-[color:var(--muted)] transition group-open:rotate-45"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    >
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                  </summary>
+                  <p className="pb-5 text-sm leading-relaxed text-[color:var(--muted)]">
+                    {faq.a}
+                  </p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Final CTA */}
+        <section className="border-b border-border">
+          <div className="mx-auto max-w-6xl px-6 py-20">
+            <div className="relative overflow-hidden rounded-3xl border border-brand-200 bg-brand-600 px-8 py-16 text-center dark:border-brand-900">
+              <div className="pointer-events-none absolute inset-0 bg-dot-grid opacity-20" />
+              <div className="relative">
+                <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                  Ship Islamic AI your users can trust
+                </h2>
+                <p className="mx-auto mt-4 max-w-xl text-brand-50">
+                  Create a free partner account, grab your API key, and make your first
+                  grounded chat call in minutes.
+                </p>
+                <div className="mt-8 flex flex-wrap justify-center gap-3">
+                  <Link
+                    href="/signup"
+                    className="rounded-lg bg-white px-6 py-3 font-semibold text-brand-700 shadow-sm transition hover:bg-brand-50"
+                  >
+                    Get API access
+                  </Link>
+                  <Link
+                    href="/docs"
+                    className="rounded-lg border border-white/30 px-6 py-3 font-semibold text-white transition hover:bg-white/10"
+                  >
+                    Explore the docs
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
-      <footer className="border-t border-zinc-200 py-8 text-center text-sm text-zinc-500 dark:border-zinc-800">
-        TanyaLah Ustaz Partner API
-      </footer>
+      <SiteFooter />
     </>
+  );
+}
+
+function SectionHeading({
+  eyebrow,
+  title,
+  subtitle,
+}: {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+}) {
+  return (
+    <div className="mx-auto max-w-2xl text-center">
+      <p className="text-sm font-semibold uppercase tracking-wider text-brand-600 dark:text-brand-500">
+        {eyebrow}
+      </p>
+      <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">{title}</h2>
+      <p className="mt-4 text-lg leading-relaxed text-[color:var(--muted)]">{subtitle}</p>
+    </div>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg
+      className="h-4 w-4 shrink-0 text-brand-600 dark:text-brand-500"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
   );
 }

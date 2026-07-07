@@ -14,7 +14,7 @@ export default function AuthenticationDocsPage() {
         <p className="text-zinc-600 dark:text-zinc-400">
           Use either of these methods:
         </p>
-        <pre className="overflow-x-auto rounded-xl border border-zinc-200 bg-white p-4 text-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <pre className="overflow-x-auto rounded-xl border border-border bg-background-subtle p-4 text-sm">
 {`Authorization: Bearer tlh_live_...
 # or
 X-API-Key: tlh_live_...`}

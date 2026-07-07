@@ -6,6 +6,26 @@ import { signIn, signUp } from "@/app/actions/auth";
 
 type AuthState = { error?: string };
 
+const inputClass =
+  "w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30";
+
+const buttonClass =
+  "w-full rounded-lg bg-brand-600 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60";
+
+function ErrorNote({ error }: { error?: string }) {
+  if (!error) return null;
+  return (
+    <p className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+      {error}
+    </p>
+  );
+}
+
 export function LoginForm({ redirectTo }: { redirectTo: string }) {
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(
     async (_prev, formData) => {
@@ -26,8 +46,10 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
           id="email"
           name="email"
           type="email"
+          autoComplete="email"
+          placeholder="you@company.com"
           required
-          className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-600 focus:ring-2 dark:border-zinc-700 dark:bg-zinc-900"
+          className={inputClass}
         />
       </div>
       <div>
@@ -38,23 +60,20 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
           id="password"
           name="password"
           type="password"
+          autoComplete="current-password"
           required
           minLength={8}
-          className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-600 focus:ring-2 dark:border-zinc-700 dark:bg-zinc-900"
+          className={inputClass}
         />
       </div>
-      {state.error && <p className="text-sm text-red-600">{state.error}</p>}
-      <button
-        type="submit"
-        disabled={isPending}
-        className="w-full rounded-lg bg-emerald-600 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-60"
-      >
+      <ErrorNote error={state.error} />
+      <button type="submit" disabled={isPending} className={buttonClass}>
         {isPending ? "Signing in…" : "Sign in"}
       </button>
-      <p className="text-center text-sm text-zinc-500">
-        No account?{" "}
-        <Link href="/signup" className="text-emerald-600 hover:underline">
-          Create one
+      <p className="text-center text-sm text-[color:var(--muted)]">
+        New to TanyaLah Ustaz?{" "}
+        <Link href="/signup" className="font-medium text-brand-600 hover:underline dark:text-brand-500">
+          Create an account
         </Link>
       </p>
     </form>
@@ -74,25 +93,29 @@ export function SignupForm() {
     <form action={formAction} className="space-y-4">
       <div>
         <label htmlFor="company_name" className="mb-1.5 block text-sm font-medium">
-          Company name
+          Company name <span className="font-normal text-[color:var(--muted)]">(optional)</span>
         </label>
         <input
           id="company_name"
           name="company_name"
           type="text"
-          className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-600 focus:ring-2 dark:border-zinc-700 dark:bg-zinc-900"
+          autoComplete="organization"
+          placeholder="Acme Inc."
+          className={inputClass}
         />
       </div>
       <div>
         <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
-          Email
+          Work email
         </label>
         <input
           id="email"
           name="email"
           type="email"
+          autoComplete="email"
+          placeholder="you@company.com"
           required
-          className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-600 focus:ring-2 dark:border-zinc-700 dark:bg-zinc-900"
+          className={inputClass}
         />
       </div>
       <div>
@@ -103,22 +126,20 @@ export function SignupForm() {
           id="password"
           name="password"
           type="password"
+          autoComplete="new-password"
           required
           minLength={8}
-          className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-600 focus:ring-2 dark:border-zinc-700 dark:bg-zinc-900"
+          className={inputClass}
         />
+        <p className="mt-1.5 text-xs text-[color:var(--muted)]">At least 8 characters.</p>
       </div>
-      {state.error && <p className="text-sm text-red-600">{state.error}</p>}
-      <button
-        type="submit"
-        disabled={isPending}
-        className="w-full rounded-lg bg-emerald-600 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-60"
-      >
-        {isPending ? "Creating account…" : "Create account"}
+      <ErrorNote error={state.error} />
+      <button type="submit" disabled={isPending} className={buttonClass}>
+        {isPending ? "Creating account…" : "Create free account"}
       </button>
-      <p className="text-center text-sm text-zinc-500">
+      <p className="text-center text-sm text-[color:var(--muted)]">
         Already have an account?{" "}
-        <Link href="/login" className="text-emerald-600 hover:underline">
+        <Link href="/login" className="font-medium text-brand-600 hover:underline dark:text-brand-500">
           Sign in
         </Link>
       </p>

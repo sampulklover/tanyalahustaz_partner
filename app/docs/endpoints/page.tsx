@@ -72,24 +72,28 @@ export default function EndpointsDocsPage() {
   ];
 
   return (
-    <article className="space-y-8">
+    <article className="not-prose space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Endpoints</h1>
-        <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-          All endpoints are prefixed with <code>{baseUrl}/api/v1</code>.
+        <h1 className="text-3xl font-bold tracking-tight">API reference</h1>
+        <p className="mt-3 text-[color:var(--muted)]">
+          Every endpoint is prefixed with{" "}
+          <code className="rounded bg-background-subtle px-1.5 py-0.5 font-mono text-sm">
+            {baseUrl}/api/v1
+          </code>
+          .
         </p>
       </div>
 
       {endpoints.map((endpoint) => (
         <section
           key={`${endpoint.method}-${endpoint.path}`}
-          className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900"
+          className="rounded-2xl border border-border bg-card p-6"
         >
           <div className="flex flex-wrap items-center gap-3">
             <span
               className={`rounded-md px-2 py-1 font-mono text-xs font-semibold ${
                 endpoint.method === "GET"
-                  ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                  ? "bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-200"
                   : "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300"
               }`}
             >
@@ -100,23 +104,23 @@ export default function EndpointsDocsPage() {
               {endpoint.auth ? "Auth required" : "Public"}
             </span>
           </div>
-          <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="mt-3 text-sm text-[color:var(--muted)]">
             {endpoint.description}
           </p>
           {"request" in endpoint && endpoint.request && (
             <>
-              <p className="mt-4 text-xs font-medium uppercase tracking-wide text-zinc-500">
+              <p className="mt-4 text-xs font-medium uppercase tracking-wide text-[color:var(--muted)]">
                 Request body
               </p>
-              <pre className="mt-2 overflow-x-auto rounded-lg bg-zinc-50 p-4 text-xs dark:bg-zinc-950">
+              <pre className="mt-2 overflow-x-auto rounded-lg border border-border bg-background-subtle p-4 text-xs">
                 {endpoint.request}
               </pre>
             </>
           )}
-          <p className="mt-4 text-xs font-medium uppercase tracking-wide text-zinc-500">
+          <p className="mt-4 text-xs font-medium uppercase tracking-wide text-[color:var(--muted)]">
             Response
           </p>
-          <pre className="mt-2 overflow-x-auto rounded-lg bg-zinc-50 p-4 text-xs dark:bg-zinc-950">
+          <pre className="mt-2 overflow-x-auto rounded-lg border border-border bg-background-subtle p-4 text-xs">
             {endpoint.response}
           </pre>
         </section>

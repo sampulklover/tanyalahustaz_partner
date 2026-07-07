@@ -1,31 +1,132 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
+/* ------------------------------------------------------------------ */
+/*  Design tokens                                                      */
+/* ------------------------------------------------------------------ */
 :root {
-  --background: #fafafa;
-  --foreground: #09090b;
-}
+  --background: #ffffff;
+  --background-subtle: #f8faf9;
+  --foreground: #0a0f0d;
+  --card: #ffffff;
+  --border: #e6e9e8;
+  --muted: #6b7280;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Brand — emerald, evokes trust + scholarship */
+  --brand-50: #ecfdf5;
+  --brand-100: #d1fae5;
+  --brand-200: #a7f3d0;
+  --brand-300: #6ee7b7;
+  --brand-400: #34d399;
+  --brand-500: #10b981;
+  --brand-600: #059669;
+  --brand-700: #047857;
+  --brand-800: #065f46;
+  --brand-900: #064e3b;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #09090b;
-    --foreground: #fafafa;
+    --background: #08100d;
+    --background-subtle: #0b1512;
+    --foreground: #eef2f0;
+    --card: #0d1613;
+    --border: #1d2a25;
+    --muted: #94a3a0;
   }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-background-subtle: var(--background-subtle);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-border: var(--border);
+
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Base                                                               */
+/* ------------------------------------------------------------------ */
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 code,
 pre {
   font-family: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--brand-500) 30%, transparent);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Decorative helpers                                                 */
+/* ------------------------------------------------------------------ */
+
+/* Faint dot grid used behind hero / section backgrounds */
+.bg-dot-grid {
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    color-mix(in oklab, var(--foreground) 8%, transparent) 1px,
+    transparent 0
+  );
+  background-size: 22px 22px;
+}
+
+/* Soft radial brand glow for hero */
+.bg-brand-glow {
+  background:
+    radial-gradient(
+      60% 60% at 50% 0%,
+      color-mix(in oklab, var(--brand-500) 16%, transparent) 0%,
+      transparent 70%
+    );
+}
+
+/* Animated typing dots reuse */
+@keyframes tlh-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: tlh-fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animate-fade-up {
+    animation: none;
+  }
 }

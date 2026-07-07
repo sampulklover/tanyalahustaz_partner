@@ -12,13 +12,39 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(appUrl),
   title: {
-    default: "TanyaLah Ustaz Partner API",
+    default: "TanyaLah Ustaz — Islamic AI API for developers",
     template: "%s · TanyaLah Ustaz Partner API",
   },
   description:
-    "Developer portal and API for TanyaLah Ustaz partners. Get your API key, read the docs, and integrate.",
+    "Add trustworthy, knowledge-backed Islamic AI to your product with a single API call. Grounded answers on fiqh, ibadah, and more — with source citations. Free API keys, live playground, and docs.",
+  keywords: [
+    "Islamic AI API",
+    "TanyaLah Ustaz",
+    "fiqh API",
+    "Muslim developer API",
+    "RAG chatbot",
+    "Islamic knowledge base",
+  ],
+  authors: [{ name: "TanyaLah Ustaz" }],
+  openGraph: {
+    type: "website",
+    url: appUrl,
+    siteName: "TanyaLah Ustaz Partner API",
+    title: "TanyaLah Ustaz — Islamic AI API for developers",
+    description:
+      "Add trustworthy, knowledge-backed Islamic AI to your product with a single API call. Grounded answers with source citations.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TanyaLah Ustaz — Islamic AI API for developers",
+    description:
+      "Add trustworthy, knowledge-backed Islamic AI to your product with a single API call.",
+  },
 };
 
 export default function RootLayout({
@@ -31,7 +57,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-zinc-50 text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50">
+      <body className="min-h-full flex flex-col bg-background text-foreground">
         {children}
       </body>
     </html>

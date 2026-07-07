@@ -1,34 +1,20 @@
-import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
-
-const sections = [
-  { href: "/docs", label: "Overview", exact: true },
-  { href: "/docs/authentication", label: "Authentication" },
-  { href: "/docs/endpoints", label: "Endpoints" },
-];
+import { SiteFooter } from "@/components/site-footer";
+import { DocsNav } from "@/components/docs-nav";
 
 export default function DocsLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <SiteHeader />
-      <div className="mx-auto flex max-w-6xl flex-1 gap-10 px-6 py-10">
-        <aside className="hidden w-48 shrink-0 md:block">
-          <nav className="sticky top-10 space-y-1 text-sm">
-            {sections.map((section) => (
-              <Link
-                key={section.href}
-                href={section.href}
-                className="block rounded-lg px-3 py-2 text-zinc-600 transition hover:bg-white hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white"
-              >
-                {section.label}
-              </Link>
-            ))}
-          </nav>
+      <div className="mx-auto flex w-full max-w-6xl flex-1 gap-12 px-6 py-12">
+        <aside className="hidden w-52 shrink-0 md:block">
+          <DocsNav />
         </aside>
-        <main className="min-w-0 flex-1 prose prose-zinc dark:prose-invert max-w-none">
+        <main className="prose prose-zinc min-w-0 max-w-none flex-1 dark:prose-invert prose-headings:tracking-tight prose-pre:border prose-pre:border-border prose-pre:bg-background-subtle prose-code:before:content-none prose-code:after:content-none">
           {children}
         </main>
       </div>
+      <SiteFooter />
     </>
   );
 }
