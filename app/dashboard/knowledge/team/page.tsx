@@ -1,5 +1,7 @@
 import { KnowledgeNav } from "@/components/knowledge-nav";
 import { KnowledgeTeamManager } from "@/components/knowledge-team-manager";
+import { DashboardPage as DashboardShell } from "@/components/dashboard/page";
+import { PageHeader } from "@/components/dashboard/page-header";
 import { getDashboardContext } from "@/lib/dashboard";
 import { createClient } from "@/lib/supabase/server";
 import type { KnowledgeTeamMember, KnowledgeTeamMemberWithProfile } from "@/lib/types";
@@ -41,18 +43,15 @@ export default async function KnowledgeTeamPage() {
   );
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-10">
+    <DashboardShell>
       <KnowledgeNav knowledge={context!.knowledge} active="team" />
 
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Knowledge team</h1>
-        <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-          Assign roles so colleagues can help manage articles. Everyone needs a partner account
-          before you can add them.
-        </p>
-      </div>
+      <PageHeader
+        title="Knowledge team"
+        description="Assign roles so colleagues can help manage articles. Everyone needs a partner account before you can add them."
+      />
 
       <KnowledgeTeamManager members={team} currentUserId={context!.userId} />
-    </main>
+    </DashboardShell>
   );
 }

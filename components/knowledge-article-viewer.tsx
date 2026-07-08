@@ -2,48 +2,62 @@ import type { KnowledgeArticle } from "@/lib/types";
 
 export function KnowledgeArticleViewer({ article }: { article: KnowledgeArticle }) {
   return (
-    <div className="space-y-6 rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-      <div className="grid gap-4 sm:grid-cols-2">
+    <div className="space-y-8">
+      <dl className="grid gap-4 rounded-xl border border-border bg-background-subtle p-5 sm:grid-cols-2">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Slug</p>
-          <p className="mt-1 font-mono text-sm">{article.slug}</p>
+          <dt className="text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)]">Slug</dt>
+          <dd className="mt-1 font-mono text-sm">{article.slug}</dd>
         </div>
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Category</p>
-          <p className="mt-1 text-sm">{article.category}</p>
+          <dt className="text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)]">Category</dt>
+          <dd className="mt-1">
+            <span className="rounded-full bg-card px-2 py-0.5 text-sm">{article.category}</span>
+          </dd>
         </div>
-        <div className="sm:col-span-2">
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Status</p>
-          <p className="mt-1 text-sm">{article.published ? "Published" : "Draft"}</p>
+        <div>
+          <dt className="text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)]">Status</dt>
+          <dd className="mt-1 text-sm">
+            {article.published ? (
+              <span className="font-medium text-brand-600 dark:text-brand-500">Published</span>
+            ) : (
+              <span className="text-[color:var(--muted)]">Draft</span>
+            )}
+          </dd>
         </div>
-      </div>
+        <div>
+          <dt className="text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)]">Updated</dt>
+          <dd className="mt-1 text-sm text-[color:var(--muted)]">
+            {new Date(article.updated_at).toLocaleString()}
+          </dd>
+        </div>
+      </dl>
 
-      <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Summary</p>
-        <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300">{article.summary}</p>
-      </div>
+      <section>
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)]">Summary</h2>
+        <p className="mt-2 text-sm leading-relaxed">{article.summary}</p>
+      </section>
 
-      <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Content</p>
-        <div className="mt-2 whitespace-pre-wrap text-sm text-zinc-700 dark:text-zinc-300">
+      <section>
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)]">Content</h2>
+        <div className="mt-2 whitespace-pre-wrap rounded-xl border border-border bg-background-subtle p-5 text-sm leading-relaxed">
           {article.content}
         </div>
-      </div>
+      </section>
 
       {article.tags?.length > 0 && (
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Tags</p>
+        <section>
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)]">Tags</h2>
           <div className="mt-2 flex flex-wrap gap-2">
             {article.tags.map((tag) => (
               <span
                 key={tag}
-                className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs dark:bg-zinc-800"
+                className="rounded-full bg-background-subtle px-2.5 py-0.5 text-xs font-medium"
               >
                 {tag}
               </span>
             ))}
           </div>
-        </div>
+        </section>
       )}
     </div>
   );

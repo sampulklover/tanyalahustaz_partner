@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { DashboardHeader } from "@/components/site-header";
+import { DashboardShell } from "@/components/dashboard/shell";
 import { getDashboardContext } from "@/lib/dashboard";
 
 export default async function DashboardLayout({
@@ -13,9 +13,11 @@ export default async function DashboardLayout({
   }
 
   return (
-    <>
-      <DashboardHeader email={context.email} knowledgeAccess={context.knowledge.canViewKnowledge} />
+    <DashboardShell
+      email={context.email}
+      knowledgeAccess={context.knowledge.canViewKnowledge}
+    >
       {children}
-    </>
+    </DashboardShell>
   );
 }

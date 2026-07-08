@@ -1,15 +1,23 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import {
+  CONSUMER_APP_NAME,
+  CONSUMER_APP_URL,
+  DEVELOPER_PORTAL_SHORT,
+  GET_STARTED_LABEL,
+} from "@/lib/brand";
 
 export const metadata = {
   title: "Islamic AI API for developers",
+  description:
+    "Embed the same knowledge-backed Islamic AI behind TanyaLah Ustaz into your product. B2B API for platforms, apps, and websites.",
 };
 
 const features = [
   {
-    title: "Grounded in real knowledge",
-    body: "Every answer is retrieved from a curated library of Islamic articles on fiqh, ibadah, aqidah, and akhlak — not generic model guesses. You get scholarship-backed responses, not hallucinations.",
+    title: "Grounded in the same knowledge base",
+    body: "Answers draw from the curated library that powers TanyaLah Ustaz — articles on fiqh, ibadah, aqidah, and akhlak. Scholarship-backed responses, not generic model guesses.",
     icon: (
       <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v14H6.5A2.5 2.5 0 0 0 4 19.5V5.5ZM4 19.5A2.5 2.5 0 0 0 6.5 22H20" />
     ),
@@ -53,8 +61,8 @@ const features = [
     ),
   },
   {
-    title: "Built for partners",
-    body: "A full portal with API keys, a live playground, chat logs, and usage analytics. Your backend credentials stay yours — you never touch the AI provider directly.",
+    title: "Developer dashboard",
+    body: "API keys, a live playground, chat logs, and usage analytics — everything your engineering team needs. You integrate one endpoint; we run the knowledge base and AI pipeline.",
     icon: (
       <>
         <path d="M20 7h-9" />
@@ -69,7 +77,7 @@ const features = [
 const steps = [
   {
     title: "Create your API key",
-    body: "Sign up for a partner account and generate a key from the dashboard in seconds.",
+    body: "Sign up and generate an API key from the dashboard in seconds.",
   },
   {
     title: "Send a question",
@@ -106,8 +114,16 @@ const useCases = [
 
 const faqs = [
   {
+    q: "How is this different from tanyalahustaz.com?",
+    a: `This is the developer platform for businesses. ${CONSUMER_APP_NAME} (${CONSUMER_APP_URL.replace("https://", "")}) is the consumer app where individuals ask questions directly. This API lets you embed the same knowledge-backed AI into your own product via POST /api/v1/chat.`,
+  },
+  {
+    q: "Is this login the same as tanyalahustaz.com?",
+    a: `No. Sign in on this site is for the developer dashboard — API keys, playground, and usage logs. The ${CONSUMER_APP_NAME} app has its own login for individuals. The two accounts are not interchangeable.`,
+  },
+  {
     q: "Where do the answers come from?",
-    a: "Answers are generated from a curated knowledge base of Islamic articles using retrieval-augmented generation (RAG). We embed each question, find the most relevant passages, and pass them to the language model as grounding context — so responses stay tied to real material.",
+    a: "Answers are generated from the same curated TanyaLah Ustaz knowledge base used in the consumer app, using retrieval-augmented generation (RAG). We embed each question, find the most relevant passages, and pass them to the language model as grounding context.",
   },
   {
     q: "Do I need to run my own AI infrastructure?",
@@ -115,7 +131,7 @@ const faqs = [
   },
   {
     q: "How is the API authenticated?",
-    a: "Each request uses a partner API key (prefixed tlh_live_) sent as a Bearer token or X-API-Key header. Keys are stored as SHA-256 hashes and can be revoked any time from the dashboard.",
+    a: "Each request uses an API key (prefixed tlh_live_) sent as a Bearer token or X-API-Key header. Keys are stored as SHA-256 hashes and can be revoked any time from the dashboard.",
   },
   {
     q: "Can I test before integrating?",
@@ -142,28 +158,36 @@ export default function HomePage() {
             <div className="animate-fade-up">
               <span className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700 dark:border-brand-900 dark:bg-brand-900/30 dark:text-brand-200">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
-                Knowledge-backed Islamic AI
+                {DEVELOPER_PORTAL_SHORT}
               </span>
               <h1 className="mt-5 text-4xl font-bold tracking-tight sm:text-5xl lg:text-[3.4rem] lg:leading-[1.05]">
-                Add trustworthy Islamic AI to your product
+                Build with TanyaLah Ustaz Islamic AI
               </h1>
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-[color:var(--muted)]">
-                One API call gives your users clear, grounded answers on fiqh, ibadah, and
-                more — each backed by curated scholarship and cited sources. We run the
-                knowledge base, retrieval, and models. You just ship.
+                The same knowledge-backed Islamic AI behind{" "}
+                <a
+                  href={CONSUMER_APP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-brand-600 hover:underline dark:text-brand-500"
+                >
+                  {CONSUMER_APP_NAME}
+                </a>
+                — now available as an API for your platform, app, or website. One call,
+                cited answers, no AI infrastructure to run.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
                   href="/signup"
                   className="rounded-lg bg-brand-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-brand-700"
                 >
-                  Get your API key
+                  {GET_STARTED_LABEL}
                 </Link>
                 <Link
                   href="/docs"
                   className="rounded-lg border border-border bg-card px-6 py-3 font-semibold transition hover:bg-background-subtle"
                 >
-                  Read the docs
+                  View documentation
                 </Link>
               </div>
               <p className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[color:var(--muted)]">
@@ -223,6 +247,30 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Consumer brand trust */}
+        <section className="border-b border-border">
+          <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-6 py-10 sm:flex-row sm:items-center">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-wider text-brand-600 dark:text-brand-500">
+                Powered by TanyaLah Ustaz
+              </p>
+              <p className="mt-2 max-w-xl text-[color:var(--muted)]">
+                Your integration uses the same curated knowledge base and answer quality as
+                our consumer app — built for developers who want to offer trusted Islamic
+                guidance inside their own products.
+              </p>
+            </div>
+            <a
+              href={CONSUMER_APP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 rounded-lg border border-border bg-card px-5 py-2.5 text-sm font-semibold transition hover:bg-background-subtle"
+            >
+              Visit {CONSUMER_APP_NAME} ↗
+            </a>
+          </div>
+        </section>
+
         {/* Stats / trust */}
         <section className="border-b border-border bg-background-subtle">
           <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-6 py-10 sm:grid-cols-4">
@@ -246,9 +294,9 @@ export default function HomePage() {
         <section id="features" className="scroll-mt-20 border-b border-border">
           <div className="mx-auto max-w-6xl px-6 py-20">
             <SectionHeading
-              eyebrow="Why TanyaLah Ustaz"
-              title="Everything you need to ship Islamic AI"
-              subtitle="A complete, grounded pipeline behind a single API — so you focus on your product, not on infrastructure."
+              eyebrow="Developer platform"
+              title="Everything you need to integrate"
+              subtitle="A complete B2B pipeline behind a single endpoint — so your engineers ship faster, without building AI infrastructure."
             />
             <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {features.map((f) => (
@@ -392,7 +440,7 @@ export default function HomePage() {
                   href="/signup"
                   className="mt-8 block rounded-lg border border-border px-5 py-2.5 text-center font-semibold transition hover:bg-background-subtle"
                 >
-                  Contact us
+                  Contact sales
                 </Link>
               </div>
             </div>
@@ -440,10 +488,10 @@ export default function HomePage() {
               <div className="pointer-events-none absolute inset-0 bg-dot-grid opacity-20" />
               <div className="relative">
                 <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                  Ship Islamic AI your users can trust
+                  Bring TanyaLah Ustaz to your users
                 </h2>
                 <p className="mx-auto mt-4 max-w-xl text-brand-50">
-                  Create a free partner account, grab your API key, and make your first
+                  Create a free account, get your API key, and make your first
                   grounded chat call in minutes.
                 </p>
                 <div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -451,7 +499,7 @@ export default function HomePage() {
                     href="/signup"
                     className="rounded-lg bg-white px-6 py-3 font-semibold text-brand-700 shadow-sm transition hover:bg-brand-50"
                   >
-                    Get API access
+                    {GET_STARTED_LABEL}
                   </Link>
                   <Link
                     href="/docs"

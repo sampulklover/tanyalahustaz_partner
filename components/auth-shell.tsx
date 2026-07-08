@@ -1,10 +1,12 @@
 import type { ReactNode } from "react";
 import { Logo, LogoMark } from "@/components/brand";
+import { ConsumerAppLink } from "@/components/consumer-app-link";
+import { DEVELOPER_PORTAL_SHORT } from "@/lib/brand";
 
 const highlights = [
-  "One endpoint to integrate — no AI setup",
-  "Grounded answers with cited sources",
-  "Free API key, live playground, and docs",
+  "REST API with knowledge-backed answers",
+  "API keys, playground, and usage analytics",
+  "Same curated content as the consumer app",
 ];
 
 export function AuthShell({
@@ -18,15 +20,18 @@ export function AuthShell({
 }) {
   return (
     <main className="grid min-h-screen flex-1 lg:grid-cols-2">
-      {/* Brand panel */}
+      {/* Brand panel — value prop (Stripe/Twilio split-screen pattern) */}
       <aside className="relative hidden overflow-hidden bg-brand-600 lg:flex lg:flex-col lg:justify-between lg:p-12">
         <div className="pointer-events-none absolute inset-0 bg-dot-grid opacity-20" />
         <div className="relative">
-          <Logo href="/" />
+          <Logo href="/" subtitle />
         </div>
         <div className="relative">
-          <h2 className="max-w-md text-3xl font-bold leading-tight text-white">
-            Trustworthy Islamic AI, grounded in real scholarship.
+          <p className="text-sm font-medium uppercase tracking-wider text-brand-200">
+            Developer platform
+          </p>
+          <h2 className="mt-3 max-w-md text-3xl font-bold leading-tight text-white">
+            Build with TanyaLah Ustaz Islamic AI
           </h2>
           <ul className="mt-8 space-y-4">
             {highlights.map((item) => (
@@ -42,20 +47,25 @@ export function AuthShell({
           </ul>
         </div>
         <p className="relative text-sm text-brand-100">
-          &ldquo;We integrated in an afternoon and shipped a grounded assistant our
-          community actually trusts.&rdquo;
+          {DEVELOPER_PORTAL_SHORT} accounts are separate from the consumer app.
         </p>
       </aside>
 
       {/* Form panel */}
       <div className="flex flex-col justify-center px-6 py-12 sm:px-12">
         <div className="mx-auto w-full max-w-sm">
-          <div className="mb-8 lg:hidden">
+          <div className="mb-8 flex items-center gap-2.5 lg:hidden">
             <LogoMark className="h-10 w-10" />
+            <span className="text-sm font-medium text-[color:var(--muted)]">
+              {DEVELOPER_PORTAL_SHORT}
+            </span>
           </div>
           <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
           <p className="mt-2 text-sm text-[color:var(--muted)]">{subtitle}</p>
           <div className="mt-8">{children}</div>
+          <div className="mt-8">
+            <ConsumerAppLink />
+          </div>
         </div>
       </div>
     </main>

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { KnowledgeArticleForm } from "@/components/knowledge-article-form";
 import { KnowledgeNav } from "@/components/knowledge-nav";
+import { DashboardPage as DashboardShell } from "@/components/dashboard/page";
+import { PageHeader } from "@/components/dashboard/page-header";
 import { getDashboardContext } from "@/lib/dashboard";
 
 export const metadata = { title: "New Knowledge Article" };
@@ -9,22 +11,27 @@ export default async function NewKnowledgeArticlePage() {
   const context = await getDashboardContext();
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
+    <DashboardShell>
       <KnowledgeNav knowledge={context!.knowledge} active="articles" />
 
       <Link
         href="/dashboard/knowledge"
-        className="text-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-[color:var(--muted)] transition hover:text-foreground"
       >
-        ← Back to articles
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
+        Back to articles
       </Link>
-      <h1 className="mt-4 text-3xl font-bold tracking-tight">New article</h1>
-      <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-        Add content for the AI to reference when answering partner chat requests.
-      </p>
-      <div className="mt-8">
+
+      <PageHeader
+        title="New article"
+        description="Add curated content for the AI to reference when answering partner chat requests."
+      />
+
+      <div className="rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8">
         <KnowledgeArticleForm />
       </div>
-    </main>
+    </DashboardShell>
   );
 }
