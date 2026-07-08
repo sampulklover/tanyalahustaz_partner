@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { KnowledgeNav } from "@/components/knowledge-nav";
 import { KnowledgeReembedButton } from "@/components/knowledge-reembed-button";
+import { DashboardPage as DashboardShell } from "@/components/dashboard/page";
+import { PageHeader } from "@/components/dashboard/page-header";
 import { getDashboardContext } from "@/lib/dashboard";
 import { createClient } from "@/lib/supabase/server";
 import type { KnowledgeArticle } from "@/lib/types";
@@ -34,52 +36,49 @@ export default async function KnowledgeAdminPage({ searchParams }: PageProps) {
   const items = (articles ?? []) as KnowledgeArticle[];
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-10">
+    <DashboardShell>
       <KnowledgeNav knowledge={knowledge} active="articles" />
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Knowledge base</h1>
-          <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-            Manage Islamic content that powers partner AI chat. Published articles are embedded
-            automatically for semantic search.
-          </p>
-        </div>
-        {knowledge.canEditKnowledge && (
-          <div className="flex flex-col items-stretch gap-2 sm:items-end">
-            <Link
-              href="/dashboard/knowledge/new"
-              className="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-700"
-            >
-              New article
-            </Link>
-            <KnowledgeReembedButton />
-          </div>
-        )}
-      </div>
+      <PageHeader
+        title="Knowledge base"
+        description="Curated Islamic content that powers API responses. Published articles are embedded for semantic search."
+        actions={
+          knowledge.canEditKnowledge ? (
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Link
+                href="/dashboard/knowledge/new"
+                className="inline-flex items-center justify-center rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
+              >
+                New article
+              </Link>
+              <KnowledgeReembedButton />
+            </div>
+          ) : undefined
+        }
+      />
 
       {params.saved === "1" && (
-        <p className="mt-6 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:bg-emerald-950/30">
+        <p className="mb-6 rounded-lg border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-800 dark:border-brand-900 dark:bg-brand-900/20 dark:text-brand-200">
           Article created
           {params.embedded ? ` and embedded (${params.embedded} chunk(s)).` : "."}
         </p>
       )}
       {params.deleted === "1" && (
-        <p className="mt-6 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:bg-emerald-950/30">
+        <p className="mb-6 rounded-lg border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-800 dark:border-brand-900 dark:bg-brand-900/20 dark:text-brand-200">
           Article deleted.
         </p>
       )}
 
-      <div className="mt-8 overflow-hidden rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
         {items.length === 0 ? (
-          <p className="p-8 text-sm text-zinc-500">
+          <p className="p-8 text-sm text-[color:var(--muted)]">
             {knowledge.canEditKnowledge
               ? "No articles yet. Create your first one."
               : "No articles yet."}
           </p>
         ) : (
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950">
+            <thead className="border-b border-border bg-background-subtle text-xs uppercase tracking-wide text-[color:var(--muted)]">
               <tr>
                 <th className="px-4 py-3 font-medium">Title</th>
                 <th className="px-4 py-3 font-medium">Category</th>
@@ -89,35 +88,35 @@ export default async function KnowledgeAdminPage({ searchParams }: PageProps) {
                 <th className="px-4 py-3 font-medium" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+            <tbody className="divide-y divide-border">
               {items.map((article) => (
                 <tr key={article.id}>
                   <td className="px-4 py-3">
                     <div className="font-medium">{article.title}</div>
-                    <div className="font-mono text-xs text-zinc-500">{article.slug}</div>
+                    <div className="font-mono text-xs text-[color:var(--muted)]">{article.slug}</div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs dark:bg-zinc-800">
+                    <span className="rounded-full bg-background-subtle px-2 py-0.5 text-xs">
                       {article.category}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     {article.published ? (
-                      <span className="text-emerald-600">Published</span>
+                      <span className="font-medium text-brand-600 dark:text-brand-500">Published</span>
                     ) : (
-                      <span className="text-zinc-500">Draft</span>
+                      <span className="text-[color:var(--muted)]">Draft</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">
+                  <td className="px-4 py-3 text-[color:var(--muted)]">
                     {chunkCounts.get(article.id) ?? 0}
                   </td>
-                  <td className="px-4 py-3 text-zinc-500">
+                  <td className="px-4 py-3 text-[color:var(--muted)]">
                     {new Date(article.updated_at).toLocaleString()}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <Link
                       href={`/dashboard/knowledge/${article.id}/edit`}
-                      className="font-medium text-emerald-600 hover:underline"
+                      className="font-medium text-brand-600 hover:underline dark:text-brand-500"
                     >
                       {knowledge.canEditKnowledge ? "Edit" : "View"}
                     </Link>
@@ -128,6 +127,6 @@ export default async function KnowledgeAdminPage({ searchParams }: PageProps) {
           </table>
         )}
       </div>
-    </main>
+    </DashboardShell>
   );
 }

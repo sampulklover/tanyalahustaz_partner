@@ -1,89 +1,141 @@
-import { ChatMarkdown } from "@/components/chat-markdown";
+import Link from "next/link";
+import { ChatLogsFilters } from "@/components/chat-logs-filters";
+import { ChatLogsTable } from "@/components/chat-logs-table";
+import { DashboardPage as DashboardShell } from "@/components/dashboard/page";
+import { PageHeader } from "@/components/dashboard/page-header";
+import { EmptyState } from "@/components/dashboard/empty-state";
+import { Pagination } from "@/components/dashboard/pagination";
+import { StatCard } from "@/components/dashboard/stat-card";
+import {
+  buildChatLogsPath,
+  CHAT_LOGS_PER_PAGE,
+  parseChatLogsPage,
+  sanitizeChatLogSearch,
+  normalizeChatLogRow,
+  type ChatLogsSearchParams,
+} from "@/lib/chat-logs";
 import { createClient } from "@/lib/supabase/server";
-import type { PartnerChatLog } from "@/lib/types";
 
 export const metadata = { title: "Chat Logs" };
 
-export default async function ChatLogsPage() {
+export default async function ChatLogsPage({
+  searchParams,
+}: {
+  searchParams: Promise<ChatLogsSearchParams>;
+}) {
+  const params = await searchParams;
+  const page = parseChatLogsPage(params);
+  const q = sanitizeChatLogSearch(params.q ?? "");
+  const session = params.session?.trim() ?? "";
+
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { data: logs } = await supabase
-    .from("partner_chat_logs")
-    .select("*")
-    .eq("partner_id", user!.id)
-    .order("created_at", { ascending: false })
-    .limit(50);
+  const from = (page - 1) * CHAT_LOGS_PER_PAGE;
+  const to = from + CHAT_LOGS_PER_PAGE - 1;
+  const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-  const items = (logs ?? []) as PartnerChatLog[];
+  let logsQuery = supabase
+    .from("partner_chat_logs")
+    .select(
+      "id, session_id, user_message, assistant_message, model, sources, created_at, api_key_id, api_keys(name, key_prefix)",
+      { count: "exact" },
+    )
+    .eq("partner_id", user!.id)
+    .order("created_at", { ascending: false });
+
+  if (q) {
+    logsQuery = logsQuery.or(
+      `user_message.ilike.%${q}%,assistant_message.ilike.%${q}%,session_id.ilike.%${q}%`,
+    );
+  }
+
+  if (session) {
+    logsQuery = logsQuery.eq("session_id", session);
+  }
+
+  const [
+    { data: logs, count },
+    { count: totalAll },
+    { count: last24hCount },
+  ] = await Promise.all([
+    logsQuery.range(from, to),
+    supabase
+      .from("partner_chat_logs")
+      .select("*", { count: "exact", head: true })
+      .eq("partner_id", user!.id),
+    supabase
+      .from("partner_chat_logs")
+      .select("*", { count: "exact", head: true })
+      .eq("partner_id", user!.id)
+      .gte("created_at", last24h),
+  ]);
+
+  const items = (logs ?? []).map((row) => normalizeChatLogRow(row));
+  const total = count ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / CHAT_LOGS_PER_PAGE));
+  const filterQuery = { q: q || undefined, session: session || undefined };
+
+  if (total > 0 && page > totalPages) {
+    const { redirect } = await import("next/navigation");
+    redirect(buildChatLogsPath("/dashboard/chat", filterQuery));
+  }
+
+  const hasFilters = Boolean(q || session);
+  const showingEmptyFiltered = items.length === 0 && (totalAll ?? 0) > 0;
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
-        <h1 className="text-3xl font-bold tracking-tight">Chat logs</h1>
-        <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-          AI chat requests made by your website via <code>/api/v1/chat</code>.
-        </p>
+    <DashboardShell>
+      <PageHeader
+        title="Chat logs"
+        description="Inspect requests sent via POST /api/v1/chat from your application or the playground."
+        actions={
+          <Link
+            href="/dashboard/playground"
+            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
+          >
+            Open playground
+          </Link>
+        }
+      />
 
-        {items.length === 0 ? (
-          <div className="mt-10 rounded-2xl border border-dashed border-zinc-300 p-10 text-center dark:border-zinc-700">
-            <p className="font-medium">No chat requests yet</p>
-            <p className="mt-2 text-sm text-zinc-500">
-              POST a message to <code>/api/v1/chat</code> with your API key to test the integration.
-            </p>
-          </div>
-        ) : (
-          <ul className="mt-10 space-y-4">
-            {items.map((log) => (
-              <li
-                key={log.id}
-                className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900"
-              >
-                <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500">
-                  <span className="rounded-full bg-zinc-100 px-2.5 py-0.5 dark:bg-zinc-800">
-                    {log.model}
-                  </span>
-                  <span className="font-mono">session: {log.session_id}</span>
-                  <span>{new Date(log.created_at).toLocaleString()}</span>
-                </div>
+      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+        <StatCard label="Total requests" value={(totalAll ?? 0).toLocaleString()} />
+        <StatCard label="Last 24 hours" value={(last24hCount ?? 0).toLocaleString()} />
+        <StatCard
+          label={hasFilters ? "Matching filters" : "On this page"}
+          value={hasFilters ? total.toLocaleString() : items.length.toLocaleString()}
+        />
+      </div>
 
-                <div className="mt-4 space-y-3">
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">User</p>
-                    <p className="mt-1 text-sm">{log.user_message}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wide text-emerald-600">
-                      Assistant
-                    </p>
-                    <div className="mt-1">
-                      <ChatMarkdown content={log.assistant_message} />
-                    </div>
-                  </div>
-                </div>
-
-                {log.sources?.length > 0 && (
-                  <div className="mt-4">
-                    <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-                      Knowledge sources used
-                    </p>
-                    <ul className="mt-2 flex flex-wrap gap-2">
-                      {log.sources.map((source) => (
-                        <li
-                          key={source.slug}
-                          className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
-                        >
-                          {source.title}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-      </main>
+      {showingEmptyFiltered ? (
+        <EmptyState
+          title="No matching logs"
+          description="Try a different search term or clear your filters."
+          action={{ href: buildChatLogsPath("/dashboard/chat", {}), label: "Clear filters" }}
+        />
+      ) : items.length === 0 ? (
+        <EmptyState
+          title="No chat requests yet"
+          description="Send a message from the playground or integrate the API in your application."
+          action={{ href: "/dashboard/playground", label: "Try playground" }}
+        />
+      ) : (
+        <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+          <ChatLogsFilters q={q || undefined} session={session || undefined} />
+          <ChatLogsTable logs={items} />
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            total={total}
+            perPage={CHAT_LOGS_PER_PAGE}
+            basePath="/dashboard/chat"
+            query={filterQuery}
+          />
+        </div>
+      )}
+    </DashboardShell>
   );
 }

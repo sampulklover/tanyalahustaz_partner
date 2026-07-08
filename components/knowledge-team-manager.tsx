@@ -21,6 +21,9 @@ type KnowledgeTeamManagerProps = {
   currentUserId: string;
 };
 
+const inputClass =
+  "rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30";
+
 export function KnowledgeTeamManager({ members, currentUserId }: KnowledgeTeamManagerProps) {
   const [assignState, assignAction, isAssigning] = useActionState(
     async (_prev: FormState, formData: FormData) => assignKnowledgeTeamMember(formData),
@@ -29,9 +32,9 @@ export function KnowledgeTeamManager({ members, currentUserId }: KnowledgeTeamMa
 
   return (
     <div className="space-y-10">
-      <section className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+      <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
         <h2 className="text-lg font-semibold">Invite team member</h2>
-        <p className="mt-1 text-sm text-zinc-500">
+        <p className="mt-1 text-sm text-[color:var(--muted)]">
           They must already have a partner account (signed up). Assign a role to let them help
           manage the knowledge base.
         </p>
@@ -42,13 +45,9 @@ export function KnowledgeTeamManager({ members, currentUserId }: KnowledgeTeamMa
             type="email"
             required
             placeholder="colleague@company.com"
-            className="rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+            className={inputClass}
           />
-          <select
-            name="role"
-            defaultValue="editor"
-            className="rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-950"
-          >
+          <select name="role" defaultValue="editor" className={inputClass}>
             {KNOWLEDGE_TEAM_ROLES.map((role) => (
               <option key={role} value={role}>
                 {knowledgeRoleLabel(role)}
@@ -58,19 +57,19 @@ export function KnowledgeTeamManager({ members, currentUserId }: KnowledgeTeamMa
           <button
             type="submit"
             disabled={isAssigning}
-            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+            className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-60"
           >
             {isAssigning ? "Assigning…" : "Assign role"}
           </button>
         </form>
 
         {assignState.error && (
-          <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/30">
+          <p className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
             {assignState.error}
           </p>
         )}
         {assignState.success && (
-          <p className="mt-4 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:bg-emerald-950/30">
+          <p className="mt-4 rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-sm text-brand-800 dark:border-brand-900 dark:bg-brand-900/20 dark:text-brand-200">
             {assignState.success}
           </p>
         )}
@@ -79,26 +78,26 @@ export function KnowledgeTeamManager({ members, currentUserId }: KnowledgeTeamMa
           {KNOWLEDGE_TEAM_ROLES.map((role) => (
             <div
               key={role}
-              className="rounded-xl border border-zinc-100 p-4 text-sm dark:border-zinc-800"
+              className="rounded-xl border border-border bg-background-subtle p-4 text-sm"
             >
               <p className="font-medium">{knowledgeRoleLabel(role)}</p>
-              <p className="mt-1 text-zinc-500">{knowledgeRoleDescription(role)}</p>
+              <p className="mt-1 text-[color:var(--muted)]">{knowledgeRoleDescription(role)}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="border-b border-zinc-200 px-6 py-4 dark:border-zinc-800">
+      <section className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="border-b border-border px-6 py-4">
           <h2 className="text-lg font-semibold">Current team</h2>
-          <p className="mt-1 text-sm text-zinc-500">{members.length} member(s)</p>
+          <p className="mt-1 text-sm text-[color:var(--muted)]">{members.length} member(s)</p>
         </div>
 
         {members.length === 0 ? (
-          <p className="p-8 text-sm text-zinc-500">No team members yet.</p>
+          <p className="p-8 text-sm text-[color:var(--muted)]">No team members yet.</p>
         ) : (
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950">
+            <thead className="border-b border-border bg-background-subtle text-xs uppercase tracking-wide text-[color:var(--muted)]">
               <tr>
                 <th className="px-4 py-3 font-medium">Member</th>
                 <th className="px-4 py-3 font-medium">Role</th>
@@ -106,7 +105,7 @@ export function KnowledgeTeamManager({ members, currentUserId }: KnowledgeTeamMa
                 <th className="px-4 py-3 font-medium" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+            <tbody className="divide-y divide-border">
               {members.map((member) => (
                 <TeamMemberRow
                   key={member.user_id}
@@ -134,14 +133,14 @@ function TeamMemberRow({
       <td className="px-4 py-3">
         <div className="font-medium">{member.email}</div>
         {member.company_name && (
-          <div className="text-xs text-zinc-500">{member.company_name}</div>
+          <div className="text-xs text-[color:var(--muted)]">{member.company_name}</div>
         )}
-        {isSelf && <div className="text-xs text-emerald-600">You</div>}
+        {isSelf && <div className="text-xs text-brand-600 dark:text-brand-500">You</div>}
       </td>
       <td className="px-4 py-3">
         <RoleSelect memberId={member.user_id} currentRole={member.role} />
       </td>
-      <td className="px-4 py-3 text-zinc-500">
+      <td className="px-4 py-3 text-[color:var(--muted)]">
         {new Date(member.created_at).toLocaleDateString()}
       </td>
       <td className="px-4 py-3 text-right">
@@ -174,7 +173,7 @@ function RoleSelect({
           defaultValue={currentRole}
           onChange={(event) => event.currentTarget.form?.requestSubmit()}
           disabled={isPending}
-          className="rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+          className="rounded-lg border border-border bg-background px-2 py-1.5 text-sm outline-none focus:border-brand-500"
         >
           {KNOWLEDGE_TEAM_ROLES.map((role) => (
             <option key={role} value={role}>
@@ -184,7 +183,7 @@ function RoleSelect({
         </select>
       </form>
       {state.error && <p className="mt-1 text-xs text-red-600">{state.error}</p>}
-      {state.success && <p className="mt-1 text-xs text-emerald-600">{state.success}</p>}
+      {state.success && <p className="mt-1 text-xs text-brand-600 dark:text-brand-500">{state.success}</p>}
     </div>
   );
 }

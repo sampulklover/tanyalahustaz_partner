@@ -55,7 +55,7 @@ ${knowledgeContext}`,
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
       "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
-      "X-Title": "TanyaLah Ustaz Partner API",
+      "X-Title": "TanyaLah Ustaz Developers",
     },
     body: JSON.stringify({
       model,

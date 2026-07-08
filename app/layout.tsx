@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { DEVELOPER_PORTAL_NAME } from "@/lib/brand";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,11 +18,11 @@ const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
   title: {
-    default: "TanyaLah Ustaz — Islamic AI API for developers",
-    template: "%s · TanyaLah Ustaz Partner API",
+    default: `${DEVELOPER_PORTAL_NAME} — Islamic AI API`,
+    template: `%s · ${DEVELOPER_PORTAL_NAME}`,
   },
   description:
-    "Add trustworthy, knowledge-backed Islamic AI to your product with a single API call. Grounded answers on fiqh, ibadah, and more — with source citations. Free API keys, live playground, and docs.",
+    "Developer platform and API for embedding TanyaLah Ustaz Islamic AI in your product. Knowledge-backed answers with source citations. Documentation, API keys, and playground.",
   keywords: [
     "Islamic AI API",
     "TanyaLah Ustaz",
@@ -34,16 +35,20 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: appUrl,
-    siteName: "TanyaLah Ustaz Partner API",
-    title: "TanyaLah Ustaz — Islamic AI API for developers",
+    siteName: DEVELOPER_PORTAL_NAME,
+    title: `${DEVELOPER_PORTAL_NAME} — Islamic AI API`,
     description:
       "Add trustworthy, knowledge-backed Islamic AI to your product with a single API call. Grounded answers with source citations.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "TanyaLah Ustaz — Islamic AI API for developers",
+    title: `${DEVELOPER_PORTAL_NAME} — Islamic AI API`,
     description:
       "Add trustworthy, knowledge-backed Islamic AI to your product with a single API call.",
+  },
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/favicon.svg", type: "image/svg+xml" }],
   },
 };
 

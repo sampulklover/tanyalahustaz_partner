@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { signIn, signUp } from "@/app/actions/auth";
+import { GET_STARTED_LABEL, SIGN_IN_LABEL } from "@/lib/brand";
 
 type AuthState = { error?: string };
 
@@ -68,12 +69,12 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
       </div>
       <ErrorNote error={state.error} />
       <button type="submit" disabled={isPending} className={buttonClass}>
-        {isPending ? "Signing in…" : "Sign in"}
+        {isPending ? "Signing in…" : SIGN_IN_LABEL}
       </button>
       <p className="text-center text-sm text-[color:var(--muted)]">
-        New to TanyaLah Ustaz?{" "}
+        Don&apos;t have an account?{" "}
         <Link href="/signup" className="font-medium text-brand-600 hover:underline dark:text-brand-500">
-          Create an account
+          {GET_STARTED_LABEL}
         </Link>
       </p>
     </form>
@@ -135,12 +136,12 @@ export function SignupForm() {
       </div>
       <ErrorNote error={state.error} />
       <button type="submit" disabled={isPending} className={buttonClass}>
-        {isPending ? "Creating account…" : "Create free account"}
+        {isPending ? "Creating account…" : "Create account"}
       </button>
       <p className="text-center text-sm text-[color:var(--muted)]">
         Already have an account?{" "}
         <Link href="/login" className="font-medium text-brand-600 hover:underline dark:text-brand-500">
-          Sign in
+          {SIGN_IN_LABEL}
         </Link>
       </p>
     </form>

@@ -4,6 +4,8 @@ import { DeleteKnowledgeButton } from "@/components/delete-knowledge-button";
 import { KnowledgeArticleForm } from "@/components/knowledge-article-form";
 import { KnowledgeArticleViewer } from "@/components/knowledge-article-viewer";
 import { KnowledgeNav } from "@/components/knowledge-nav";
+import { DashboardPage as DashboardShell } from "@/components/dashboard/page";
+import { PageHeader } from "@/components/dashboard/page-header";
 import { getDashboardContext } from "@/lib/dashboard";
 import { createClient } from "@/lib/supabase/server";
 import type { KnowledgeArticle } from "@/lib/types";
@@ -33,27 +35,32 @@ export default async function EditKnowledgeArticlePage({ params }: PageProps) {
   const article = data as KnowledgeArticle;
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
+    <DashboardShell>
       <KnowledgeNav knowledge={context!.knowledge} active="articles" />
 
       <Link
         href="/dashboard/knowledge"
-        className="text-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-[color:var(--muted)] transition hover:text-foreground"
       >
-        ← Back to articles
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
+        Back to articles
       </Link>
-      <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            {canEdit ? "Edit article" : "View article"}
-          </h1>
-          <p className="mt-2 text-zinc-600 dark:text-zinc-400">{article.title}</p>
-        </div>
-        {canEdit && <DeleteKnowledgeButton articleId={article.id} />}
+
+      <PageHeader
+        title={canEdit ? "Edit article" : "View article"}
+        description={article.title}
+        actions={canEdit ? <DeleteKnowledgeButton articleId={article.id} /> : undefined}
+      />
+
+      <div className="rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8">
+        {canEdit ? (
+          <KnowledgeArticleForm article={article} />
+        ) : (
+          <KnowledgeArticleViewer article={article} />
+        )}
       </div>
-      <div className="mt-8">
-        {canEdit ? <KnowledgeArticleForm article={article} /> : <KnowledgeArticleViewer article={article} />}
-      </div>
-    </main>
+    </DashboardShell>
   );
 }

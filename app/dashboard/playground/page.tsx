@@ -1,24 +1,17 @@
 import { ChatPlayground } from "@/components/chat-playground";
-import { createClient } from "@/lib/supabase/server";
+import { DashboardPage as DashboardShell } from "@/components/dashboard/page";
+import { PageHeader } from "@/components/dashboard/page-header";
 
 export const metadata = { title: "Playground" };
 
-export default async function PlaygroundPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+export default function PlaygroundPage() {
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold tracking-tight">Playground</h1>
-          <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-            Test the AI chat API before integrating it into your website. Uses the same
-            knowledge base and OpenRouter pipeline as production.
-          </p>
-        </div>
-        <ChatPlayground />
-      </main>
+    <DashboardShell>
+      <PageHeader
+        title="Playground"
+        description="Test POST /api/v1/chat with the same knowledge base and pipeline as production."
+      />
+      <ChatPlayground />
+    </DashboardShell>
   );
 }

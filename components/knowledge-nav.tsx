@@ -1,39 +1,56 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { KnowledgePermissions } from "@/lib/roles";
 
 type KnowledgeNavProps = {
   knowledge: KnowledgePermissions;
-  active: "articles" | "team";
+  active?: "articles" | "team";
 };
 
-export function KnowledgeNav({ knowledge, active }: KnowledgeNavProps) {
+function isArticlesSection(pathname: string) {
   return (
-    <nav className="mb-8 flex flex-wrap gap-2 border-b border-zinc-200 pb-4 dark:border-zinc-800">
-      <Link
-        href="/dashboard/knowledge"
-        className={`rounded-lg px-4 py-2 text-sm font-medium ${
-          active === "articles"
-            ? "bg-emerald-600 text-white"
-            : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900"
-        }`}
-      >
-        Articles
-      </Link>
-      {knowledge.canManageTeam && (
-        <Link
-          href="/dashboard/knowledge/team"
-          className={`rounded-lg px-4 py-2 text-sm font-medium ${
-            active === "team"
-              ? "bg-emerald-600 text-white"
-              : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900"
-          }`}
-        >
-          Team & roles
-        </Link>
-      )}
+    pathname === "/dashboard/knowledge" ||
+    pathname.startsWith("/dashboard/knowledge/new") ||
+    /^\/dashboard\/knowledge\/[^/]+\/edit/.test(pathname)
+  );
+}
+
+export function KnowledgeNav({ knowledge, active }: KnowledgeNavProps) {
+  const pathname = usePathname();
+
+  const tabs = [
+    { href: "/dashboard/knowledge", label: "Articles", id: "articles" as const },
+    ...(knowledge.canManageTeam
+      ? [{ href: "/dashboard/knowledge/team", label: "Team", id: "team" as const }]
+      : []),
+  ];
+
+  return (
+    <nav className="mb-8 flex flex-wrap items-center gap-2 border-b border-border pb-4">
+      {tabs.map((tab) => {
+        const isActive =
+          active === tab.id ||
+          (tab.id === "articles" && isArticlesSection(pathname)) ||
+          pathname === tab.href;
+        return (
+          <Link
+            key={tab.href}
+            href={tab.href}
+            className={
+              isActive
+                ? "rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white"
+                : "rounded-lg px-4 py-2 text-sm font-medium text-[color:var(--muted)] transition hover:bg-background-subtle hover:text-foreground"
+            }
+          >
+            {tab.label}
+          </Link>
+        );
+      })}
       {knowledge.role && (
-        <span className="ml-auto self-center text-xs text-zinc-500">
-          Your role: <span className="font-medium capitalize">{knowledge.role}</span>
+        <span className="ml-auto text-xs text-[color:var(--muted)]">
+          Role: <span className="font-medium capitalize text-foreground">{knowledge.role}</span>
         </span>
       )}
     </nav>

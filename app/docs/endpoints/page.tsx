@@ -26,7 +26,7 @@ export default function EndpointsDocsPage() {
       path: "/chat",
       auth: true,
       description:
-        "Main integration endpoint. Sends a user message, retrieves relevant knowledge, calls OpenRouter, and returns an AI reply.",
+        "Main integration endpoint. Sends a user message, retrieves relevant knowledge from the TanyaLah Ustaz library, and returns an AI reply with sources.",
       request: `{
   "message": "Can a traveler combine Dhuhr and Asr?",
   "category": "fiqh",

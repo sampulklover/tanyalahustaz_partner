@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CONSUMER_APP_NAME, CONSUMER_APP_URL } from "@/lib/brand";
 
 export const metadata = { title: "Documentation" };
 
@@ -7,21 +8,29 @@ export default function DocsPage() {
 
   return (
     <article className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">Partner API overview</h1>
+      <h1 className="text-3xl font-bold tracking-tight">Developer platform</h1>
       <p className="lead text-[color:var(--muted)]">
-        Integrate TanyaLah Ustaz Islamic AI into your product. You send a user question; we
-        retrieve relevant knowledge, build a grounded prompt, and return an AI answer with cited
-        sources — no AI infrastructure required on your side.
+        Integrate the same knowledge-backed Islamic AI that powers{" "}
+        <a
+          href={CONSUMER_APP_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-medium text-brand-600 hover:underline dark:text-brand-500"
+        >
+          {CONSUMER_APP_NAME}
+        </a>{" "}
+        into your product. Send a user question; we retrieve relevant knowledge, build a
+        grounded prompt, and return an AI answer with cited sources.
       </p>
 
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">How it works</h2>
-        <ol className="list-decimal space-y-2 pl-5 text-zinc-600 dark:text-zinc-400">
-          <li>Your website sends a user question to <code>POST /api/v1/chat</code>.</li>
-          <li>We embed the question and search <code>knowledge_chunks</code> with pgvector (semantic RAG).</li>
-          <li>Relevant chunks are injected into the AI prompt as context.</li>
+        <ol className="list-decimal space-y-2 pl-5 text-[color:var(--muted)]">
+          <li>Your app sends a user question to <code>POST /api/v1/chat</code>.</li>
+          <li>We embed the question and search the knowledge base with semantic retrieval (RAG).</li>
+          <li>Relevant passages are injected into the AI prompt as context.</li>
           <li>Earlier messages in the same <code>session_id</code> are included for follow-up questions.</li>
-          <li>OpenRouter generates the answer; we return it with source references.</li>
+          <li>We return the answer with source article references.</li>
         </ol>
       </section>
 
@@ -34,11 +43,16 @@ export default function DocsPage() {
 
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">Quick start</h2>
-        <ol className="list-decimal space-y-2 pl-5 text-zinc-600 dark:text-zinc-400">
-          <li>Create a partner account and sign in.</li>
+        <ol className="list-decimal space-y-2 pl-5 text-[color:var(--muted)]">
+          <li>Create a developer account and sign in.</li>
           <li>Go to Dashboard → API Keys and create a key.</li>
-          <li>Set <code>OPENROUTER_API_KEY</code> on the server (platform side, not partner side).</li>
-          <li>POST a message to <code>/api/v1/chat</code> from your website — or use the <Link href="/dashboard/playground" className="text-emerald-600 hover:underline">playground</Link> to test first.</li>
+          <li>
+            POST a message to <code>/api/v1/chat</code> from your backend — or use the{" "}
+            <Link href="/dashboard/playground" className="text-brand-600 hover:underline dark:text-brand-500">
+              playground
+            </Link>{" "}
+            to test first.
+          </li>
         </ol>
       </section>
 
