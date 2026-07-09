@@ -2,6 +2,8 @@ import { apiError, apiSuccess, withApiAuth } from "@/lib/api/handler";
 import { executeChat } from "@/lib/chat";
 import type { ChatRequestBody } from "@/lib/types";
 
+export const maxDuration = 60;
+
 export async function POST(request: Request) {
   return withApiAuth(request, async (req, context) => {
     let body: unknown;
@@ -43,5 +45,5 @@ export async function POST(request: Request) {
     }
 
     return apiSuccess(result.data);
-  });
+  }, { rateLimit: "chat" });
 }

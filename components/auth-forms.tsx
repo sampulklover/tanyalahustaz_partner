@@ -81,7 +81,7 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
   );
 }
 
-export function SignupForm() {
+export function SignupForm({ inviteRequired = false }: { inviteRequired?: boolean }) {
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(
     async (_prev, formData) => {
       const result = await signUp(formData);
@@ -92,6 +92,25 @@ export function SignupForm() {
 
   return (
     <form action={formAction} className="space-y-4">
+      {inviteRequired && (
+        <div>
+          <label htmlFor="invite_code" className="mb-1.5 block text-sm font-medium">
+            Invite code
+          </label>
+          <input
+            id="invite_code"
+            name="invite_code"
+            type="text"
+            autoComplete="off"
+            placeholder="Enter your partner invite code"
+            required
+            className={inputClass}
+          />
+          <p className="mt-1.5 text-xs text-[color:var(--muted)]">
+            Partner signup is invite-only. Contact us if you need access.
+          </p>
+        </div>
+      )}
       <div>
         <label htmlFor="company_name" className="mb-1.5 block text-sm font-medium">
           Company name <span className="font-normal text-[color:var(--muted)]">(optional)</span>

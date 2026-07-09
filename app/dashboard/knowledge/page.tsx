@@ -10,7 +10,7 @@ import type { KnowledgeArticle } from "@/lib/types";
 export const metadata = { title: "Knowledge Base" };
 
 type PageProps = {
-  searchParams: Promise<{ saved?: string; deleted?: string; embedded?: string }>;
+  searchParams: Promise<{ saved?: string; deleted?: string; embedded?: string; imported?: string }>;
 };
 
 export default async function KnowledgeAdminPage({ searchParams }: PageProps) {
@@ -51,6 +51,12 @@ export default async function KnowledgeAdminPage({ searchParams }: PageProps) {
               >
                 New article
               </Link>
+              <Link
+                href="/dashboard/knowledge/import"
+                className="inline-flex items-center justify-center rounded-lg border border-border px-5 py-2.5 text-sm font-medium transition hover:bg-background-subtle"
+              >
+                Bulk import
+              </Link>
               <KnowledgeReembedButton />
             </div>
           ) : undefined
@@ -66,6 +72,11 @@ export default async function KnowledgeAdminPage({ searchParams }: PageProps) {
       {params.deleted === "1" && (
         <p className="mb-6 rounded-lg border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-800 dark:border-brand-900 dark:bg-brand-900/20 dark:text-brand-200">
           Article deleted.
+        </p>
+      )}
+      {params.imported === "1" && (
+        <p className="mb-6 rounded-lg border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-800 dark:border-brand-900 dark:bg-brand-900/20 dark:text-brand-200">
+          Bulk import completed.
         </p>
       )}
 

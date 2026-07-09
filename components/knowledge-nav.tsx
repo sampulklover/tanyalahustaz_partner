@@ -13,6 +13,7 @@ function isArticlesSection(pathname: string) {
   return (
     pathname === "/dashboard/knowledge" ||
     pathname.startsWith("/dashboard/knowledge/new") ||
+    pathname.startsWith("/dashboard/knowledge/import") ||
     /^\/dashboard\/knowledge\/[^/]+\/edit/.test(pathname)
   );
 }

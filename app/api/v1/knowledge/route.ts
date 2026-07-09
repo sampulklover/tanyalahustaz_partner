@@ -1,6 +1,6 @@
 import { apiError, apiSuccess, parsePagination, withApiAuth } from "@/lib/api/handler";
+import { sanitizeIlikeQuery } from "@/lib/sanitize";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { KnowledgeArticle } from "@/lib/types";
 
 export async function GET(request: Request) {
   return withApiAuth(request, async (req) => {
@@ -22,9 +22,12 @@ export async function GET(request: Request) {
     }
 
     if (query) {
-      dbQuery = dbQuery.or(
-        `title.ilike.%${query}%,summary.ilike.%${query}%,content.ilike.%${query}%`,
-      );
+      const safeQuery = sanitizeIlikeQuery(query);
+      if (safeQuery) {
+        dbQuery = dbQuery.or(
+          `title.ilike.%${safeQuery}%,summary.ilike.%${safeQuery}%,content.ilike.%${safeQuery}%`,
+        );
+      }
     }
 
     const { data, error, count } = await dbQuery;

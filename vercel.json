@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/embed-jobs",
+      "schedule": "*/5 * * * *"
+    }
+  ]
+}

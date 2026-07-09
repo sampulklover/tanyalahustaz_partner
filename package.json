@@ -7,9 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "tsx --test lib/**/*.test.ts",
     "embed-knowledge": "tsx scripts/embed-knowledge.ts"
   },
   "dependencies": {
+    "@sentry/nextjs": "^10.64.0",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.110.0",
     "next": "16.2.10",
