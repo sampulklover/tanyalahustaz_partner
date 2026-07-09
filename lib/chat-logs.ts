@@ -26,6 +26,10 @@ export function sanitizeChatLogSearch(term: string) {
   return term.replace(/,/g, " ").trim();
 }
 
+export function getIsoTimestampHoursAgo(hours: number) {
+  return new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
+}
+
 export function parseChatLogsPage(searchParams: ChatLogsSearchParams) {
   return Math.max(1, Number(searchParams.page) || 1);
 }

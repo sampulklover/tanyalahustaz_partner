@@ -1,5 +1,6 @@
 import type { AuthenticatedApiContext } from "@/lib/types";
 import { extractApiKeyFromRequest, hashApiKey } from "@/lib/api-keys";
+import { logError } from "@/lib/logger";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function authenticateApiRequest(
@@ -70,7 +71,10 @@ export async function recordApiUsage(
         .update({ last_used_at: new Date().toISOString() })
         .eq("id", context.apiKeyId),
     ]);
-  } catch {
-    // Usage logging should not break API responses.
+  } catch (error) {
+    logError("Failed to record API usage", error, {
+      apiKeyId: context.apiKeyId,
+      endpoint: new URL(request.url).pathname,
+    });
   }
 }

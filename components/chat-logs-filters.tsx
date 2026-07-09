@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { buildChatLogsPath } from "@/lib/chat-logs";
 
 export function ChatLogsFilters({
@@ -13,10 +13,6 @@ export function ChatLogsFilters({
 }) {
   const router = useRouter();
   const [query, setQuery] = useState(q ?? "");
-
-  useEffect(() => {
-    setQuery(q ?? "");
-  }, [q]);
 
   function applyFilters(next: { q?: string; session?: string }) {
     router.push(

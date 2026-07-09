@@ -9,6 +9,7 @@ import { StatCard } from "@/components/dashboard/stat-card";
 import {
   buildChatLogsPath,
   CHAT_LOGS_PER_PAGE,
+  getIsoTimestampHoursAgo,
   parseChatLogsPage,
   sanitizeChatLogSearch,
   normalizeChatLogRow,
@@ -35,7 +36,7 @@ export default async function ChatLogsPage({
 
   const from = (page - 1) * CHAT_LOGS_PER_PAGE;
   const to = from + CHAT_LOGS_PER_PAGE - 1;
-  const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const last24h = getIsoTimestampHoursAgo(24);
 
   let logsQuery = supabase
     .from("partner_chat_logs")
@@ -124,7 +125,11 @@ export default async function ChatLogsPage({
         />
       ) : (
         <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-          <ChatLogsFilters q={q || undefined} session={session || undefined} />
+          <ChatLogsFilters
+            key={`${q ?? ""}:${session ?? ""}`}
+            q={q || undefined}
+            session={session || undefined}
+          />
           <ChatLogsTable logs={items} />
           <Pagination
             page={page}

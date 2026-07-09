@@ -30,6 +30,7 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
+  const emailConfirmed = Boolean(user?.email_confirmed_at);
 
   if (pathname.startsWith("/dashboard") && !user) {
     const url = request.nextUrl.clone();
@@ -38,9 +39,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  if (pathname.startsWith("/dashboard") && user && !emailConfirmed) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/verify-email";
+    if (user.email) {
+      url.searchParams.set("email", user.email);
+    }
+    return NextResponse.redirect(url);
+  }
+
   if ((pathname === "/login" || pathname === "/signup") && user) {
     const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
+    url.pathname = emailConfirmed ? "/dashboard" : "/verify-email";
+    if (!emailConfirmed && user.email) {
+      url.searchParams.set("email", user.email);
+    }
     return NextResponse.redirect(url);
   }
 
@@ -48,5 +61,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/signup"],
+  matcher: ["/dashboard/:path*", "/login", "/signup", "/verify-email"],
 };

@@ -1,6 +1,7 @@
 "use server";
 
 import { executeChat } from "@/lib/chat";
+import { checkPlaygroundRateLimit } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 import type { ChatResponse } from "@/lib/types";
 
@@ -16,6 +17,11 @@ export async function sendPlaygroundMessage(formData: FormData): Promise<Playgro
 
   if (!user) {
     return { ok: false, error: "You must be signed in." };
+  }
+
+  const rateLimit = await checkPlaygroundRateLimit(user.id);
+  if (!rateLimit.ok) {
+    return { ok: false, error: rateLimit.error };
   }
 
   const message = String(formData.get("message") ?? "");

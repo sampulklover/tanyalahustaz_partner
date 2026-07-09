@@ -8,6 +8,25 @@ export type EmbedKnowledgeResult = {
   chunksWritten: number;
 };
 
+export async function embedKnowledgeArticles(
+  articles: KnowledgeArticle[],
+): Promise<{ articlesProcessed: number; chunksWritten: number }> {
+  let chunksWritten = 0;
+
+  for (const article of articles) {
+    if (!article.published) {
+      await removeArticleEmbeddings(article.id);
+      continue;
+    }
+    chunksWritten += await embedKnowledgeArticle(article);
+  }
+
+  return {
+    articlesProcessed: articles.length,
+    chunksWritten,
+  };
+}
+
 export async function embedAllKnowledgeArticles(): Promise<EmbedKnowledgeResult> {
   const admin = createAdminClient();
 

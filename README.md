@@ -172,16 +172,47 @@ supabase/migrations/
 7. Response includes `reply`, `sources`, `model`, and `session_id`
 8. Request is logged in `partner_chat_logs` (visible in dashboard)
 
+## Production setup
+
+### Run new migrations
+
+Apply `supabase/migrations/20250709000000_tighten_knowledge_rls.sql` and `20250709000001_embed_jobs_and_invites.sql` in your Supabase SQL editor (in order).
+
+### Signup invites
+
+Set `SIGNUP_INVITE_CODES` in env for simple codes, or insert DB invites:
+
+```sql
+-- Code "beta-partner-2025" — hash with SHA-256 of lowercase trimmed code
+insert into public.partner_signup_invites (code_hash, label, max_uses)
+values ('<sha256-hex-of-code>', 'Beta cohort', 25);
+```
+
+Use `SIGNUP_MODE=open` only for local development.
+
+### Sentry
+
+1. Create a project at [sentry.io](https://sentry.io)
+2. Set `SENTRY_DSN` and `NEXT_PUBLIC_SENTRY_DSN` in Vercel env vars
+3. Optionally set `SENTRY_ORG` and `SENTRY_PROJECT` for source map uploads
+
+### Vercel Cron
+
+Set `CRON_SECRET` in Vercel — the cron at `/api/cron/embed-jobs` runs every 5 minutes to process embedding jobs from bulk imports.
+
 ## Security notes
 
 - `OPENROUTER_API_KEY` and `SUPABASE_SERVICE_ROLE_KEY` are server-only
 - Partner API keys are SHA-256 hashed
 - Knowledge articles are read-only for partners via API
-- Add rate limiting and per-key quotas before production
+- Rate limiting is enabled per API key (chat: 20/min, 500/day by default) and playground (10/min, 50/day)
+- Email verification is required before dashboard access
+- Partner signup is invite-only by default (`SIGNUP_MODE=invite`)
+- Knowledge articles are only readable by the knowledge team in Supabase; partners use the API
+- Sentry captures server/client errors when `SENTRY_DSN` is set
 
 ## Next steps
 
-- Rate limiting and usage billing per partner
-- Rate limiting and billing per partner
+- Usage billing per partner
 - Streaming responses for chat widgets
 - Deploy to Vercel with production env vars
