@@ -17,6 +17,7 @@ import {
   type KnowledgeImportRow,
   type ParsedImportRow,
 } from "@/lib/knowledge-import";
+import { useI18n } from "@/lib/i18n/client";
 
 const inputClass =
   "rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30";
@@ -43,6 +44,7 @@ function summarizeRows(rows: ParsedImportRow[]) {
 }
 
 export function KnowledgeBulkImport() {
+  const { t } = useI18n();
   const [parsedRows, setParsedRows] = useState<ParsedImportRow[]>([]);
   const [fileName, setFileName] = useState<string | null>(null);
   const [parseError, setParseError] = useState<string | null>(null);
@@ -105,7 +107,9 @@ export function KnowledgeBulkImport() {
       const rows = parseMarkdownBundle(bundle, defaultPublished);
       setParsedRows(rows);
       setFileName(
-        markdownFiles.length === 1 ? markdownFiles[0].name : `${markdownFiles.length} markdown files`,
+        markdownFiles.length === 1
+          ? markdownFiles[0].name
+          : t("knowledge.bulkImport.markdownFiles", { count: markdownFiles.length }),
       );
       return;
     }
@@ -163,10 +167,9 @@ export function KnowledgeBulkImport() {
   return (
     <div className="space-y-8">
       <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
-        <h2 className="text-lg font-semibold">Upload file</h2>
+        <h2 className="text-lg font-semibold">{t("knowledge.bulkImport.uploadTitle")}</h2>
         <p className="mt-1 text-sm text-[color:var(--muted)]">
-          Import many articles at once from JSON, CSV, or Markdown with frontmatter. Markdown
-          files can be dropped in bulk.
+          {t("knowledge.bulkImport.uploadDescription")}
         </p>
 
         <label
@@ -178,9 +181,9 @@ export function KnowledgeBulkImport() {
             void handleFiles(event.dataTransfer.files);
           }}
         >
-          <span className="text-sm font-medium">Drop files here or click to browse</span>
+          <span className="text-sm font-medium">{t("knowledge.bulkImport.dropFiles")}</span>
           <span className="mt-1 text-xs text-[color:var(--muted)]">
-            .json, .csv, .md — up to 500 articles per import
+            {t("knowledge.bulkImport.fileTypes")}
           </span>
           <input
             id="knowledge-import-file"
@@ -198,8 +201,11 @@ export function KnowledgeBulkImport() {
 
         {fileName && (
           <p className="mt-4 text-sm text-[color:var(--muted)]">
-            Loaded <span className="font-medium text-foreground">{fileName}</span> —{" "}
-            {valid.length} valid, {invalid.length} invalid
+            {t("knowledge.bulkImport.loaded", {
+              fileName,
+              valid: valid.length,
+              invalid: invalid.length,
+            })}
           </p>
         )}
         {parseError && (
@@ -210,10 +216,10 @@ export function KnowledgeBulkImport() {
       </section>
 
       <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
-        <h2 className="text-lg font-semibold">Import options</h2>
+        <h2 className="text-lg font-semibold">{t("knowledge.bulkImport.optionsTitle")}</h2>
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <label className="block text-sm">
-            <span className="mb-1.5 block font-medium">Duplicate slugs</span>
+            <span className="mb-1.5 block font-medium">{t("knowledge.bulkImport.duplicateSlugs")}</span>
             <select
               value={duplicateStrategy}
               onChange={(event) =>
@@ -221,8 +227,8 @@ export function KnowledgeBulkImport() {
               }
               className={`${inputClass} w-full`}
             >
-              <option value="skip">Skip existing articles</option>
-              <option value="update">Update existing articles</option>
+              <option value="skip">{t("knowledge.bulkImport.skipExisting")}</option>
+              <option value="update">{t("knowledge.bulkImport.updateExisting")}</option>
             </select>
           </label>
 
@@ -235,9 +241,9 @@ export function KnowledgeBulkImport() {
                 className="mt-0.5 h-4 w-4 rounded border-border text-brand-600 focus:ring-brand-500"
               />
               <span>
-                <span className="block text-sm font-medium">Publish by default</span>
+                <span className="block text-sm font-medium">{t("knowledge.bulkImport.publishByDefault")}</span>
                 <span className="mt-0.5 block text-xs text-[color:var(--muted)]">
-                  Used when a row does not specify published
+                  {t("knowledge.bulkImport.publishByDefaultHelp")}
                 </span>
               </span>
             </label>
@@ -250,9 +256,9 @@ export function KnowledgeBulkImport() {
                 className="mt-0.5 h-4 w-4 rounded border-border text-brand-600 focus:ring-brand-500"
               />
               <span>
-                <span className="block text-sm font-medium">Embed after import</span>
+                <span className="block text-sm font-medium">{t("knowledge.bulkImport.embedAfterImport")}</span>
                 <span className="mt-0.5 block text-xs text-[color:var(--muted)]">
-                  Generate vector chunks for published articles (recommended)
+                  {t("knowledge.bulkImport.embedAfterImportHelp")}
                 </span>
               </span>
             </label>
@@ -263,9 +269,9 @@ export function KnowledgeBulkImport() {
       <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold">Templates</h2>
+            <h2 className="text-lg font-semibold">{t("knowledge.bulkImport.templatesTitle")}</h2>
             <p className="mt-1 text-sm text-[color:var(--muted)]">
-              Download a starter file and replace with your content.
+              {t("knowledge.bulkImport.templatesDescription")}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -274,14 +280,14 @@ export function KnowledgeBulkImport() {
               onClick={() => downloadTemplate("knowledge-import.json", IMPORT_JSON_TEMPLATE)}
               className="rounded-lg border border-border px-4 py-2 text-sm font-medium transition hover:bg-background-subtle"
             >
-              JSON template
+              {t("knowledge.bulkImport.jsonTemplate")}
             </button>
             <button
               type="button"
               onClick={() => downloadTemplate("knowledge-import.csv", IMPORT_CSV_TEMPLATE)}
               className="rounded-lg border border-border px-4 py-2 text-sm font-medium transition hover:bg-background-subtle"
             >
-              CSV template
+              {t("knowledge.bulkImport.csvTemplate")}
             </button>
             <button
               type="button"
@@ -290,7 +296,7 @@ export function KnowledgeBulkImport() {
               }
               className="rounded-lg border border-border px-4 py-2 text-sm font-medium transition hover:bg-background-subtle"
             >
-              Markdown template
+              {t("knowledge.bulkImport.markdownTemplate")}
             </button>
           </div>
         </div>
@@ -299,17 +305,20 @@ export function KnowledgeBulkImport() {
       {invalid.length > 0 && (
         <section className="rounded-xl border border-red-200 bg-red-50 p-6 dark:border-red-900 dark:bg-red-950/30">
           <h2 className="text-lg font-semibold text-red-800 dark:text-red-200">
-            Validation errors ({invalid.length})
+            {t("knowledge.bulkImport.validationErrors", { count: invalid.length })}
           </h2>
           <ul className="mt-4 space-y-2 text-sm text-red-700 dark:text-red-300">
             {invalid.slice(0, 20).map((row) => (
               <li key={`${row.index}-${row.error}`}>
-                Row {row.index}
-                {row.source ? ` (${row.source})` : ""}: {row.error}
+                {t("knowledge.bulkImport.rowError", {
+                  index: row.index,
+                  source: row.source ? t("knowledge.bulkImport.rowSource", { source: row.source }) : "",
+                  error: row.error ?? "",
+                })}
               </li>
             ))}
             {invalid.length > 20 && (
-              <li>…and {invalid.length - 20} more validation errors</li>
+              <li>{t("knowledge.bulkImport.moreErrors", { count: invalid.length - 20 })}</li>
             )}
           </ul>
         </section>
@@ -318,19 +327,22 @@ export function KnowledgeBulkImport() {
       {valid.length > 0 && (
         <section className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
           <div className="border-b border-border px-6 py-4">
-            <h2 className="text-lg font-semibold">Preview</h2>
+            <h2 className="text-lg font-semibold">{t("knowledge.bulkImport.previewTitle")}</h2>
             <p className="mt-1 text-sm text-[color:var(--muted)]">
-              Showing {previewRows.length} of {valid.length} valid article(s).
+              {t("knowledge.bulkImport.previewDescription", {
+                shown: previewRows.length,
+                total: valid.length,
+              })}
             </p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead className="border-b border-border bg-background-subtle text-xs uppercase tracking-wide text-[color:var(--muted)]">
                 <tr>
-                  <th className="px-4 py-3 font-medium">Title</th>
-                  <th className="px-4 py-3 font-medium">Slug</th>
-                  <th className="px-4 py-3 font-medium">Category</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">{t("common.title")}</th>
+                  <th className="px-4 py-3 font-medium">{t("common.slug")}</th>
+                  <th className="px-4 py-3 font-medium">{t("common.category")}</th>
+                  <th className="px-4 py-3 font-medium">{t("common.status")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -342,7 +354,7 @@ export function KnowledgeBulkImport() {
                     </td>
                     <td className="px-4 py-3">{entry.row?.category}</td>
                     <td className="px-4 py-3">
-                      {entry.row?.published ? "Published" : "Draft"}
+                      {entry.row?.published ? t("common.published") : t("common.draft")}
                     </td>
                   </tr>
                 ))}
@@ -361,30 +373,35 @@ export function KnowledgeBulkImport() {
       {importState.result && (
         <section className="rounded-xl border border-brand-200 bg-brand-50 p-6 dark:border-brand-900 dark:bg-brand-900/20">
           <h2 className="text-lg font-semibold text-brand-900 dark:text-brand-100">
-            Import complete
+            {t("knowledge.bulkImport.importComplete")}
           </h2>
           <ul className="mt-3 space-y-1 text-sm text-brand-800 dark:text-brand-200">
-            <li>{importState.result.imported} article(s) created</li>
-            <li>{importState.result.updated} article(s) updated</li>
-            <li>{importState.result.skipped} duplicate(s) skipped</li>
+            <li>{t("knowledge.bulkImport.imported", { count: importState.result.imported })}</li>
+            <li>{t("knowledge.bulkImport.updated", { count: importState.result.updated })}</li>
+            <li>{t("knowledge.bulkImport.skipped", { count: importState.result.skipped })}</li>
             {importState.result.embedded > 0 && (
               <li>
-                {importState.result.embedded} article(s) embedded (
-                {importState.result.chunksWritten} chunk(s))
+                {t("knowledge.bulkImport.embedded", {
+                  count: importState.result.embedded,
+                  chunks: importState.result.chunksWritten,
+                })}
               </li>
             )}
             {importState.result.embedQueued && (
-              <li>Embedding queued for background processing</li>
+              <li>{t("knowledge.bulkImport.embedQueued")}</li>
             )}
           </ul>
           {embedJob && (
             <div className="mt-4 rounded-lg border border-brand-300/60 bg-white/60 px-4 py-3 text-sm dark:bg-black/20">
               <p className="font-medium text-brand-900 dark:text-brand-100">
-                Embedding job: {embedJob.status}
+                {t("knowledge.bulkImport.embeddingJob", { status: embedJob.status })}
               </p>
               <p className="mt-1 text-brand-800 dark:text-brand-200">
-                {embedJob.articles_processed} / {embedJob.articles_total} articles processed ·{" "}
-                {embedJob.chunks_written} chunk(s) written
+                {t("knowledge.bulkImport.embeddingProgress", {
+                  processed: embedJob.articles_processed,
+                  total: embedJob.articles_total,
+                  chunks: embedJob.chunks_written,
+                })}
               </p>
               {embedJob.error && (
                 <p className="mt-2 text-red-700 dark:text-red-300">{embedJob.error}</p>
@@ -395,7 +412,11 @@ export function KnowledgeBulkImport() {
             <ul className="mt-4 space-y-1 text-sm text-red-700 dark:text-red-300">
               {importState.result.failed.map((failure) => (
                 <li key={`${failure.index}-${failure.title}`}>
-                  Row {failure.index} ({failure.title}): {failure.error}
+                  {t("knowledge.bulkImport.importFailed", {
+                    index: failure.index,
+                    title: failure.title,
+                    error: failure.error,
+                  })}
                 </li>
               ))}
             </ul>
@@ -411,14 +432,14 @@ export function KnowledgeBulkImport() {
           className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-60"
         >
           {isPending
-            ? "Importing…"
-            : `Import ${valid.length} article${valid.length === 1 ? "" : "s"}`}
+            ? t("knowledge.bulkImport.importing")
+            : t("knowledge.bulkImport.importCount", { count: valid.length })}
         </button>
         <Link
           href="/dashboard/knowledge"
           className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium transition hover:bg-background-subtle"
         >
-          Back to articles
+          {t("common.backToArticles")}
         </Link>
       </div>
     </div>

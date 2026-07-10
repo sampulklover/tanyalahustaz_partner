@@ -38,6 +38,7 @@ export type AuthenticatedApiContext = {
   apiKeyId: string;
   userId: string;
   keyName: string;
+  requestId: string;
 };
 
 export type ApiUsageEntry = {
@@ -98,6 +99,5 @@ export type ChatRequestBody = {
 export type ChatResponse = {
   reply: string;
   session_id: string;
-  model: string;
   sources: KnowledgeSource[];
 };

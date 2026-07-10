@@ -1,8 +1,13 @@
+"use client";
+
 import { CopyButton } from "@/components/copy-button";
+import { useI18n } from "@/lib/i18n/client";
 
 export function QuickStartSnippet({ baseUrl }: { baseUrl: string }) {
+  const { t } = useI18n();
+  const apiKeyPlaceholder = t("quickStart.apiKeyPlaceholder");
   const chatSnippet = `curl -X POST ${baseUrl}/api/v1/chat \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Authorization: Bearer ${apiKeyPlaceholder}" \\
   -H "Content-Type: application/json" \\
   -d '{"message":"Can a traveler combine Dhuhr and Asr?","category":"fiqh"}'`;
 
@@ -10,13 +15,19 @@ export function QuickStartSnippet({ baseUrl }: { baseUrl: string }) {
     <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="font-semibold">Quick start</h2>
+          <h2 className="font-semibold">{t("quickStart.title")}</h2>
           <p className="mt-1 text-sm text-[color:var(--muted)]">
-            Replace <code className="text-xs">YOUR_API_KEY</code> with a key from{" "}
+            {t("quickStart.description", {
+              apiKeyPlaceholder,
+              apiKeysLink: t("quickStart.apiKeysLink"),
+            }).split(t("quickStart.apiKeysLink"))[0]}
             <a href="/dashboard/api-keys" className="text-brand-600 hover:underline dark:text-brand-500">
-              API keys
+              {t("quickStart.apiKeysLink")}
             </a>
-            .
+            {t("quickStart.description", {
+              apiKeyPlaceholder,
+              apiKeysLink: t("quickStart.apiKeysLink"),
+            }).split(t("quickStart.apiKeysLink"))[1]}
           </p>
         </div>
         <CopyButton value={chatSnippet} />
@@ -25,7 +36,7 @@ export function QuickStartSnippet({ baseUrl }: { baseUrl: string }) {
         {chatSnippet}
       </pre>
       <p className="mt-3 font-mono text-xs text-[color:var(--muted)]">
-        Base URL: {baseUrl}/api/v1
+        {t("quickStart.baseUrl", { url: baseUrl })}
       </p>
     </section>
   );

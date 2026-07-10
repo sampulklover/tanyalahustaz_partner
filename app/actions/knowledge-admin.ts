@@ -16,6 +16,8 @@ import {
   type KnowledgeImportRow,
 } from "@/lib/knowledge-import";
 import { logError } from "@/lib/logger";
+import { getActionTranslations } from "@/lib/i18n/actions";
+import type { Translator } from "@/lib/i18n/translator";
 import { parseTagsInput, slugify } from "@/lib/knowledge-form";
 import { requireKnowledgeEditor } from "@/lib/dashboard";
 import { createClient } from "@/lib/supabase/server";
@@ -23,7 +25,7 @@ import type { KnowledgeArticle } from "@/lib/types";
 
 type ActionResult = { error?: string; success?: string };
 
-function parseArticleForm(formData: FormData) {
+function parseArticleForm(formData: FormData, t: Translator) {
   const title = String(formData.get("title") ?? "").trim();
   const slug = String(formData.get("slug") ?? "").trim() || slugify(title);
   const category = String(formData.get("category") ?? "general").trim() || "general";
@@ -33,16 +35,16 @@ function parseArticleForm(formData: FormData) {
   const published = formData.get("published") === "on";
 
   if (!title || title.length < 3) {
-    return { error: "Title is required (min 3 characters)." } as const;
+    return { error: t("actionErrors.titleRequired") } as const;
   }
   if (!slug || slug.length < 3) {
-    return { error: "Slug is required (min 3 characters)." } as const;
+    return { error: t("actionErrors.slugRequired") } as const;
   }
   if (!summary || summary.length < 10) {
-    return { error: "Summary is required (min 10 characters)." } as const;
+    return { error: t("actionErrors.summaryRequired") } as const;
   }
   if (!content || content.length < 20) {
-    return { error: "Content is required (min 20 characters)." } as const;
+    return { error: t("actionErrors.contentRequired") } as const;
   }
 
   return {
@@ -51,12 +53,13 @@ function parseArticleForm(formData: FormData) {
 }
 
 export async function createKnowledgeArticle(formData: FormData): Promise<ActionResult> {
+  const t = await getActionTranslations();
   const admin = await requireKnowledgeEditor();
   if (!admin) {
-    return { error: "Editor access required." };
+    return { error: t("actionErrors.editorAccessRequired") };
   }
 
-  const parsed = parseArticleForm(formData);
+  const parsed = parseArticleForm(formData, t);
   if ("error" in parsed) {
     return { error: parsed.error };
   }
@@ -94,12 +97,13 @@ export async function updateKnowledgeArticle(
   articleId: string,
   formData: FormData,
 ): Promise<ActionResult> {
+  const t = await getActionTranslations();
   const admin = await requireKnowledgeEditor();
   if (!admin) {
-    return { error: "Editor access required." };
+    return { error: t("actionErrors.editorAccessRequired") };
   }
 
-  const parsed = parseArticleForm(formData);
+  const parsed = parseArticleForm(formData, t);
   if ("error" in parsed) {
     return { error: parsed.error };
   }
@@ -153,9 +157,10 @@ export async function deleteKnowledgeArticle(articleId: string): Promise<void> {
 }
 
 export async function reembedAllKnowledge(): Promise<ActionResult> {
+  const t = await getActionTranslations();
   const admin = await requireKnowledgeEditor();
   if (!admin) {
-    return { error: "Editor access required." };
+    return { error: t("actionErrors.editorAccessRequired") };
   }
 
   try {
@@ -166,7 +171,7 @@ export async function reembedAllKnowledge(): Promise<ActionResult> {
     };
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "Re-embed failed.",
+      error: error instanceof Error ? error.message : t("actionErrors.reembedFailed"),
     };
   }
 }
@@ -175,17 +180,18 @@ export async function bulkImportKnowledgeArticles(
   rows: KnowledgeImportRow[],
   options: BulkImportOptions,
 ): Promise<{ error?: string; result?: BulkImportResult }> {
+  const t = await getActionTranslations();
   const admin = await requireKnowledgeEditor();
   if (!admin) {
-    return { error: "Editor access required." };
+    return { error: t("actionErrors.editorAccessRequired") };
   }
 
   if (!rows.length) {
-    return { error: "No valid articles to import." };
+    return { error: t("actionErrors.noValidArticles") };
   }
 
   if (rows.length > 500) {
-    return { error: "Maximum 500 articles per import. Split your file and try again." };
+    return { error: t("actionErrors.importMaxExceeded") };
   }
 
   const supabase = await createClient();
@@ -311,14 +317,15 @@ export async function bulkImportKnowledgeArticles(
 }
 
 export async function getKnowledgeEmbedJobStatus(jobId: string) {
+  const t = await getActionTranslations();
   const admin = await requireKnowledgeEditor();
   if (!admin) {
-    return { error: "Editor access required." };
+    return { error: t("actionErrors.editorAccessRequired") };
   }
 
   const job = await getEmbedJob(jobId);
   if (!job) {
-    return { error: "Embedding job not found." };
+    return { error: t("actionErrors.embedJobNotFound") };
   }
 
   return { job };

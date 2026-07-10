@@ -6,13 +6,13 @@ import {
   removeKnowledgeTeamMember,
   updateKnowledgeTeamMemberRole,
 } from "@/app/actions/knowledge-team";
+import { KNOWLEDGE_TEAM_ROLES, type KnowledgeTeamRole } from "@/lib/roles";
 import {
-  KNOWLEDGE_TEAM_ROLES,
-  knowledgeRoleDescription,
-  knowledgeRoleLabel,
-  type KnowledgeTeamRole,
-} from "@/lib/roles";
+  translateKnowledgeRole,
+  translateKnowledgeRoleDescription,
+} from "@/lib/i18n/labels";
 import type { KnowledgeTeamMemberWithProfile } from "@/lib/types";
+import { useI18n } from "@/lib/i18n/client";
 
 type FormState = { error?: string; success?: string };
 
@@ -25,6 +25,7 @@ const inputClass =
   "rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30";
 
 export function KnowledgeTeamManager({ members, currentUserId }: KnowledgeTeamManagerProps) {
+  const { t } = useI18n();
   const [assignState, assignAction, isAssigning] = useActionState(
     async (_prev: FormState, formData: FormData) => assignKnowledgeTeamMember(formData),
     {},
@@ -33,10 +34,9 @@ export function KnowledgeTeamManager({ members, currentUserId }: KnowledgeTeamMa
   return (
     <div className="space-y-10">
       <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
-        <h2 className="text-lg font-semibold">Invite team member</h2>
+        <h2 className="text-lg font-semibold">{t("knowledge.teamManager.inviteTitle")}</h2>
         <p className="mt-1 text-sm text-[color:var(--muted)]">
-          They must already have a partner account (signed up). Assign a role to let them help
-          manage the knowledge base.
+          {t("knowledge.teamManager.inviteDescription")}
         </p>
 
         <form action={assignAction} className="mt-6 grid gap-4 sm:grid-cols-[1fr_auto_auto]">
@@ -44,13 +44,13 @@ export function KnowledgeTeamManager({ members, currentUserId }: KnowledgeTeamMa
             name="email"
             type="email"
             required
-            placeholder="colleague@company.com"
+            placeholder={t("knowledge.teamManager.emailPlaceholder")}
             className={inputClass}
           />
           <select name="role" defaultValue="editor" className={inputClass}>
             {KNOWLEDGE_TEAM_ROLES.map((role) => (
               <option key={role} value={role}>
-                {knowledgeRoleLabel(role)}
+                {translateKnowledgeRole(t, role)}
               </option>
             ))}
           </select>
@@ -59,7 +59,7 @@ export function KnowledgeTeamManager({ members, currentUserId }: KnowledgeTeamMa
             disabled={isAssigning}
             className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-60"
           >
-            {isAssigning ? "Assigning…" : "Assign role"}
+            {isAssigning ? t("knowledge.teamManager.assigning") : t("knowledge.teamManager.assignRole")}
           </button>
         </form>
 
@@ -80,8 +80,10 @@ export function KnowledgeTeamManager({ members, currentUserId }: KnowledgeTeamMa
               key={role}
               className="rounded-xl border border-border bg-background-subtle p-4 text-sm"
             >
-              <p className="font-medium">{knowledgeRoleLabel(role)}</p>
-              <p className="mt-1 text-[color:var(--muted)]">{knowledgeRoleDescription(role)}</p>
+              <p className="font-medium">{translateKnowledgeRole(t, role)}</p>
+              <p className="mt-1 text-[color:var(--muted)]">
+                {translateKnowledgeRoleDescription(t, role)}
+              </p>
             </div>
           ))}
         </div>
@@ -89,19 +91,21 @@ export function KnowledgeTeamManager({ members, currentUserId }: KnowledgeTeamMa
 
       <section className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
         <div className="border-b border-border px-6 py-4">
-          <h2 className="text-lg font-semibold">Current team</h2>
-          <p className="mt-1 text-sm text-[color:var(--muted)]">{members.length} member(s)</p>
+          <h2 className="text-lg font-semibold">{t("knowledge.teamManager.currentTeamTitle")}</h2>
+          <p className="mt-1 text-sm text-[color:var(--muted)]">
+            {t("knowledge.teamManager.memberCount", { count: members.length })}
+          </p>
         </div>
 
         {members.length === 0 ? (
-          <p className="p-8 text-sm text-[color:var(--muted)]">No team members yet.</p>
+          <p className="p-8 text-sm text-[color:var(--muted)]">{t("knowledge.teamManager.noMembers")}</p>
         ) : (
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border bg-background-subtle text-xs uppercase tracking-wide text-[color:var(--muted)]">
               <tr>
-                <th className="px-4 py-3 font-medium">Member</th>
-                <th className="px-4 py-3 font-medium">Role</th>
-                <th className="px-4 py-3 font-medium">Added</th>
+                <th className="px-4 py-3 font-medium">{t("knowledge.teamManager.member")}</th>
+                <th className="px-4 py-3 font-medium">{t("common.role")}</th>
+                <th className="px-4 py-3 font-medium">{t("knowledge.teamManager.added")}</th>
                 <th className="px-4 py-3 font-medium" />
               </tr>
             </thead>
@@ -128,6 +132,8 @@ function TeamMemberRow({
   member: KnowledgeTeamMemberWithProfile;
   isSelf: boolean;
 }) {
+  const { t } = useI18n();
+
   return (
     <tr>
       <td className="px-4 py-3">
@@ -135,7 +141,7 @@ function TeamMemberRow({
         {member.company_name && (
           <div className="text-xs text-[color:var(--muted)]">{member.company_name}</div>
         )}
-        {isSelf && <div className="text-xs text-brand-600 dark:text-brand-500">You</div>}
+        {isSelf && <div className="text-xs text-brand-600 dark:text-brand-500">{t("common.you")}</div>}
       </td>
       <td className="px-4 py-3">
         <RoleSelect memberId={member.user_id} currentRole={member.role} />
@@ -157,6 +163,7 @@ function RoleSelect({
   memberId: string;
   currentRole: KnowledgeTeamRole;
 }) {
+  const { t } = useI18n();
   const [state, action, isPending] = useActionState(
     async (_prev: FormState, formData: FormData) => {
       const role = String(formData.get("role") ?? "") as KnowledgeTeamRole;
@@ -177,7 +184,7 @@ function RoleSelect({
         >
           {KNOWLEDGE_TEAM_ROLES.map((role) => (
             <option key={role} value={role}>
-              {knowledgeRoleLabel(role)}
+              {translateKnowledgeRole(t, role)}
             </option>
           ))}
         </select>
@@ -189,6 +196,7 @@ function RoleSelect({
 }
 
 function RemoveMemberButton({ userId }: { userId: string }) {
+  const { t } = useI18n();
   const [state, action, isPending] = useActionState(async () => removeKnowledgeTeamMember(userId), {});
 
   return (
@@ -199,7 +207,7 @@ function RemoveMemberButton({ userId }: { userId: string }) {
           disabled={isPending}
           className="text-sm text-red-600 hover:underline disabled:opacity-60"
         >
-          {isPending ? "Removing…" : "Remove"}
+          {isPending ? t("knowledge.teamManager.removing") : t("knowledge.teamManager.remove")}
         </button>
       </form>
       {state.error && <p className="mt-1 text-xs text-red-600">{state.error}</p>}

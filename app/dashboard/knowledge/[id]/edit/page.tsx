@@ -9,14 +9,19 @@ import { PageHeader } from "@/components/dashboard/page-header";
 import { getDashboardContext } from "@/lib/dashboard";
 import { createClient } from "@/lib/supabase/server";
 import type { KnowledgeArticle } from "@/lib/types";
+import { getTranslations } from "@/lib/i18n/server";
 
-export const metadata = { title: "Knowledge Article" };
+export async function generateMetadata() {
+  const t = await getTranslations();
+  return { title: t("pages.knowledge.edit.editTitle") };
+}
 
 type PageProps = {
   params: Promise<{ id: string }>;
 };
 
 export default async function EditKnowledgeArticlePage({ params }: PageProps) {
+  const t = await getTranslations();
   const { id } = await params;
   const context = await getDashboardContext();
   const canEdit = context!.knowledge.canEditKnowledge;
@@ -45,11 +50,11 @@ export default async function EditKnowledgeArticlePage({ params }: PageProps) {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
           <path d="M15 18l-6-6 6-6" />
         </svg>
-        Back to articles
+        {t("common.backToArticles")}
       </Link>
 
       <PageHeader
-        title={canEdit ? "Edit article" : "View article"}
+        title={canEdit ? t("pages.knowledge.edit.editTitle") : t("pages.knowledge.edit.viewTitle")}
         description={article.title}
         actions={canEdit ? <DeleteKnowledgeButton articleId={article.id} /> : undefined}
       />

@@ -1,0 +1,831 @@
+{
+  "brand": {
+    "signIn": "Log masuk",
+    "getStarted": "Mulakan",
+    "developers": "Rakan kongsi",
+    "dashboard": "Papan pemuka",
+    "visitApp": "Lawati aplikasi"
+  },
+  "language": {
+    "label": "Bahasa",
+    "en": "English",
+    "ms": "Bahasa Melayu (Malaysia)"
+  },
+  "nav": {
+    "documentation": "Dokumentasi",
+    "apiReference": "Rujukan API",
+    "status": "Status",
+    "pricing": "Harga",
+    "openMenu": "Buka menu",
+    "closeMenu": "Tutup menu"
+  },
+  "footer": {
+    "developersHeading": "Produk",
+    "dashboardHeading": "Papan pemuka",
+    "systemStatus": "Status sistem",
+    "authentication": "Pengesahan",
+    "overview": "Gambaran keseluruhan",
+    "playground": "Cuba secara langsung",
+    "description": "Bawa AI Islam berasaskan pengetahuan yang dipercayai ke dalam produk anda. Dikuasakan oleh kandungan yang sama seperti {consumerApp}.",
+    "copyright": "© {year} TanyaLah Ustaz. Hak cipta terpelihara.",
+    "disclaimer": "Jawapan dijana AI adalah untuk panduan sahaja. Rujuk ulama yang berkelayakan untuk keputusan peribadi."
+  },
+  "auth": {
+    "email": "E-mel",
+    "password": "Kata laluan",
+    "workEmail": "E-mel kerja",
+    "companyName": "Nama syarikat",
+    "optional": "(pilihan)",
+    "inviteCode": "Kod jemputan",
+    "invitePlaceholder": "Masukkan kod jemputan rakan kongsi anda",
+    "inviteHelp": "Pendaftaran rakan kongsi memerlukan jemputan. Hubungi kami jika anda memerlukan akses.",
+    "companyPlaceholder": "Syarikat Sdn. Bhd.",
+    "emailPlaceholder": "anda@syarikat.com",
+    "passwordHint": "Sekurang-kurangnya 8 aksara.",
+    "signingIn": "Sedang log masuk…",
+    "creatingAccount": "Sedang mencipta akaun…",
+    "createAccount": "Cipta akaun",
+    "noAccount": "Belum ada akaun?",
+    "hasAccount": "Sudah ada akaun?",
+    "backToDevelopers": "← Kembali ke laman utama",
+    "continueToDashboard": "untuk meneruskan ke {dashboard}",
+    "createYourAccount": "Cipta akaun anda",
+    "signupInviteSubtitle": "Masukkan kod jemputan anda untuk menyertai program rakan kongsi TanyaLah Ustaz.",
+    "signupOpenSubtitle": "Mula membina dengan API TanyaLah Ustaz — percuma untuk bermula.",
+    "developerPlatform": "Platform rakan kongsi",
+    "authHeroTitle": "Bawa AI Islam TanyaLah Ustaz kepada pengguna anda",
+    "authHighlight1": "Jawapan berasaskan pengetahuan dengan rujukan sumber",
+    "authHighlight2": "Kunci API, ujian langsung, dan pandangan penggunaan",
+    "authHighlight3": "Kandungan dipercayai yang sama seperti aplikasi TanyaLah Ustaz",
+    "authFooterNote": "Akaun rakan kongsi adalah berasingan daripada akaun peribadi di {consumerApp}.",
+    "consumerAppPrompt": "Mencari aplikasi peribadi?",
+    "consumerAppLink": "Pergi ke {consumerUrl} →"
+  },
+  "dashboard": {
+    "overview": "Gambaran keseluruhan",
+    "apiKeys": "Kunci API",
+    "playground": "Cuba secara langsung",
+    "logs": "Log",
+    "knowledge": "Pengetahuan",
+    "resources": "Sumber",
+    "documentation": "Dokumentasi",
+    "signOut": "Log keluar"
+  },
+  "home": {
+    "meta": {
+      "title": "AI Islam untuk produk anda",
+      "description": "Benamkan AI Islam berasaskan pengetahuan yang sama di sebalik TanyaLah Ustaz ke dalam platform, aplikasi, atau laman web anda."
+    },
+    "hero": {
+      "title": "Bawa AI Islam TanyaLah Ustaz kepada pengguna anda",
+      "subtitle": "AI Islam dipercayai yang sama di sebalik {consumerApp} — kini tersedia untuk platform, aplikasi, atau laman web anda. Satu integrasi, jawapan dengan rujukan, dan tiada infrastruktur AI untuk diuruskan.",
+      "viewDocs": "Lihat dokumentasi",
+      "freeToStart": "Percuma untuk bermula",
+      "noAiSetup": "Tiada persediaan AI diperlukan",
+      "sourcesEveryAnswer": "Rujukan pada setiap jawapan"
+    },
+    "trust": {
+      "eyebrow": "Dikuasakan oleh TanyaLah Ustaz",
+      "body": "Integrasi anda menggunakan pangkalan pengetahuan terkurasi dan kualiti jawapan yang sama seperti aplikasi kami — dibina untuk pasukan yang ingin menawarkan panduan Islam yang dipercayai dalam produk mereka sendiri.",
+      "visitConsumer": "Lawati {consumerApp} ↗"
+    },
+    "stats": {
+      "endpoint": "Integrasi mudah",
+      "categories": "Kategori pengetahuan",
+      "rag": "Berasaskan pengetahuan",
+      "sources": "Jawapan dengan rujukan"
+    },
+    "features": {
+      "eyebrow": "Platform rakan kongsi",
+      "title": "Semua yang anda perlukan untuk integrasi",
+      "subtitle": "Saluran lengkap di sebalik satu API — supaya pasukan anda boleh melancarkan lebih pantas, tanpa membina infrastruktur AI sejak awal.",
+      "items": [
+        {
+          "title": "Berasaskan pangkalan pengetahuan yang sama",
+          "body": "Jawapan diambil daripada perpustakaan terkurasi yang menguasakan TanyaLah Ustaz — artikel tentang fiqh, ibadah, aqidah, dan akhlak. Respons disokong ilmu, bukan tekaan generik."
+        },
+        {
+          "title": "Rujukan sumber pada setiap balasan",
+          "body": "Respons disertakan dengan rujukan kepada artikel sumber yang digunakan. Bina kepercayaan dengan pengguna anda dengan menunjukkan daripada mana setiap jawapan datang."
+        },
+        {
+          "title": "Satu integrasi mudah",
+          "body": "Hantar soalan pengguna dan dapatkan balasan. Tiada kejuruteraan prompt, tiada pangkalan data untuk diuruskan, tiada penyedia model untuk diuruskan — kami uruskan semuanya."
+        },
+        {
+          "title": "Ingatan perbualan",
+          "body": "Soalan susulan kekal dalam konteks merentasi beberapa giliran — seperti perbualan sebenar dengan panduan yang berpengetahuan."
+        },
+        {
+          "title": "Penapisan kategori",
+          "body": "Hadkan jawapan kepada fiqh, ibadah, aqidah, akhlak, atau umum supaya respons sepadan dengan konteks halaman pengguna anda."
+        },
+        {
+          "title": "Papan pemuka rakan kongsi",
+          "body": "Kunci API, ujian langsung, log sembang, dan pandangan penggunaan — semua yang diperlukan pasukan anda untuk melancarkan dan memantau integrasi."
+        }
+      ]
+    },
+    "howItWorks": {
+      "eyebrow": "Cara ia berfungsi",
+      "title": "Dari soalan ke jawapan berujukan dalam satu langkah",
+      "subtitle": "Anda hantar mesej. Kami cari, asaskan, dan jana jawapan. Pengguna anda mendapat panduan yang boleh dipercayai.",
+      "steps": [
+        {
+          "title": "Cipta kunci API anda",
+          "body": "Daftar dan jana kunci API daripada papan pemuka dalam beberapa saat."
+        },
+        {
+          "title": "Hantar soalan",
+          "body": "Hantar mesej pengguna melalui API sembang kami. Pilihan untuk menetapkan kategori topik bagi jawapan yang lebih relevan."
+        },
+        {
+          "title": "Kami cari & asaskan",
+          "body": "Kami cari petikan paling relevan dalam pangkalan pengetahuan dan bina respons berasaskan konteks."
+        },
+        {
+          "title": "Kembalikan jawapan berujukan",
+          "body": "Pengguna anda mendapat balasan jelas berasaskan pengetahuan — lengkap dengan artikel sumber di sebaliknya."
+        }
+      ]
+    },
+    "useCases": {
+      "eyebrow": "Kes penggunaan",
+      "title": "Dibina untuk produk yang melayani umat Islam",
+      "subtitle": "Di mana sahaja pengguna anda mempunyai soalan tentang iman mereka, berikan jawapan berasaskan konteks.",
+      "items": [
+        {
+          "title": "Platform pendidikan Islam",
+          "body": "Berikan pelajar pembantu sentiasa tersedia yang menjawab soalan dengan rujukan kepada bahan sebenar."
+        },
+        {
+          "title": "Aplikasi masjid & komuniti",
+          "body": "Tambah pembantu soal jawab untuk solat, puasa, dan amalan harian — berasaskan kandungan yang disahkan."
+        },
+        {
+          "title": "Fintech & perdagangan halal",
+          "body": "Jawab soalan pematuhan syariah secara langsung, dengan sumber yang boleh disahkan pasukan pematuhan anda."
+        },
+        {
+          "title": "Laman kandungan & media",
+          "body": "Jadikan artikel anda pembantu interaktif yang mengekalkan pembaca terlibat dan bermaklumat."
+        }
+      ]
+    },
+    "pricing": {
+      "eyebrow": "Harga",
+      "title": "Mula percuma, skala apabila anda bersedia",
+      "subtitle": "Cipta akaun dan dapatkan kunci API hari ini. Hubungi kami apabila anda memerlukan volum lebih tinggi atau pangkalan pengetahuan tersuai.",
+      "developer": {
+        "title": "Permulaan",
+        "subtitle": "Untuk membina, menguji, dan integrasi awal.",
+        "price": "Percuma",
+        "features": [
+          "Kunci API + ujian langsung",
+          "API sembang penuh berasaskan pengetahuan",
+          "Pandangan penggunaan & log sembang",
+          "Dokumentasi lengkap"
+        ],
+        "cta": "Mulakan percuma"
+      },
+      "partner": {
+        "title": "Rakan kongsi",
+        "subtitle": "Untuk aplikasi produksi dan pasukan yang berkembang.",
+        "price": "Mari berbincang",
+        "features": [
+          "Semua dalam Permulaan",
+          "Had kadar & volum lebih tinggi",
+          "Kandungan pangkalan pengetahuan tersuai",
+          "Sokongan keutamaan"
+        ],
+        "cta": "Hubungi jualan"
+      }
+    },
+    "faq": {
+      "eyebrow": "Soalan lazim",
+      "title": "Soalan, dijawab",
+      "subtitle": "Semua yang anda perlu tahu sebelum mengintegrasikan.",
+      "items": [
+        {
+          "q": "Apakah bezanya dengan tanyalahustaz.com?",
+          "a": "Ini adalah platform rakan kongsi untuk perniagaan. {consumerApp} ({consumerUrl}) adalah tempat individu bertanya soalan secara langsung. API ini membolehkan anda membenamkan AI berasaskan pengetahuan yang sama ke dalam produk anda sendiri."
+        },
+        {
+          "q": "Adakah log masuk ini sama dengan tanyalahustaz.com?",
+          "a": "Tidak. Log masuk di sini untuk mengurus papan pemuka rakan kongsi anda — kunci API, ujian, dan penggunaan. Aplikasi {consumerApp} mempunyai log masuk sendiri untuk individu. Kedua-dua akaun tidak boleh ditukar ganti."
+        },
+        {
+          "q": "Daripada mana jawapan datang?",
+          "a": "Jawapan dijana daripada pangkalan pengetahuan TanyaLah Ustaz terkurati yang sama dengan yang digunakan dalam aplikasi. Kami cari petikan paling relevan untuk setiap soalan dan menggunakannya untuk menjana respons berasaskan konteks dengan rujukan."
+        },
+        {
+          "q": "Adakah saya perlu menguruskan infrastruktur AI sendiri?",
+          "a": "Tidak. Kami uruskan carian, pengasasan, dan penjanaan. Buat satu panggilan API yang disahkan dan terima balasan siap dengan sumber."
+        },
+        {
+          "q": "Bagaimana API disahkan?",
+          "a": "Setiap permintaan menggunakan kunci API yang anda cipta dalam papan pemuka. Kunci boleh dibatalkan pada bila-bila masa. Lihat dokumentasi untuk butiran pengesahan penuh."
+        },
+        {
+          "q": "Bolehkah saya uji sebelum mengintegrasikan?",
+          "a": "Ya. Papan pemuka termasuk ruang ujian langsung yang menggunakan saluran yang sama seperti produksi, jadi anda boleh mencuba soalan dan kategori sebelum menulis sebarang kod."
+        },
+        {
+          "q": "Adakah jawapan ini pengganti ulama?",
+          "a": "Tidak. Respons dijana AI untuk panduan dan kemudahan. Untuk keputusan perkara sensitif atau peribadi, pengguna harus merujuk ulama yang berkelayakan. Kami mengesyorkan agar ini dipaparkan dengan jelas dalam produk anda."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Bawa TanyaLah Ustaz kepada pengguna anda",
+      "subtitle": "Cipta akaun percuma, dapatkan kunci API anda, dan buat permintaan sembang pertama anda dalam beberapa minit.",
+      "exploreDocs": "Terokai dokumentasi"
+    }
+  },
+  "common": {
+    "copy": "Salin",
+    "copied": "Disalin!",
+    "copyId": "Salin ID",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "close": "Tutup",
+    "view": "Lihat",
+    "edit": "Edit",
+    "delete": "Padam",
+    "search": "Cari",
+    "clear": "Kosongkan",
+    "tryAgain": "Cuba lagi",
+    "published": "Diterbitkan",
+    "draft": "Draf",
+    "title": "Tajuk",
+    "slug": "Slug",
+    "category": "Kategori",
+    "status": "Status",
+    "chunks": "Petikan",
+    "updated": "Dikemas kini",
+    "summary": "Ringkasan",
+    "content": "Kandungan",
+    "tags": "Tag",
+    "time": "Masa",
+    "message": "Mesej",
+    "origin": "Asal",
+    "session": "Sesi",
+    "model": "Model",
+    "previous": "Sebelum",
+    "next": "Seterusnya",
+    "you": "Anda",
+    "unknown": "Tidak diketahui",
+    "apiReferenceLink": "Rujukan API",
+    "systemStatusLink": "Status sistem",
+    "backToArticles": "Kembali ke artikel",
+    "singleArticle": "Artikel tunggal",
+    "role": "Peranan"
+  },
+  "errors": {
+    "somethingWentWrong": "Sesuatu tidak kena",
+    "unexpectedError": "Ralat tidak dijangka berlaku. Sila cuba lagi.",
+    "applicationError": "Ralat aplikasi",
+    "criticalError": "Ralat kritikal berlaku. Sila muat semula halaman.",
+    "tryAgain": "Cuba lagi"
+  },
+  "verifyEmail": {
+    "metaTitle": "Sahkan e-mel anda",
+    "title": "Semak e-mel anda",
+    "subtitle": "Kami menghantar pautan pengesahan untuk melengkapkan persediaan akaun anda.",
+    "sentTo": "Pautan pengesahan telah dihantar ke {email}. Klik pautan dalam e-mel tersebut untuk mengakses papan pemuka anda.",
+    "sentGeneric": "Pautan pengesahan telah dihantar ke alamat e-mel anda. Klik pautan untuk mengakses papan pemuka anda.",
+    "spamHelp": "Tidak menerimanya? Semak folder e-mel remeh anda, atau daftar semula dengan e-mel yang sama untuk menghantar semula pengesahan.",
+    "backToSignIn": "Kembali ke log masuk"
+  },
+  "meta": {
+    "layoutTitle": "TanyaLah Ustaz Rakan Kongsi — API AI Islam",
+    "layoutDescription": "Platform rakan kongsi dan API untuk membenamkan AI Islam TanyaLah Ustaz dalam produk anda. Jawapan berasaskan pengetahuan dengan rujukan sumber.",
+    "ogDescription": "Tambah AI Islam berasaskan pengetahuan yang dipercayai ke produk anda dengan satu panggilan API. Jawapan berasaskan konteks dengan rujukan sumber."
+  },
+  "pages": {
+    "overview": {
+      "title": "Gambaran keseluruhan",
+      "welcomeBack": "Selamat kembali",
+      "welcomeBackWithCompany": "Selamat kembali, {company}",
+      "description": "Urus kunci API, uji integrasi anda, dan pantau penggunaan daripada papan pemuka rakan kongsi anda.",
+      "tryItLive": "Cuba secara langsung",
+      "activeApiKeys": "Kunci API aktif",
+      "manageKeys": "Urus kunci",
+      "chatRequests": "Permintaan sembang",
+      "viewLogs": "Lihat log",
+      "knowledgeArticles": "Artikel pengetahuan",
+      "manage": "Urus",
+      "apiDocs": "Dokumentasi API",
+      "apiVersion": "Versi API",
+      "documentation": "Dokumentasi",
+      "recentApiActivity": "Aktiviti API terkini",
+      "recentApiActivityDescription": "8 permintaan terakhir merentasi kunci anda",
+      "noApiCallsYet": "Tiada panggilan API lagi",
+      "noApiCallsDescription": "Cipta kunci API dan hantar permintaan pertama anda, atau cuba secara langsung.",
+      "createApiKey": "Cipta kunci API",
+      "recentChatRequests": "Permintaan sembang terkini",
+      "recentChatRequestsDescription": "3 permintaan terakhir — lihat log penuh untuk butiran",
+      "viewAllLogs": "Lihat semua log"
+    },
+    "apiKeys": {
+      "title": "Kunci API",
+      "description": "Cipta dan urus kunci yang digunakan untuk mengesahkan permintaan ke API. Kunci dipaparkan sekali semasa penciptaan — simpan dengan selamat."
+    },
+    "playground": {
+      "title": "Cuba secara langsung",
+      "description": "Uji API sembang dengan pangkalan pengetahuan dan saluran yang sama seperti produksi."
+    },
+    "chatLogs": {
+      "title": "Log sembang",
+      "description": "Semak permintaan sembang daripada aplikasi anda atau ujian langsung.",
+      "totalRequests": "Jumlah permintaan",
+      "last24Hours": "24 jam lepas",
+      "matchingFilters": "Sepadan penapis",
+      "onThisPage": "Pada halaman ini",
+      "noMatchingLogs": "Tiada log sepadan",
+      "noMatchingLogsDescription": "Cuba istilah carian lain atau kosongkan penapis anda.",
+      "clearFilters": "Kosongkan penapis",
+      "noChatRequestsYet": "Tiada permintaan sembang lagi",
+      "noChatRequestsDescription": "Hantar mesej ujian atau integrasikan API dalam aplikasi anda."
+    },
+    "knowledge": {
+      "title": "Pangkalan pengetahuan",
+      "description": "Kandungan Islam terkurasi yang menguasakan respons API. Artikel diterbitkan dibenamkan untuk carian semantik.",
+      "newArticle": "Artikel baharu",
+      "bulkImport": "Import pukal",
+      "articleCreated": "Artikel dicipta",
+      "articleCreatedEmbedded": "Artikel dicipta dan dibenamkan ({count} petikan).",
+      "articleDeleted": "Artikel dipadam.",
+      "bulkImportCompleted": "Import pukal selesai.",
+      "noArticlesYet": "Tiada artikel lagi.",
+      "noArticlesYetCreate": "Tiada artikel lagi. Cipta yang pertama.",
+      "new": {
+        "title": "Artikel baharu",
+        "description": "Tambah kandungan terkurasi untuk AI rujuk semasa menjawab permintaan sembang rakan kongsi."
+      },
+      "edit": {
+        "editTitle": "Edit artikel",
+        "viewTitle": "Lihat artikel"
+      },
+      "import": {
+        "title": "Import pukal",
+        "description": "Muat naik fail JSON, CSV, atau Markdown untuk menambah banyak artikel pengetahuan serentak. Artikel disahkan sebelum import."
+      },
+      "team": {
+        "title": "Pasukan pengetahuan",
+        "description": "Tetapkan peranan supaya rakan sekerja boleh membantu mengurus artikel. Semua orang memerlukan akaun rakan kongsi sebelum anda boleh menambah mereka."
+      }
+    },
+    "status": {
+      "title": "Status Sistem",
+      "description": "Masa operasi semasa dan sejarah insiden untuk API TanyaLah Ustaz Rakan Kongsi."
+    }
+  },
+  "onboarding": {
+    "title": "Bermula dalam 3 langkah",
+    "subtitle": "Baru di sini? Ikuti langkah ini untuk membuat panggilan API pertama anda.",
+    "steps": [
+      {
+        "title": "Cipta kunci API",
+        "body": "Jana kunci untuk mengesahkan permintaan ke API.",
+        "cta": "Cipta kunci"
+      },
+      {
+        "title": "Cuba secara langsung",
+        "body": "Hantar mesej dan sahkan respons sebelum mengintegrasikan.",
+        "cta": "Mula menguji"
+      },
+      {
+        "title": "Integrasikan dalam aplikasi anda",
+        "body": "Sambungkan backend anda menggunakan kunci API. Lihat dokumentasi untuk butiran permintaan.",
+        "cta": "Lihat rujukan API"
+      }
+    ]
+  },
+  "quickStart": {
+    "title": "Permulaan pantas",
+    "description": "Gantikan {apiKeyPlaceholder} dengan kunci daripada {apiKeysLink}.",
+    "apiKeyPlaceholder": "YOUR_API_KEY",
+    "apiKeysLink": "Kunci API",
+    "baseUrl": "URL asas: {url}/api/v1"
+  },
+  "pagination": {
+    "showing": "Memaparkan {from}–{to} daripada {total}",
+    "page": "Halaman {page} daripada {totalPages}"
+  },
+  "recentChats": {
+    "noRequestsYet": "Tiada permintaan lagi.",
+    "tryItLive": "Cuba secara langsung"
+  },
+  "apiKeys": {
+    "manager": {
+      "copyNowTitle": "Salin kunci API anda sekarang",
+      "copyNowDescription": "Ini adalah satu-satunya kali kunci penuh akan dipaparkan. Simpan di lokasi yang selamat.",
+      "createNewKeyTitle": "Cipta kunci baharu",
+      "createNewKeyDescription": "Namakan kunci mengikut persekitaran, cth. \"Produksi\" atau \"Pra-produksi\".",
+      "keyNamePlaceholder": "Nama kunci",
+      "creating": "Sedang mencipta…",
+      "createKey": "Cipta kunci",
+      "activeKeysTitle": "Kunci aktif",
+      "activeKeysDescription": "{count} kunci tersedia untuk permintaan API",
+      "noActiveKeysTitle": "Tiada kunci aktif",
+      "noActiveKeysDescription": "Cipta kunci API pertama anda di atas untuk mula membuat permintaan.",
+      "created": "Dicipta {date}",
+      "lastUsed": "Terakhir digunakan {date}",
+      "revoke": "Batalkan",
+      "revokedKeysTitle": "Kunci dibatalkan",
+      "revokedKeysDescription": "Kunci ini tidak boleh digunakan lagi."
+    },
+    "verifier": {
+      "title": "Sahkan sambungan",
+      "description": "Tampal kunci untuk menguji {endpoint}. Kunci anda tidak disimpan. Untuk masa operasi sistem, lihat {statusLink}.",
+      "endpoint": "GET /api/v1/me",
+      "statusLink": "halaman status",
+      "placeholder": "tlh_live_…",
+      "testing": "Sedang menguji…",
+      "testConnection": "Uji sambungan",
+      "keyValid": "Kunci API sah",
+      "connectionFailed": "Sambungan gagal",
+      "httpStatus": "HTTP {status} · {latency}ms",
+      "authCheckTitle": "Semakan pengesahan",
+      "authCheckDescription": "Memerlukan kunci API yang sah",
+      "requestFailed": "Permintaan gagal"
+    }
+  },
+  "playground": {
+    "settings": "Tetapan",
+    "category": "Kategori",
+    "session": "Sesi",
+    "viewLogs": "Lihat log",
+    "clearConversation": "Sembang baharu",
+    "apiReference": "Rujukan API",
+    "title": "Cuba secara langsung",
+    "subtitle": "Hantar mesej ujian dan pratonton respons",
+    "emptyTitle": "Uji integrasi anda",
+    "emptyDescription": "Tanya soalan untuk pratonton jawapan berasaskan pengetahuan sebelum melancarkan ke produksi.",
+    "assistant": "Pembantu",
+    "generatingAnswer": "Menjana jawapan…",
+    "thinking": "Sedang berfikir…",
+    "live": "Langsung",
+    "stop": "Henti",
+    "retry": "Cuba lagi",
+    "cancelled": "Penjanaan dihentikan.",
+    "stopped": "Anda menghentikan respons ini.",
+    "streamError": "Sesuatu tidak kena semasa menjana jawapan.",
+    "sources": "Sumber",
+    "loadingHistory": "Memuatkan perbualan…",
+    "dismiss": "Tutup",
+    "placeholder": "Tanya soalan Islam…",
+    "sending": "Sedang menghantar…",
+    "send": "Hantar",
+    "categories": {
+      "all": "Semua kategori",
+      "fiqh": "Fiqh",
+      "ibadah": "Ibadah",
+      "general": "Umum"
+    },
+    "starterPrompts": [
+      "Bolehkah musafir jamak Zohor dan Asar?",
+      "Apakah niat dalam solat?",
+      "Apakah sedekah dan bilakah ia digalakkan?"
+    ]
+  },
+  "chatLogs": {
+    "filters": {
+      "searchPlaceholder": "Cari mesej atau ID sesi…",
+      "search": "Cari",
+      "clear": "Kosongkan",
+      "sessionLabel": "Sesi:",
+      "removeFilter": "Buang penapis"
+    },
+    "table": {
+      "sources": "{count} sumber"
+    },
+    "detail": {
+      "chatRequest": "Permintaan sembang",
+      "closeDetail": "Tutup butiran log",
+      "filterBySession": "Tapis mengikut sesi",
+      "userMessage": "Mesej pengguna",
+      "assistantResponse": "Respons pembantu",
+      "knowledgeSources": "Sumber pengetahuan ({count})"
+    },
+    "origin": {
+      "liveTest": "Ujian langsung",
+      "api": "API"
+    }
+  },
+  "knowledge": {
+    "nav": {
+      "articles": "Artikel",
+      "team": "Pasukan",
+      "roleLabel": "Peranan:"
+    },
+    "articleForm": {
+      "detailsTitle": "Butiran artikel",
+      "detailsDescription": "Tajuk, slug, dan kategori dipaparkan dalam API pengetahuan dan hasil carian.",
+      "titlePlaceholder": "cth. Jamak solat semasa musafir",
+      "slugPlaceholder": "jamak-solat-musafir",
+      "summaryPlaceholder": "Penerangan ringkas digunakan dalam respons API dan pratonton",
+      "contentTitle": "Kandungan",
+      "contentDescription": "Badan utama menguasakan jawapan AI. Artikel diterbitkan dibenamkan semula secara automatik untuk carian.",
+      "articleContent": "Kandungan artikel",
+      "contentPlaceholder": "Tulis kandungan artikel penuh di sini…",
+      "tagsPlaceholder": "solat, fiqh, musafir",
+      "tagsHelp": "Dipisahkan koma",
+      "publishedLabel": "Diterbitkan",
+      "publishedDescription": "Kelihatan kepada AI dan tersedia melalui API pengetahuan",
+      "saving": "Sedang menyimpan…",
+      "saveChanges": "Simpan perubahan",
+      "createArticle": "Cipta artikel"
+    },
+    "viewer": {
+      "slug": "Slug",
+      "category": "Kategori",
+      "status": "Status",
+      "updated": "Dikemas kini",
+      "summary": "Ringkasan",
+      "content": "Kandungan",
+      "tags": "Tag"
+    },
+    "bulkImport": {
+      "uploadTitle": "Muat naik fail",
+      "uploadDescription": "Import banyak artikel serentak daripada JSON, CSV, atau Markdown dengan frontmatter. Fail Markdown boleh diletakkan secara pukal.",
+      "dropFiles": "Letakkan fail di sini atau klik untuk melayari",
+      "fileTypes": ".json, .csv, .md — sehingga 500 artikel setiap import",
+      "loaded": "Dimuatkan {fileName} — {valid} sah, {invalid} tidak sah",
+      "markdownFiles": "{count} fail markdown",
+      "optionsTitle": "Pilihan import",
+      "duplicateSlugs": "Slug pendua",
+      "skipExisting": "Langkau artikel sedia ada",
+      "updateExisting": "Kemas kini artikel sedia ada",
+      "publishByDefault": "Terbitkan secara lalai",
+      "publishByDefaultHelp": "Digunakan apabila baris tidak menetapkan diterbitkan",
+      "embedAfterImport": "Benamkan selepas import",
+      "embedAfterImportHelp": "Jana petikan vektor untuk artikel diterbitkan (disyorkan)",
+      "templatesTitle": "Templat",
+      "templatesDescription": "Muat turun fail permulaan dan gantikan dengan kandungan anda.",
+      "jsonTemplate": "Templat JSON",
+      "csvTemplate": "Templat CSV",
+      "markdownTemplate": "Templat Markdown",
+      "validationErrors": "Ralat pengesahan ({count})",
+      "rowError": "Baris {index}{source}: {error}",
+      "rowSource": " ({source})",
+      "moreErrors": "…dan {count} lagi ralat pengesahan",
+      "previewTitle": "Pratonton",
+      "previewDescription": "Memaparkan {shown} daripada {total} artikel sah.",
+      "importComplete": "Import selesai",
+      "imported": "{count} artikel dicipta",
+      "updated": "{count} artikel dikemas kini",
+      "skipped": "{count} pendua dilangkau",
+      "embedded": "{count} artikel dibenamkan ({chunks} petikan)",
+      "embedQueued": "Penyembenan disusun untuk pemprosesan latar belakang",
+      "embeddingJob": "Kerja penyembenan: {status}",
+      "embeddingProgress": "{processed} / {total} artikel diproses · {chunks} petikan ditulis",
+      "importFailed": "Baris {index} ({title}): {error}",
+      "importing": "Sedang mengimport…",
+      "importCount": "Import {count} artikel"
+    },
+    "teamManager": {
+      "inviteTitle": "Jemput ahli pasukan",
+      "inviteDescription": "Mereka mesti sudah mempunyai akaun rakan kongsi (berdaftar). Tetapkan peranan untuk membantu mengurus pangkalan pengetahuan.",
+      "emailPlaceholder": "rakan@syarikat.com",
+      "assigning": "Sedang menetapkan…",
+      "assignRole": "Tetapkan peranan",
+      "currentTeamTitle": "Pasukan semasa",
+      "memberCount": "{count} ahli",
+      "noMembers": "Tiada ahli pasukan lagi.",
+      "member": "Ahli",
+      "added": "Ditambah",
+      "removing": "Sedang membuang…",
+      "remove": "Buang"
+    },
+    "reembed": {
+      "reembedding": "Sedang menyembenakkan semula…",
+      "reembedAll": "Benamkan semula semua diterbitkan"
+    },
+    "deleteConfirm": "Padam artikel ini dan penyembenannya? Tindakan ini tidak boleh dibatalkan."
+  },
+  "docs": {
+    "overview": {
+      "title": "Platform rakan kongsi",
+      "lead": "Integrasikan AI Islam berasaskan pengetahuan yang sama yang menguasakan {consumerApp} ke dalam produk anda. Hantar soalan pengguna; kami cari pengetahuan relevan, bina prompt berasaskan konteks, dan kembalikan jawapan AI dengan rujukan sumber.",
+      "howItWorksTitle": "Cara ia berfungsi",
+      "howItWorksSteps": [
+        "Aplikasi anda menghantar soalan pengguna ke POST /api/v1/chat.",
+        "Kami benamkan soalan dan cari pangkalan pengetahuan dengan pengambilan semantik (RAG).",
+        "Petikan relevan disuntik ke dalam prompt AI sebagai konteks.",
+        "Mesej terdahulu dalam session_id yang sama disertakan untuk soalan susulan.",
+        "Kami kembalikan jawapan dengan rujukan artikel sumber."
+      ],
+      "baseUrlTitle": "URL asas",
+      "quickStartTitle": "Permulaan pantas",
+      "quickStartSteps": [
+        "Cipta akaun rakan kongsi dan log masuk.",
+        "Pergi ke Papan Pemuka → Kunci API dan cipta kunci.",
+        "POST mesej ke /api/v1/chat daripada backend anda — atau gunakan ruang ujian untuk menguji dahulu."
+      ],
+      "playgroundLink": "ruang ujian",
+      "exampleTitle": "Contoh: sembang AI",
+      "openapiTitle": "Spesifikasi OpenAPI",
+      "openapiDescription": "Import spesifikasi API yang boleh dibaca mesin ke Postman, Swagger UI, atau penjana SDK anda.",
+      "openapiLink": "Lihat dokumentasi OpenAPI"
+    },
+    "authentication": {
+      "title": "Pengesahan",
+      "lead": "Titik akhir API yang dilindungi memerlukan kunci API rakan kongsi. Kunci dicipta dalam {dashboardLink} dan disimpan sebagai hash SHA-256 — kami tidak pernah menyimpan kunci penuh.",
+      "dashboardLink": "Papan Pemuka",
+      "loginVsAppTitle": "Log masuk rakan kongsi vs aplikasi pengguna",
+      "loginVsAppBody": "{signInLink} di laman ini mengakses {dashboardName} rakan kongsi (kunci API, ujian langsung, penggunaan). Ia berasingan daripada {consumerAppLink}, di mana individu bertanya soalan. Akaun tidak dikongsi antara kedua-dua produk.",
+      "consumerAppLink": "aplikasi pengguna {consumerApp}",
+      "apiKeyHeadersTitle": "Header kunci API",
+      "apiKeyHeadersDescription": "Hantar kunci anda pada setiap permintaan API menggunakan salah satu header:",
+      "keyFormatTitle": "Format kunci",
+      "keyFormatDescription": "Kunci berawalan tlh_live_ diikuti rahsia rawak. Kunci dibatalkan mengembalikan 401 Unauthorized.",
+      "dashboardVsApiTitle": "Papan pemuka vs pengesahan API",
+      "dashboardVsApiDescription": "Papan pemuka rakan kongsi menggunakan log masuk e-mel/kata laluan. Integrasi API anda menggunakan kunci API. Log masuk ke papan pemuka tidak mengesahkan permintaan API, dan kunci API tidak memberikan akses papan pemuka."
+    },
+    "endpoints": {
+      "title": "Rujukan API",
+      "description": "Setiap titik akhir berawalan {baseUrl}/api/v1.",
+      "authRequired": "Pengesahan diperlukan",
+      "public": "Awam",
+      "requestBody": "Badan permintaan",
+      "response": "Respons",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/health",
+          "description": "Semakan kesihatan. Tiada pengesahan diperlukan."
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "description": "Mengembalikan profil rakan kongsi yang disahkan dan metadata kunci API."
+        },
+        {
+          "method": "POST",
+          "path": "/chat",
+          "description": "Titik akhir integrasi utama. Menghantar mesej pengguna, mengambil pengetahuan relevan daripada perpustakaan TanyaLah Ustaz, dan mengembalikan balasan AI dengan sumber."
+        },
+        {
+          "method": "GET",
+          "path": "/knowledge",
+          "description": "Layari artikel pengetahuan diterbitkan yang menguasakan AI. Menyokong ?category=fiqh dan ?q=search."
+        },
+        {
+          "method": "GET",
+          "path": "/knowledge/:slug",
+          "description": "Dapatkan satu artikel pengetahuan mengikut slug."
+        },
+        {
+          "method": "GET",
+          "path": "/usage",
+          "description": "Statistik penggunaan untuk kunci API semasa dalam 30 hari lepas."
+        },
+        {
+          "method": "GET",
+          "path": "/openapi.json",
+          "description": "Spesifikasi OpenAPI 3.1 untuk API ini. Tiada pengesahan diperlukan."
+        }
+      ],
+      "errorResponse": "Respons ralat",
+      "errorExample": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Field 'message' is required.\",\n    \"request_id\": \"req_abc123def456\"\n  }\n}"
+    },
+    "errors": {
+      "title": "Ralat & had kadar",
+      "description": "Semua ralat API mengembalikan bentuk JSON yang konsisten dengan kod stabil, mesej yang boleh dibaca, dan request_id untuk sokongan.",
+      "formatTitle": "Format ralat",
+      "formatDescription": "Permintaan gagal mengembalikan HTTP 4xx/5xx dengan badan ini:",
+      "requestIdTitle": "Penjejakan permintaan",
+      "requestIdDescription": "Setiap respons termasuk header X-Request-Id. Anda boleh hantar X-Request-Id sendiri (8–64 aksara alfanumerik) dan kami akan mengembalikannya. Sertakan request_id apabila menghubungi sokongan.",
+      "rateLimitTitle": "Had kadar",
+      "rateLimitDescription": "Titik akhir yang disahkan mengembalikan header had kadar pada kejayaan dan respons 429 apabila had dilampaui.",
+      "rateLimitRetryAfter": "Saat untuk menunggu sebelum mencuba semula",
+      "rateLimitMinute": "Baki permintaan dalam minit semasa",
+      "rateLimitDay": "Baki permintaan untuk hari UTC semasa",
+      "catalogTitle": "Kod ralat",
+      "tableCode": "Kod",
+      "tableStatus": "HTTP",
+      "tableDescription": "Penerangan"
+    },
+    "openapi": {
+      "title": "OpenAPI",
+      "description": "Spesifikasi API yang boleh dibaca mesin untuk alat, penjanaan SDK, dan ujian kontrak.",
+      "specTitle": "URL spesifikasi",
+      "specDescription": "Muat turun atau import URL ini ke klien API anda:",
+      "openSpec": "Buka openapi.json →",
+      "toolsTitle": "Alat serasi",
+      "toolsPostman": "Postman — Import → Link → tampal URL spesifikasi",
+      "toolsCodegen": "openapi-generator atau Speakeasy — jana SDK klien daripada spesifikasi",
+      "toolsSwagger": "Swagger UI — muat URL spesifikasi untuk penerokaan interaktif"
+    },
+    "docsNav": {
+      "heading": "Dokumentasi",
+      "overview": "Gambaran keseluruhan",
+      "authentication": "Pengesahan",
+      "apiReference": "Rujukan API",
+      "errors": "Ralat & had kadar",
+      "openapi": "OpenAPI"
+    }
+  },
+  "status": {
+    "pageTitle": "Status {portalName}",
+    "pageDescription": "Status semasa dan masa operasi {days} hari untuk perkhidmatan API.",
+    "testApiKey": "Uji kunci API anda",
+    "lastChecked": "Terakhir disemak {time} · {latency}ms · API {version}",
+    "pastIncidents": "Insiden lepas",
+    "noIncidents": "Tiada insiden dilaporkan dalam {days} hari lepas.",
+    "levels": {
+      "operational": "Beroperasi",
+      "degraded": "Terjejas sebahagian",
+      "outage": "Gangguan"
+    },
+    "banner": {
+      "operational": "Semua sistem beroperasi",
+      "degraded": "Penurunan prestasi sistem sebahagian",
+      "outage": "Gangguan perkhidmatan"
+    },
+    "uptime": {
+      "ariaLabel": "Masa operasi {service} dalam 90 hari lepas",
+      "days": "90 hari",
+      "today": "Hari ini"
+    },
+    "services": {
+      "api": {
+        "name": "API",
+        "description": "Gerbang API teras dan titik akhir kesihatan"
+      },
+      "chat": {
+        "name": "API Sembang",
+        "description": "POST /api/v1/chat — respons AI dengan pengambilan pengetahuan"
+      },
+      "knowledge": {
+        "name": "API Pengetahuan",
+        "description": "GET /api/v1/knowledge — katalog artikel diterbitkan"
+      },
+      "auth": {
+        "name": "Pengesahan",
+        "description": "Pengesahan kunci API untuk permintaan rakan kongsi"
+      }
+    },
+    "incidents": {
+      "resolved": "diselesaikan",
+      "investigating": "sedang disiasat",
+      "identified": "dikenal pasti"
+    }
+  },
+  "roles": {
+    "admin": {
+      "label": "Pentadbir",
+      "description": "Urus peranan pasukan dan akses pengetahuan penuh"
+    },
+    "editor": {
+      "label": "Editor",
+      "description": "Cipta, sunting, terbitkan, dan padam artikel"
+    },
+    "viewer": {
+      "label": "Pemapar",
+      "description": "Lihat draf dan artikel diterbitkan (baca sahaja)"
+    }
+  },
+  "actionErrors": {
+    "notLoggedIn": "Anda mesti log masuk.",
+    "notSignedIn": "Anda mesti log masuk.",
+    "keyNameRequired": "Nama kunci diperlukan.",
+    "verifyEmailBeforeSignIn": "Sila sahkan e-mel anda sebelum log masuk. Semak peti masuk untuk pautan pengesahan.",
+    "inviteRequired": "Kod jemputan diperlukan untuk mencipta akaun.",
+    "inviteInvalid": "Kod jemputan tidak sah atau telah tamat tempoh.",
+    "messageTooShort": "Mesej mestilah sekurang-kurangnya 3 aksara.",
+    "messageTooLong": "Mesej mestilah 4000 aksara atau kurang.",
+    "aiResponseFailed": "Gagal menjana respons AI.",
+    "rateLimitMinute": "Had kadar melebihi: {limit} permintaan seminit.",
+    "rateLimitDay": "Kuota harian melebihi: {limit} permintaan sehari.",
+    "editorAccessRequired": "Akses editor diperlukan.",
+    "titleRequired": "Tajuk diperlukan (min 3 aksara).",
+    "slugRequired": "Slug diperlukan (min 3 aksara).",
+    "summaryRequired": "Ringkasan diperlukan (min 10 aksara).",
+    "contentRequired": "Kandungan diperlukan (min 20 aksara).",
+    "noValidArticles": "Tiada artikel sah untuk diimport.",
+    "importMaxExceeded": "Maksimum 500 artikel setiap import. Pisahkan fail anda dan cuba lagi.",
+    "reembedFailed": "Penyembenan semula gagal.",
+    "embedJobNotFound": "Kerja penyembenan tidak dijumpai.",
+    "adminAssignOnly": "Hanya admin pengetahuan boleh menetapkan peranan.",
+    "emailRequired": "E-mel diperlukan.",
+    "invalidRole": "Pilih peranan yang sah.",
+    "accountNotFound": "Tiada akaun dijumpai dengan e-mel tersebut. Mereka mesti mendaftar dahulu, kemudian anda boleh menetapkan peranan.",
+    "adminChangeOnly": "Hanya admin pengetahuan boleh menukar peranan.",
+    "cannotDemoteSelf": "Anda tidak boleh menurunkan diri sendiri semasa anda satu-satunya admin.",
+    "memberNotFound": "Ahli pasukan tidak dijumpai.",
+    "adminRequired": "Sekurang-kurangnya satu admin diperlukan dalam pasukan pengetahuan.",
+    "roleUpdated": "Peranan dikemas kini.",
+    "adminRemoveOnly": "Hanya admin pengetahuan boleh membuang ahli pasukan.",
+    "cannotRemoveSelf": "Anda tidak boleh membuang diri sendiri. Minta admin lain melakukannya.",
+    "cannotRemoveOnlyAdmin": "Tidak boleh membuang satu-satunya admin pengetahuan.",
+    "memberRemoved": "Ahli pasukan dibuang."
+  },
+  "homeDemo": {
+    "sampleQuestion": "Bolehkah musafir jamak Zohor dan Asar?",
+    "sampleResponse": "Ya. Musafir boleh jamak Zohor dan Asar semasa musafir, sama ada mendahulukan Asar ke dalam waktu Zohor atau melambatkan Zohor ke dalam waktu Asar…",
+    "okStatus": "200 OK"
+  }
+}

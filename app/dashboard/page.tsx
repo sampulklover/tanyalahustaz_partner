@@ -10,8 +10,12 @@ import { RecentChatsPreview } from "@/components/dashboard/recent-chats-preview"
 import { createClient } from "@/lib/supabase/server";
 import type { ApiUsageEntry, PartnerChatLog } from "@/lib/types";
 import { getDashboardContext } from "@/lib/dashboard";
+import { getTranslations } from "@/lib/i18n/server";
 
-export const metadata = { title: "Overview" };
+export async function generateMetadata() {
+  const t = await getTranslations();
+  return { title: t("pages.overview.title") };
+}
 
 function statusBadge(code: number) {
   const ok = code >= 200 && code < 300;
@@ -29,6 +33,7 @@ function statusBadge(code: number) {
 }
 
 export default async function DashboardPage() {
+  const t = await getTranslations();
   const supabase = await createClient();
   const context = await getDashboardContext();
   const {
@@ -66,7 +71,7 @@ export default async function DashboardPage() {
       .limit(8),
     supabase
       .from("partner_chat_logs")
-      .select("id, user_message, model, created_at")
+      .select("id, user_message, created_at")
       .eq("partner_id", user!.id)
       .order("created_at", { ascending: false })
       .limit(3),
@@ -75,22 +80,26 @@ export default async function DashboardPage() {
   const usage = (recentUsage ?? []) as ApiUsageEntry[];
   const chats = (recentChats ?? []) as Pick<
     PartnerChatLog,
-    "id" | "user_message" | "model" | "created_at"
+    "id" | "user_message" | "created_at"
   >[];
 
   const isNewUser = (activeKeys ?? 0) === 0;
 
+  const welcomeTitle = profile?.company_name
+    ? t("pages.overview.welcomeBackWithCompany", { company: profile.company_name })
+    : t("pages.overview.welcomeBack");
+
   return (
     <DashboardShell>
       <PageHeader
-        title={`Welcome back${profile?.company_name ? `, ${profile.company_name}` : ""}`}
-        description="Manage API keys, test integrations, and monitor usage from your developer dashboard."
+        title={welcomeTitle}
+        description={t("pages.overview.description")}
         actions={
           <Link
             href="/dashboard/playground"
             className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
           >
-            Open playground
+            {t("pages.overview.tryItLive")}
           </Link>
         }
       />
@@ -103,32 +112,42 @@ export default async function DashboardPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Active API keys"
+          label={t("pages.overview.activeApiKeys")}
           value={activeKeys ?? 0}
           href="/dashboard/api-keys"
-          linkLabel="Manage keys"
+          linkLabel={t("pages.overview.manageKeys")}
         />
         <StatCard
-          label="Chat requests"
+          label={t("pages.overview.chatRequests")}
           value={chatCount ?? 0}
           href="/dashboard/chat"
-          linkLabel="View logs"
+          linkLabel={t("pages.overview.viewLogs")}
         />
         <StatCard
-          label="Knowledge articles"
+          label={t("pages.overview.knowledgeArticles")}
           value={knowledgeCount ?? 0}
           href={context?.knowledge.canViewKnowledge ? "/dashboard/knowledge" : "/docs/endpoints"}
-          linkLabel={context?.knowledge.canViewKnowledge ? "Manage" : "API docs"}
+          linkLabel={
+            context?.knowledge.canViewKnowledge
+              ? t("pages.overview.manage")
+              : t("pages.overview.apiDocs")
+          }
         />
-        <StatCard label="API version" value="v1" href="/docs" linkLabel="Documentation" external />
+        <StatCard
+          label={t("pages.overview.apiVersion")}
+          value="v1"
+          href="/docs"
+          linkLabel={t("pages.overview.documentation")}
+          external
+        />
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         <QuickStartSnippet baseUrl={baseUrl} />
 
         <Panel
-          title="Recent API activity"
-          description="Last 8 requests across your keys"
+          title={t("pages.overview.recentApiActivity")}
+          description={t("pages.overview.recentApiActivityDescription")}
           action={
             <Link
               href="/docs/endpoints"
@@ -136,15 +155,15 @@ export default async function DashboardPage() {
               rel="noopener noreferrer"
               className="text-sm text-brand-600 hover:underline dark:text-brand-500"
             >
-              API reference ↗
+              {t("common.apiReferenceLink")} ↗
             </Link>
           }
         >
           {usage.length === 0 ? (
             <EmptyState
-              title="No API calls yet"
-              description="Create an API key and send your first request, or try the playground."
-              action={{ href: "/dashboard/api-keys", label: "Create API key" }}
+              title={t("pages.overview.noApiCallsYet")}
+              description={t("pages.overview.noApiCallsDescription")}
+              action={{ href: "/dashboard/api-keys", label: t("pages.overview.createApiKey") }}
             />
           ) : (
             <ul className="divide-y divide-border">
@@ -171,11 +190,11 @@ export default async function DashboardPage() {
 
       <div className="mt-6">
         <Panel
-          title="Recent chat requests"
-          description="Last 3 requests — view full logs for details"
+          title={t("pages.overview.recentChatRequests")}
+          description={t("pages.overview.recentChatRequestsDescription")}
           action={
             <Link href="/dashboard/chat" className="text-sm text-brand-600 hover:underline dark:text-brand-500">
-              View all logs
+              {t("pages.overview.viewAllLogs")}
             </Link>
           }
         >

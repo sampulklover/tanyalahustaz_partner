@@ -1,9 +1,10 @@
 import { apiError, apiSuccess, parsePagination, withApiAuth } from "@/lib/api/handler";
+import { ApiErrorCode } from "@/lib/api/errors";
 import { sanitizeIlikeQuery } from "@/lib/sanitize";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function GET(request: Request) {
-  return withApiAuth(request, async (req) => {
+  return withApiAuth(request, async (req, context) => {
     const admin = createAdminClient();
     const { limit, offset } = parsePagination(req);
     const { searchParams } = new URL(req.url);
@@ -33,13 +34,22 @@ export async function GET(request: Request) {
     const { data, error, count } = await dbQuery;
 
     if (error) {
-      return apiError(error.message, 500);
+      return apiError(
+        ApiErrorCode.INTERNAL_ERROR,
+        "Failed to load knowledge articles.",
+        500,
+        { requestId: context.requestId },
+      );
     }
 
-    return apiSuccess({
-      data: data ?? [],
-      pagination: { limit, offset, total: count ?? 0 },
-      note: "These articles power the AI knowledge context for /api/v1/chat.",
-    });
+    return apiSuccess(
+      {
+        data: data ?? [],
+        pagination: { limit, offset, total: count ?? 0 },
+        note: "These articles power the AI knowledge context for /api/v1/chat.",
+      },
+      200,
+      context.requestId,
+    );
   });
 }

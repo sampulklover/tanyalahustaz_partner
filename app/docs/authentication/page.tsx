@@ -1,44 +1,36 @@
-import Link from "next/link";
-import { CONSUMER_APP_NAME, CONSUMER_APP_URL, DASHBOARD_NAME, SIGN_IN_LABEL } from "@/lib/brand";
+import { CONSUMER_APP_NAME, DASHBOARD_NAME } from "@/lib/brand";
+import { getTranslations } from "@/lib/i18n/server";
 
-export const metadata = { title: "Authentication" };
+export async function generateMetadata() {
+  const t = await getTranslations();
+  return { title: t("docs.authentication.title") };
+}
 
-export default function AuthenticationDocsPage() {
+export default async function AuthenticationDocsPage() {
+  const t = await getTranslations();
+
   return (
     <article className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">Authentication</h1>
+      <h1 className="text-3xl font-bold tracking-tight">{t("docs.authentication.title")}</h1>
       <p className="text-[color:var(--muted)]">
-        Protected API endpoints require a developer API key. Keys are created in the{" "}
-        <Link href="/dashboard" className="font-medium text-brand-600 hover:underline dark:text-brand-500">
-          {DASHBOARD_NAME}
-        </Link>{" "}
-        and stored as SHA-256 hashes — we never store the full key.
+        {t("docs.authentication.lead", { dashboardLink: DASHBOARD_NAME })}
       </p>
 
       <section className="space-y-3">
-        <h2 className="text-xl font-semibold">Developer login vs consumer app</h2>
+        <h2 className="text-xl font-semibold">{t("docs.authentication.loginVsAppTitle")}</h2>
         <p className="text-[color:var(--muted)]">
-          <Link href="/login" className="font-medium text-brand-600 hover:underline dark:text-brand-500">
-            {SIGN_IN_LABEL}
-          </Link>{" "}
-          on this site accesses the developer {DASHBOARD_NAME.toLowerCase()} (API keys,
-          playground, usage). It is separate from the{" "}
-          <a
-            href={CONSUMER_APP_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-medium text-brand-600 hover:underline dark:text-brand-500"
-          >
-            {CONSUMER_APP_NAME} consumer app
-          </a>
-          , where individuals ask questions. Accounts are not shared between the two products.
+          {t("docs.authentication.loginVsAppBody", {
+            signInLink: t("brand.signIn"),
+            dashboardName: DASHBOARD_NAME,
+            consumerAppLink: t("docs.authentication.consumerAppLink", { consumerApp: CONSUMER_APP_NAME }),
+          })}
         </p>
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-xl font-semibold">API key headers</h2>
+        <h2 className="text-xl font-semibold">{t("docs.authentication.apiKeyHeadersTitle")}</h2>
         <p className="text-[color:var(--muted)]">
-          Send your key on every API request using either header:
+          {t("docs.authentication.apiKeyHeadersDescription")}
         </p>
         <pre className="overflow-x-auto rounded-xl border border-border bg-background-subtle p-4 text-sm">
 {`Authorization: Bearer tlh_live_...
@@ -48,19 +40,16 @@ X-API-Key: tlh_live_...`}
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-xl font-semibold">Key format</h2>
+        <h2 className="text-xl font-semibold">{t("docs.authentication.keyFormatTitle")}</h2>
         <p className="text-[color:var(--muted)]">
-          Keys are prefixed with <code>tlh_live_</code> followed by a random secret.
-          Revoked keys return <code>401 Unauthorized</code>.
+          {t("docs.authentication.keyFormatDescription")}
         </p>
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-xl font-semibold">Dashboard vs API auth</h2>
+        <h2 className="text-xl font-semibold">{t("docs.authentication.dashboardVsApiTitle")}</h2>
         <p className="text-[color:var(--muted)]">
-          The developer dashboard uses email/password login. Your API integration uses API
-          keys. Signing into the dashboard does not authenticate API requests, and API keys
-          do not grant dashboard access.
+          {t("docs.authentication.dashboardVsApiDescription")}
         </p>
       </section>
     </article>

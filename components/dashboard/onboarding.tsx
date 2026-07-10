@@ -1,34 +1,21 @@
-import Link from "next/link";
+"use client";
 
-const steps = [
-  {
-    title: "Create an API key",
-    body: "Generate a key to authenticate requests to the API.",
-    href: "/dashboard/api-keys",
-    cta: "Create key",
-  },
-  {
-    title: "Test in the playground",
-    body: "Send a message and verify the response before integrating.",
-    href: "/dashboard/playground",
-    cta: "Open playground",
-  },
-  {
-    title: "Integrate in your app",
-    body: "Call POST /api/v1/chat from your backend with your key.",
-    href: "/docs/endpoints",
-    cta: "View API reference",
-  },
-];
+import Link from "next/link";
+import { useI18n } from "@/lib/i18n/client";
+
+const stepHrefs = ["/dashboard/api-keys", "/dashboard/playground", "/docs/endpoints"];
 
 export function OnboardingChecklist() {
+  const { t, messages } = useI18n();
+  const steps = messages.onboarding.steps;
+
   return (
     <section className="rounded-xl border border-brand-200 bg-brand-50 p-6 dark:border-brand-900 dark:bg-brand-900/20">
       <h2 className="text-lg font-semibold text-brand-900 dark:text-brand-100">
-        Get started in 3 steps
+        {t("onboarding.title")}
       </h2>
       <p className="mt-1 text-sm text-brand-800 dark:text-brand-200">
-        New here? Follow these steps to make your first API call.
+        {t("onboarding.subtitle")}
       </p>
       <ol className="mt-6 space-y-4">
         {steps.map((step, i) => (
@@ -46,7 +33,7 @@ export function OnboardingChecklist() {
               </div>
             </div>
             <Link
-              href={step.href}
+              href={stepHrefs[i]}
               className="shrink-0 rounded-lg bg-brand-600 px-4 py-2 text-center text-sm font-semibold text-white transition hover:bg-brand-700 sm:ml-4"
             >
               {step.cta}

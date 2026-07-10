@@ -16,14 +16,19 @@ import {
   type ChatLogsSearchParams,
 } from "@/lib/chat-logs";
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "@/lib/i18n/server";
 
-export const metadata = { title: "Chat Logs" };
+export async function generateMetadata() {
+  const t = await getTranslations();
+  return { title: t("pages.chatLogs.title") };
+}
 
 export default async function ChatLogsPage({
   searchParams,
 }: {
   searchParams: Promise<ChatLogsSearchParams>;
 }) {
+  const t = await getTranslations();
   const params = await searchParams;
   const page = parseChatLogsPage(params);
   const q = sanitizeChatLogSearch(params.q ?? "");
@@ -41,7 +46,7 @@ export default async function ChatLogsPage({
   let logsQuery = supabase
     .from("partner_chat_logs")
     .select(
-      "id, session_id, user_message, assistant_message, model, sources, created_at, api_key_id, api_keys(name, key_prefix)",
+      "id, session_id, user_message, assistant_message, sources, created_at, api_key_id, api_keys(name, key_prefix)",
       { count: "exact" },
     )
     .eq("partner_id", user!.id)
@@ -90,38 +95,38 @@ export default async function ChatLogsPage({
   return (
     <DashboardShell>
       <PageHeader
-        title="Chat logs"
-        description="Inspect requests sent via POST /api/v1/chat from your application or the playground."
+        title={t("pages.chatLogs.title")}
+        description={t("pages.chatLogs.description")}
         actions={
           <Link
             href="/dashboard/playground"
             className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
           >
-            Open playground
+            {t("pages.overview.tryItLive")}
           </Link>
         }
       />
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <StatCard label="Total requests" value={(totalAll ?? 0).toLocaleString()} />
-        <StatCard label="Last 24 hours" value={(last24hCount ?? 0).toLocaleString()} />
+        <StatCard label={t("pages.chatLogs.totalRequests")} value={(totalAll ?? 0).toLocaleString()} />
+        <StatCard label={t("pages.chatLogs.last24Hours")} value={(last24hCount ?? 0).toLocaleString()} />
         <StatCard
-          label={hasFilters ? "Matching filters" : "On this page"}
+          label={hasFilters ? t("pages.chatLogs.matchingFilters") : t("pages.chatLogs.onThisPage")}
           value={hasFilters ? total.toLocaleString() : items.length.toLocaleString()}
         />
       </div>
 
       {showingEmptyFiltered ? (
         <EmptyState
-          title="No matching logs"
-          description="Try a different search term or clear your filters."
-          action={{ href: buildChatLogsPath("/dashboard/chat", {}), label: "Clear filters" }}
+          title={t("pages.chatLogs.noMatchingLogs")}
+          description={t("pages.chatLogs.noMatchingLogsDescription")}
+          action={{ href: buildChatLogsPath("/dashboard/chat", {}), label: t("pages.chatLogs.clearFilters") }}
         />
       ) : items.length === 0 ? (
         <EmptyState
-          title="No chat requests yet"
-          description="Send a message from the playground or integrate the API in your application."
-          action={{ href: "/dashboard/playground", label: "Try playground" }}
+          title={t("pages.chatLogs.noChatRequestsYet")}
+          description={t("pages.chatLogs.noChatRequestsDescription")}
+          action={{ href: "/dashboard/playground", label: t("pages.overview.tryItLive") }}
         />
       ) : (
         <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">

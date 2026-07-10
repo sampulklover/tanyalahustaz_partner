@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { authenticateApiRequest, recordApiUsage } from "@/lib/api-auth";
 import {
+  apiError,
+  resolveRequestId,
+} from "@/lib/api/errors";
+import {
   checkApiKeyRateLimit,
   rateLimitHeaders,
   type RateLimitTier,
@@ -21,23 +25,27 @@ export async function withApiAuth(
   handler: AuthenticatedHandler,
   options: WithApiAuthOptions = {},
 ): Promise<NextResponse> {
+  const requestId = resolveRequestId(request);
   const auth = await authenticateApiRequest(request);
 
   if (!auth.ok) {
-    return apiError(auth.error, auth.status);
+    return apiError(auth.code, auth.error, auth.status, { requestId });
   }
 
   const tier = options.rateLimit ?? "api";
   const rateLimit = await checkApiKeyRateLimit(auth.context.apiKeyId, tier);
 
   if (!rateLimit.ok) {
-    return apiError(rateLimit.error, 429, {
-      "Retry-After": String(rateLimit.retryAfterSeconds),
+    return apiError(rateLimit.code, rateLimit.error, 429, {
+      requestId,
+      extraHeaders: { "Retry-After": String(rateLimit.retryAfterSeconds) },
     });
   }
 
-  const response = await handler(request, auth.context);
-  await recordApiUsage(auth.context, request, response.status);
+  const response = await handler(request, { ...auth.context, requestId });
+  await recordApiUsage({ ...auth.context, requestId }, request, response.status);
+
+  response.headers.set("X-Request-Id", requestId);
 
   const headers = rateLimitHeaders(rateLimit);
   for (const [key, value] of Object.entries(headers)) {
@@ -47,20 +55,7 @@ export async function withApiAuth(
   return response;
 }
 
-export function apiError(
-  message: string,
-  status = 400,
-  extraHeaders?: Record<string, string>,
-) {
-  return NextResponse.json(
-    { error: message },
-    { status, headers: extraHeaders },
-  );
-}
-
-export function apiSuccess<T extends Record<string, unknown>>(data: T, status = 200) {
-  return NextResponse.json(data, { status });
-}
+export { apiError, apiSuccess } from "@/lib/api/errors";
 
 export function parsePagination(request: Request) {
   const { searchParams } = new URL(request.url);

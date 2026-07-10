@@ -1,5 +1,6 @@
 import { createHash, timingSafeEqual } from "crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getTranslations } from "@/lib/i18n/server";
 
 export type SignupMode = "open" | "invite";
 
@@ -68,7 +69,8 @@ export async function validateSignupInvite(code: string, email: string) {
 
   const trimmed = code.trim();
   if (!trimmed) {
-    return { ok: false as const, error: "An invite code is required to create an account." };
+    const t = await getTranslations();
+    return { ok: false as const, error: t("actionErrors.inviteRequired") };
   }
 
   if (matchesEnvInvite(trimmed)) {
@@ -87,7 +89,8 @@ export async function validateSignupInvite(code: string, email: string) {
   }
 
   if (!data || !isInviteRowValid(data as InviteRow, email)) {
-    return { ok: false as const, error: "Invalid or expired invite code." };
+    const t = await getTranslations();
+    return { ok: false as const, error: t("actionErrors.inviteInvalid") };
   }
 
   return { ok: true as const, source: "database" as const, inviteId: data.id };

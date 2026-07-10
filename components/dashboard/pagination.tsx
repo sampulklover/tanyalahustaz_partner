@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { buildChatLogsPath } from "@/lib/chat-logs";
+import { useI18n } from "@/lib/i18n/client";
 
 export function Pagination({
   page,
@@ -16,6 +19,8 @@ export function Pagination({
   basePath: string;
   query?: { q?: string; session?: string };
 }) {
+  const { t } = useI18n();
+
   if (totalPages <= 1) return null;
 
   const from = (page - 1) * perPage + 1;
@@ -28,8 +33,7 @@ export function Pagination({
   return (
     <div className="flex flex-col items-center justify-between gap-4 border-t border-border px-5 py-4 sm:flex-row">
       <p className="text-sm text-[color:var(--muted)]">
-        Showing <span className="font-medium text-foreground">{from}–{to}</span> of{" "}
-        <span className="font-medium text-foreground">{total}</span>
+        {t("pagination.showing", { from, to, total })}
       </p>
       <div className="flex items-center gap-2">
         {page > 1 ? (
@@ -37,26 +41,26 @@ export function Pagination({
             href={href(page - 1)}
             className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium transition hover:bg-background-subtle"
           >
-            Previous
+            {t("common.previous")}
           </Link>
         ) : (
           <span className="rounded-lg border border-border px-3 py-1.5 text-sm text-[color:var(--muted)] opacity-50">
-            Previous
+            {t("common.previous")}
           </span>
         )}
         <span className="px-2 text-sm text-[color:var(--muted)]">
-          Page {page} of {totalPages}
+          {t("pagination.page", { page, totalPages })}
         </span>
         {page < totalPages ? (
           <Link
             href={href(page + 1)}
             className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium transition hover:bg-background-subtle"
           >
-            Next
+            {t("common.next")}
           </Link>
         ) : (
           <span className="rounded-lg border border-border px-3 py-1.5 text-sm text-[color:var(--muted)] opacity-50">
-            Next
+            {t("common.next")}
           </span>
         )}
       </div>

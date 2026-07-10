@@ -2,20 +2,24 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useI18n } from "@/lib/i18n/client";
 
-const sections = [
-  { href: "/docs", label: "Overview", exact: true },
-  { href: "/docs/authentication", label: "Authentication" },
-  { href: "/docs/endpoints", label: "API reference" },
+const sections: { href: string; key: string; exact?: boolean }[] = [
+  { href: "/docs", key: "overview", exact: true },
+  { href: "/docs/authentication", key: "authentication" },
+  { href: "/docs/endpoints", key: "apiReference" },
+  { href: "/docs/errors", key: "errors" },
+  { href: "/docs/openapi", key: "openapi" },
 ];
 
 export function DocsNav() {
+  const { t } = useI18n();
   const pathname = usePathname();
 
   return (
     <nav className="sticky top-24 space-y-1 text-sm">
       <p className="mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-[color:var(--muted)]">
-        Documentation
+        {t("docs.docsNav.heading")}
       </p>
       {sections.map((section) => {
         const active = section.exact
@@ -32,7 +36,7 @@ export function DocsNav() {
                 : "block rounded-lg px-3 py-2 text-[color:var(--muted)] transition hover:bg-background-subtle hover:text-foreground"
             }
           >
-            {section.label}
+            {t(`docs.docsNav.${section.key}`)}
           </Link>
         );
       })}

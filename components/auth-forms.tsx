@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { signIn, signUp } from "@/app/actions/auth";
-import { GET_STARTED_LABEL, SIGN_IN_LABEL } from "@/lib/brand";
+import { useI18n } from "@/lib/i18n/client";
 
 type AuthState = { error?: string };
 
@@ -28,6 +28,7 @@ function ErrorNote({ error }: { error?: string }) {
 }
 
 export function LoginForm({ redirectTo }: { redirectTo: string }) {
+  const { t } = useI18n();
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(
     async (_prev, formData) => {
       const result = await signIn(formData);
@@ -41,21 +42,21 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
       <input type="hidden" name="redirect" value={redirectTo} />
       <div>
         <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
-          Email
+          {t("auth.email")}
         </label>
         <input
           id="email"
           name="email"
           type="email"
           autoComplete="email"
-          placeholder="you@company.com"
+          placeholder={t("auth.emailPlaceholder")}
           required
           className={inputClass}
         />
       </div>
       <div>
         <label htmlFor="password" className="mb-1.5 block text-sm font-medium">
-          Password
+          {t("auth.password")}
         </label>
         <input
           id="password"
@@ -69,12 +70,12 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
       </div>
       <ErrorNote error={state.error} />
       <button type="submit" disabled={isPending} className={buttonClass}>
-        {isPending ? "Signing in…" : SIGN_IN_LABEL}
+        {isPending ? t("auth.signingIn") : t("brand.signIn")}
       </button>
       <p className="text-center text-sm text-[color:var(--muted)]">
-        Don&apos;t have an account?{" "}
+        {t("auth.noAccount")}{" "}
         <Link href="/signup" className="font-medium text-brand-600 hover:underline dark:text-brand-500">
-          {GET_STARTED_LABEL}
+          {t("brand.getStarted")}
         </Link>
       </p>
     </form>
@@ -82,6 +83,7 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
 }
 
 export function SignupForm({ inviteRequired = false }: { inviteRequired?: boolean }) {
+  const { t } = useI18n();
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(
     async (_prev, formData) => {
       const result = await signUp(formData);
@@ -95,52 +97,53 @@ export function SignupForm({ inviteRequired = false }: { inviteRequired?: boolea
       {inviteRequired && (
         <div>
           <label htmlFor="invite_code" className="mb-1.5 block text-sm font-medium">
-            Invite code
+            {t("auth.inviteCode")}
           </label>
           <input
             id="invite_code"
             name="invite_code"
             type="text"
             autoComplete="off"
-            placeholder="Enter your partner invite code"
+            placeholder={t("auth.invitePlaceholder")}
             required
             className={inputClass}
           />
           <p className="mt-1.5 text-xs text-[color:var(--muted)]">
-            Partner signup is invite-only. Contact us if you need access.
+            {t("auth.inviteHelp")}
           </p>
         </div>
       )}
       <div>
         <label htmlFor="company_name" className="mb-1.5 block text-sm font-medium">
-          Company name <span className="font-normal text-[color:var(--muted)]">(optional)</span>
+          {t("auth.companyName")}{" "}
+          <span className="font-normal text-[color:var(--muted)]">{t("auth.optional")}</span>
         </label>
         <input
           id="company_name"
           name="company_name"
           type="text"
           autoComplete="organization"
-          placeholder="Acme Inc."
+          placeholder={t("auth.companyPlaceholder")}
           className={inputClass}
         />
       </div>
       <div>
         <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
-          Work email
+          {t("auth.workEmail")}
         </label>
         <input
           id="email"
           name="email"
           type="email"
           autoComplete="email"
-          placeholder="you@company.com"
+          placeholder={t("auth.emailPlaceholder")}
           required
           className={inputClass}
         />
       </div>
       <div>
         <label htmlFor="password" className="mb-1.5 block text-sm font-medium">
-          Password
+          {t("auth.password")}
         </label>
         <input
           id="password"
@@ -151,16 +154,16 @@ export function SignupForm({ inviteRequired = false }: { inviteRequired?: boolea
           minLength={8}
           className={inputClass}
         />
-        <p className="mt-1.5 text-xs text-[color:var(--muted)]">At least 8 characters.</p>
+        <p className="mt-1.5 text-xs text-[color:var(--muted)]">{t("auth.passwordHint")}</p>
       </div>
       <ErrorNote error={state.error} />
       <button type="submit" disabled={isPending} className={buttonClass}>
-        {isPending ? "Creating account…" : "Create account"}
+        {isPending ? t("auth.creatingAccount") : t("auth.createAccount")}
       </button>
       <p className="text-center text-sm text-[color:var(--muted)]">
-        Already have an account?{" "}
+        {t("auth.hasAccount")}{" "}
         <Link href="/login" className="font-medium text-brand-600 hover:underline dark:text-brand-500">
-          {SIGN_IN_LABEL}
+          {t("brand.signIn")}
         </Link>
       </p>
     </form>

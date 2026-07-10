@@ -6,14 +6,19 @@ import { PageHeader } from "@/components/dashboard/page-header";
 import { getDashboardContext } from "@/lib/dashboard";
 import { createClient } from "@/lib/supabase/server";
 import type { KnowledgeArticle } from "@/lib/types";
+import { getTranslations } from "@/lib/i18n/server";
 
-export const metadata = { title: "Knowledge Base" };
+export async function generateMetadata() {
+  const t = await getTranslations();
+  return { title: t("pages.knowledge.title") };
+}
 
 type PageProps = {
   searchParams: Promise<{ saved?: string; deleted?: string; embedded?: string; imported?: string }>;
 };
 
 export default async function KnowledgeAdminPage({ searchParams }: PageProps) {
+  const t = await getTranslations();
   const params = await searchParams;
   const context = await getDashboardContext();
   const knowledge = context!.knowledge;
@@ -40,8 +45,8 @@ export default async function KnowledgeAdminPage({ searchParams }: PageProps) {
       <KnowledgeNav knowledge={knowledge} active="articles" />
 
       <PageHeader
-        title="Knowledge base"
-        description="Curated Islamic content that powers API responses. Published articles are embedded for semantic search."
+        title={t("pages.knowledge.title")}
+        description={t("pages.knowledge.description")}
         actions={
           knowledge.canEditKnowledge ? (
             <div className="flex flex-col gap-2 sm:flex-row">
@@ -49,13 +54,13 @@ export default async function KnowledgeAdminPage({ searchParams }: PageProps) {
                 href="/dashboard/knowledge/new"
                 className="inline-flex items-center justify-center rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
               >
-                New article
+                {t("pages.knowledge.newArticle")}
               </Link>
               <Link
                 href="/dashboard/knowledge/import"
                 className="inline-flex items-center justify-center rounded-lg border border-border px-5 py-2.5 text-sm font-medium transition hover:bg-background-subtle"
               >
-                Bulk import
+                {t("pages.knowledge.bulkImport")}
               </Link>
               <KnowledgeReembedButton />
             </div>
@@ -65,18 +70,19 @@ export default async function KnowledgeAdminPage({ searchParams }: PageProps) {
 
       {params.saved === "1" && (
         <p className="mb-6 rounded-lg border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-800 dark:border-brand-900 dark:bg-brand-900/20 dark:text-brand-200">
-          Article created
-          {params.embedded ? ` and embedded (${params.embedded} chunk(s)).` : "."}
+          {params.embedded
+            ? t("pages.knowledge.articleCreatedEmbedded", { count: params.embedded })
+            : t("pages.knowledge.articleCreated")}
         </p>
       )}
       {params.deleted === "1" && (
         <p className="mb-6 rounded-lg border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-800 dark:border-brand-900 dark:bg-brand-900/20 dark:text-brand-200">
-          Article deleted.
+          {t("pages.knowledge.articleDeleted")}
         </p>
       )}
       {params.imported === "1" && (
         <p className="mb-6 rounded-lg border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-800 dark:border-brand-900 dark:bg-brand-900/20 dark:text-brand-200">
-          Bulk import completed.
+          {t("pages.knowledge.bulkImportCompleted")}
         </p>
       )}
 
@@ -84,18 +90,18 @@ export default async function KnowledgeAdminPage({ searchParams }: PageProps) {
         {items.length === 0 ? (
           <p className="p-8 text-sm text-[color:var(--muted)]">
             {knowledge.canEditKnowledge
-              ? "No articles yet. Create your first one."
-              : "No articles yet."}
+              ? t("pages.knowledge.noArticlesYetCreate")
+              : t("pages.knowledge.noArticlesYet")}
           </p>
         ) : (
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border bg-background-subtle text-xs uppercase tracking-wide text-[color:var(--muted)]">
               <tr>
-                <th className="px-4 py-3 font-medium">Title</th>
-                <th className="px-4 py-3 font-medium">Category</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Chunks</th>
-                <th className="px-4 py-3 font-medium">Updated</th>
+                <th className="px-4 py-3 font-medium">{t("common.title")}</th>
+                <th className="px-4 py-3 font-medium">{t("common.category")}</th>
+                <th className="px-4 py-3 font-medium">{t("common.status")}</th>
+                <th className="px-4 py-3 font-medium">{t("common.chunks")}</th>
+                <th className="px-4 py-3 font-medium">{t("common.updated")}</th>
                 <th className="px-4 py-3 font-medium" />
               </tr>
             </thead>
@@ -113,9 +119,9 @@ export default async function KnowledgeAdminPage({ searchParams }: PageProps) {
                   </td>
                   <td className="px-4 py-3">
                     {article.published ? (
-                      <span className="font-medium text-brand-600 dark:text-brand-500">Published</span>
+                      <span className="font-medium text-brand-600 dark:text-brand-500">{t("common.published")}</span>
                     ) : (
-                      <span className="text-[color:var(--muted)]">Draft</span>
+                      <span className="text-[color:var(--muted)]">{t("common.draft")}</span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-[color:var(--muted)]">
@@ -129,7 +135,7 @@ export default async function KnowledgeAdminPage({ searchParams }: PageProps) {
                       href={`/dashboard/knowledge/${article.id}/edit`}
                       className="font-medium text-brand-600 hover:underline dark:text-brand-500"
                     >
-                      {knowledge.canEditKnowledge ? "Edit" : "View"}
+                      {knowledge.canEditKnowledge ? t("common.edit") : t("common.view")}
                     </Link>
                   </td>
                 </tr>

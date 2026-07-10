@@ -8,7 +8,40 @@ type ChatMessage = {
   content: string;
 };
 
-export async function generateChatReply({
+export function getOpenRouterModel() {
+  return process.env.OPENROUTER_MODEL ?? "google/gemini-2.0-flash-001";
+}
+
+function getOpenRouterApiKey() {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("OPENROUTER_API_KEY is not configured on the server.");
+  }
+
+  return apiKey;
+}
+
+function buildOpenRouterHeaders(apiKey: string) {
+  return {
+    Authorization: `Bearer ${apiKey}`,
+    "Content-Type": "application/json",
+    "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+    "X-Title": "TanyaLah Ustaz Partners",
+  };
+}
+
+function mapOpenRouterError(status: number, errorBody: string) {
+  if (status === 401 || errorBody.toLowerCase().includes("invalid api key")) {
+    throw new Error(
+      "OpenRouter rejected the API key. Check OPENROUTER_API_KEY in .env.local (openrouter.ai → Keys).",
+    );
+  }
+
+  throw new Error(`OpenRouter request failed (${status}): ${errorBody}`);
+}
+
+export function buildChatMessages({
   userMessage,
   knowledgeContext,
   history = [],
@@ -16,14 +49,7 @@ export async function generateChatReply({
   userMessage: string;
   knowledgeContext: string;
   history?: ChatHistoryMessage[];
-}) {
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  const model = process.env.OPENROUTER_MODEL ?? "google/gemini-2.0-flash-001";
-
-  if (!apiKey) {
-    throw new Error("OPENROUTER_API_KEY is not configured on the server.");
-  }
-
+}): ChatMessage[] {
   const systemMessage: ChatMessage = {
     role: "system",
     content: `You are the TanyaLah Ustaz AI assistant for partner websites.
@@ -37,7 +63,7 @@ KNOWLEDGE CONTEXT:
 ${knowledgeContext}`,
   };
 
-  const messages: ChatMessage[] = [
+  return [
     systemMessage,
     ...history.map((entry) => ({
       role: entry.role,
@@ -48,15 +74,24 @@ ${knowledgeContext}`,
       content: userMessage,
     },
   ];
+}
+
+export async function generateChatReply({
+  userMessage,
+  knowledgeContext,
+  history = [],
+}: {
+  userMessage: string;
+  knowledgeContext: string;
+  history?: ChatHistoryMessage[];
+}) {
+  const apiKey = getOpenRouterApiKey();
+  const model = getOpenRouterModel();
+  const messages = buildChatMessages({ userMessage, knowledgeContext, history });
 
   const response = await fetch(OPENROUTER_URL, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
-      "X-Title": "TanyaLah Ustaz Developers",
-    },
+    headers: buildOpenRouterHeaders(apiKey),
     body: JSON.stringify({
       model,
       messages,
@@ -66,14 +101,7 @@ ${knowledgeContext}`,
 
   if (!response.ok) {
     const errorBody = await response.text();
-
-    if (response.status === 401 || errorBody.toLowerCase().includes("invalid api key")) {
-      throw new Error(
-        "OpenRouter rejected the API key. Check OPENROUTER_API_KEY in .env.local (openrouter.ai → Keys).",
-      );
-    }
-
-    throw new Error(`OpenRouter request failed (${response.status}): ${errorBody}`);
+    mapOpenRouterError(response.status, errorBody);
   }
 
   const payload = (await response.json()) as {
@@ -87,6 +115,91 @@ ${knowledgeContext}`,
   }
 
   return { reply, model };
+}
+
+export async function streamChatReply({
+  userMessage,
+  knowledgeContext,
+  history = [],
+  signal,
+}: {
+  userMessage: string;
+  knowledgeContext: string;
+  history?: ChatHistoryMessage[];
+  signal?: AbortSignal;
+}) {
+  const apiKey = getOpenRouterApiKey();
+  const model = getOpenRouterModel();
+  const messages = buildChatMessages({ userMessage, knowledgeContext, history });
+
+  const response = await fetch(OPENROUTER_URL, {
+    method: "POST",
+    headers: buildOpenRouterHeaders(apiKey),
+    body: JSON.stringify({
+      model,
+      messages,
+      temperature: 0.3,
+      stream: true,
+    }),
+    signal,
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    mapOpenRouterError(response.status, errorBody);
+  }
+
+  if (!response.body) {
+    throw new Error("OpenRouter returned an empty stream.");
+  }
+
+  const upstream = response.body;
+  const decoder = new TextDecoder();
+
+  return {
+    model,
+    stream: new ReadableStream<string>({
+      async start(controller) {
+        const reader = upstream.getReader();
+        let buffer = "";
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() ?? "";
+
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed.startsWith("data:")) continue;
+
+              const payload = trimmed.slice(5).trim();
+              if (!payload || payload === "[DONE]") continue;
+
+              try {
+                const parsed = JSON.parse(payload) as {
+                  choices?: Array<{ delta?: { content?: string } }>;
+                };
+                const content = parsed.choices?.[0]?.delta?.content;
+                if (content) controller.enqueue(content);
+              } catch {
+                // Ignore malformed SSE chunks.
+              }
+            }
+          }
+
+          controller.close();
+        } catch (error) {
+          controller.error(error);
+        } finally {
+          reader.releaseLock();
+        }
+      },
+    }),
+  };
 }
 
 export function createSessionId(sessionId?: string) {

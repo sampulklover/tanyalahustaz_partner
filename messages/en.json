@@ -1,0 +1,831 @@
+{
+  "brand": {
+    "signIn": "Sign in",
+    "getStarted": "Get started",
+    "developers": "Partners",
+    "dashboard": "Dashboard",
+    "visitApp": "Visit app"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "ms": "Bahasa Melayu"
+  },
+  "nav": {
+    "documentation": "Documentation",
+    "apiReference": "API reference",
+    "status": "Status",
+    "pricing": "Pricing",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "footer": {
+    "developersHeading": "Product",
+    "dashboardHeading": "Dashboard",
+    "systemStatus": "System status",
+    "authentication": "Authentication",
+    "overview": "Overview",
+    "playground": "Try it live",
+    "description": "Bring trusted, knowledge-backed Islamic AI into your product. Powered by the same content as {consumerApp}.",
+    "copyright": "© {year} TanyaLah Ustaz. All rights reserved.",
+    "disclaimer": "AI-generated answers are for guidance only. Consult a qualified scholar for personal rulings."
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "workEmail": "Work email",
+    "companyName": "Company name",
+    "optional": "(optional)",
+    "inviteCode": "Invite code",
+    "invitePlaceholder": "Enter your partner invite code",
+    "inviteHelp": "Partner signup is invite-only. Contact us if you need access.",
+    "companyPlaceholder": "Acme Inc.",
+    "emailPlaceholder": "you@company.com",
+    "passwordHint": "At least 8 characters.",
+    "signingIn": "Signing in…",
+    "creatingAccount": "Creating account…",
+    "createAccount": "Create account",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "backToDevelopers": "← Back to home",
+    "continueToDashboard": "to continue to {dashboard}",
+    "createYourAccount": "Create your account",
+    "signupInviteSubtitle": "Enter your invite code to join the TanyaLah Ustaz partner program.",
+    "signupOpenSubtitle": "Start building with the TanyaLah Ustaz API — free to get started.",
+    "developerPlatform": "Partner platform",
+    "authHeroTitle": "Bring TanyaLah Ustaz Islamic AI to your users",
+    "authHighlight1": "Knowledge-backed answers with source citations",
+    "authHighlight2": "API keys, live testing, and usage insights",
+    "authHighlight3": "Same trusted content as the TanyaLah Ustaz app",
+    "authFooterNote": "Partner accounts are separate from personal accounts on {consumerApp}.",
+    "consumerAppPrompt": "Looking for the personal app?",
+    "consumerAppLink": "Go to {consumerUrl} →"
+  },
+  "dashboard": {
+    "overview": "Overview",
+    "apiKeys": "API keys",
+    "playground": "Try it live",
+    "logs": "Logs",
+    "knowledge": "Knowledge",
+    "resources": "Resources",
+    "documentation": "Documentation",
+    "signOut": "Sign out"
+  },
+  "home": {
+    "meta": {
+      "title": "Islamic AI for your product",
+      "description": "Embed the same knowledge-backed Islamic AI behind TanyaLah Ustaz into your platform, app, or website."
+    },
+    "hero": {
+      "title": "Bring TanyaLah Ustaz Islamic AI to your users",
+      "subtitle": "The same trusted Islamic AI behind {consumerApp} — now available for your platform, app, or website. One integration, cited answers, and no AI infrastructure to manage.",
+      "viewDocs": "View documentation",
+      "freeToStart": "Free to start",
+      "noAiSetup": "No AI setup required",
+      "sourcesEveryAnswer": "Sources on every answer"
+    },
+    "trust": {
+      "eyebrow": "Powered by TanyaLah Ustaz",
+      "body": "Your integration uses the same curated knowledge base and answer quality as our app — built for teams who want to offer trusted Islamic guidance inside their own products.",
+      "visitConsumer": "Visit {consumerApp} ↗"
+    },
+    "stats": {
+      "endpoint": "Simple integration",
+      "categories": "Knowledge categories",
+      "rag": "Knowledge-grounded",
+      "sources": "Answers with sources"
+    },
+    "features": {
+      "eyebrow": "Partner platform",
+      "title": "Everything you need to integrate",
+      "subtitle": "A complete pipeline behind a single API — so your team ships faster, without building AI infrastructure from scratch.",
+      "items": [
+        {
+          "title": "Grounded in the same knowledge base",
+          "body": "Answers draw from the curated library that powers TanyaLah Ustaz — articles on fiqh, ibadah, aqidah, and akhlak. Scholarship-backed responses, not generic guesses."
+        },
+        {
+          "title": "Cited sources on every reply",
+          "body": "Responses come with references to the source articles used. Build trust with your users by showing exactly where each answer comes from."
+        },
+        {
+          "title": "One simple integration",
+          "body": "Send a user's question and get a reply back. No prompt engineering, no databases to run, no model providers to manage — we handle it all."
+        },
+        {
+          "title": "Conversation memory",
+          "body": "Follow-up questions stay in context across multiple turns — just like a real conversation with a knowledgeable guide."
+        },
+        {
+          "title": "Category filtering",
+          "body": "Scope answers to fiqh, ibadah, aqidah, akhlak, or general so responses match the context of the page your users are on."
+        },
+        {
+          "title": "Partner dashboard",
+          "body": "API keys, live testing, chat logs, and usage insights — everything your team needs to launch and monitor your integration."
+        }
+      ]
+    },
+    "howItWorks": {
+      "eyebrow": "How it works",
+      "title": "From question to cited answer in one step",
+      "subtitle": "You send a message. We retrieve, ground, and generate the answer. Your users get guidance they can trust.",
+      "steps": [
+        {
+          "title": "Create your API key",
+          "body": "Sign up and generate an API key from the dashboard in seconds."
+        },
+        {
+          "title": "Send a question",
+          "body": "Pass the user's message through our chat API. Optionally set a topic category for more relevant answers."
+        },
+        {
+          "title": "We retrieve & ground",
+          "body": "We search the knowledge base for the most relevant passages and build a grounded response."
+        },
+        {
+          "title": "Return a cited answer",
+          "body": "Your users get a clear, knowledge-backed reply — complete with the source articles behind it."
+        }
+      ]
+    },
+    "useCases": {
+      "eyebrow": "Use cases",
+      "title": "Built for products that serve Muslims",
+      "subtitle": "Wherever your users have questions about their faith, give them grounded answers in context.",
+      "items": [
+        {
+          "title": "Islamic education platforms",
+          "body": "Give students an always-available assistant that answers questions with references to real material."
+        },
+        {
+          "title": "Mosque & community apps",
+          "body": "Add a Q&A helper for prayer, fasting, and daily practice — grounded in vetted content."
+        },
+        {
+          "title": "Fintech & halal commerce",
+          "body": "Answer shariah-compliance questions inline, with sources your compliance team can verify."
+        },
+        {
+          "title": "Content & media sites",
+          "body": "Turn your articles into an interactive assistant that keeps readers engaged and informed."
+        }
+      ]
+    },
+    "pricing": {
+      "eyebrow": "Pricing",
+      "title": "Start free, scale when you're ready",
+      "subtitle": "Create an account and get an API key today. Talk to us when you need higher volume or a custom knowledge base.",
+      "developer": {
+        "title": "Starter",
+        "subtitle": "For building, testing, and early integrations.",
+        "price": "Free",
+        "features": [
+          "API key + live testing",
+          "Full knowledge-backed chat API",
+          "Usage insights & chat logs",
+          "Complete documentation"
+        ],
+        "cta": "Get started free"
+      },
+      "partner": {
+        "title": "Partner",
+        "subtitle": "For production apps and growing teams.",
+        "price": "Let's talk",
+        "features": [
+          "Everything in Starter",
+          "Higher rate limits & volume",
+          "Custom knowledge base content",
+          "Priority support"
+        ],
+        "cta": "Contact sales"
+      }
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "title": "Questions, answered",
+      "subtitle": "Everything you need to know before you integrate.",
+      "items": [
+        {
+          "q": "How is this different from tanyalahustaz.com?",
+          "a": "This is the partner platform for businesses. {consumerApp} ({consumerUrl}) is where individuals ask questions directly. This API lets you embed the same knowledge-backed AI into your own product."
+        },
+        {
+          "q": "Is this login the same as tanyalahustaz.com?",
+          "a": "No. Sign in here to manage your partner dashboard — API keys, testing, and usage. The {consumerApp} app has its own login for individuals. The two accounts are not interchangeable."
+        },
+        {
+          "q": "Where do the answers come from?",
+          "a": "Answers are generated from the same curated TanyaLah Ustaz knowledge base used in the app. We find the most relevant passages for each question and use them to produce grounded, cited responses."
+        },
+        {
+          "q": "Do I need to run my own AI infrastructure?",
+          "a": "No. We handle search, grounding, and generation. You make a single authenticated API call and receive a finished reply with sources."
+        },
+        {
+          "q": "How is the API authenticated?",
+          "a": "Each request uses an API key you create in the dashboard. Keys can be revoked at any time. See the documentation for full authentication details."
+        },
+        {
+          "q": "Can I test before integrating?",
+          "a": "Yes. The dashboard includes a live testing area that uses the same pipeline as production, so you can try questions and categories before writing any code."
+        },
+        {
+          "q": "Are the answers a substitute for a scholar?",
+          "a": "No. Responses are AI-generated for guidance and convenience. For rulings on sensitive or personal matters, users should consult a qualified scholar. We recommend surfacing this clearly in your product."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Bring TanyaLah Ustaz to your users",
+      "subtitle": "Create a free account, get your API key, and make your first chat request in minutes.",
+      "exploreDocs": "Explore the docs"
+    }
+  },
+  "common": {
+    "copy": "Copy",
+    "copied": "Copied!",
+    "copyId": "Copy ID",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close",
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "search": "Search",
+    "clear": "Clear",
+    "tryAgain": "Try again",
+    "published": "Published",
+    "draft": "Draft",
+    "title": "Title",
+    "slug": "Slug",
+    "category": "Category",
+    "status": "Status",
+    "chunks": "Chunks",
+    "updated": "Updated",
+    "summary": "Summary",
+    "content": "Content",
+    "tags": "Tags",
+    "time": "Time",
+    "message": "Message",
+    "origin": "Origin",
+    "session": "Session",
+    "model": "Model",
+    "previous": "Previous",
+    "next": "Next",
+    "you": "You",
+    "unknown": "Unknown",
+    "apiReferenceLink": "API reference",
+    "systemStatusLink": "System status",
+    "backToArticles": "Back to articles",
+    "singleArticle": "Single article",
+    "role": "Role"
+  },
+  "errors": {
+    "somethingWentWrong": "Something went wrong",
+    "unexpectedError": "An unexpected error occurred. Please try again.",
+    "applicationError": "Application error",
+    "criticalError": "A critical error occurred. Please refresh the page.",
+    "tryAgain": "Try again"
+  },
+  "verifyEmail": {
+    "metaTitle": "Verify your email",
+    "title": "Check your email",
+    "subtitle": "We sent a confirmation link to finish setting up your account.",
+    "sentTo": "A verification link was sent to {email}. Click the link in that email to access your dashboard.",
+    "sentGeneric": "A verification link was sent to your email address. Click the link to access your dashboard.",
+    "spamHelp": "Didn't receive it? Check your spam folder, or sign up again with the same email to resend the confirmation.",
+    "backToSignIn": "Back to sign in"
+  },
+  "meta": {
+    "layoutTitle": "TanyaLah Ustaz Partners — Islamic AI API",
+    "layoutDescription": "Partner platform and API for embedding TanyaLah Ustaz Islamic AI in your product. Knowledge-backed answers with source citations.",
+    "ogDescription": "Add trustworthy, knowledge-backed Islamic AI to your product with a single API call. Grounded answers with source citations."
+  },
+  "pages": {
+    "overview": {
+      "title": "Overview",
+      "welcomeBack": "Welcome back",
+      "welcomeBackWithCompany": "Welcome back, {company}",
+      "description": "Manage API keys, test your integration, and monitor usage from your partner dashboard.",
+      "tryItLive": "Try it live",
+      "activeApiKeys": "Active API keys",
+      "manageKeys": "Manage keys",
+      "chatRequests": "Chat requests",
+      "viewLogs": "View logs",
+      "knowledgeArticles": "Knowledge articles",
+      "manage": "Manage",
+      "apiDocs": "API docs",
+      "apiVersion": "API version",
+      "documentation": "Documentation",
+      "recentApiActivity": "Recent API activity",
+      "recentApiActivityDescription": "Last 8 requests across your keys",
+      "noApiCallsYet": "No API calls yet",
+      "noApiCallsDescription": "Create an API key and send your first request, or try it live.",
+      "createApiKey": "Create API key",
+      "recentChatRequests": "Recent chat requests",
+      "recentChatRequestsDescription": "Last 3 requests — view full logs for details",
+      "viewAllLogs": "View all logs"
+    },
+    "apiKeys": {
+      "title": "API keys",
+      "description": "Create and manage keys used to authenticate requests to the API. Keys are shown once at creation — store them securely."
+    },
+    "playground": {
+      "title": "Try it live",
+      "description": "Test the chat API with the same knowledge base and pipeline as production."
+    },
+    "chatLogs": {
+      "title": "Chat logs",
+      "description": "Inspect chat requests from your application or live testing.",
+      "totalRequests": "Total requests",
+      "last24Hours": "Last 24 hours",
+      "matchingFilters": "Matching filters",
+      "onThisPage": "On this page",
+      "noMatchingLogs": "No matching logs",
+      "noMatchingLogsDescription": "Try a different search term or clear your filters.",
+      "clearFilters": "Clear filters",
+      "noChatRequestsYet": "No chat requests yet",
+      "noChatRequestsDescription": "Send a test message or integrate the API in your application."
+    },
+    "knowledge": {
+      "title": "Knowledge base",
+      "description": "Curated Islamic content that powers API responses. Published articles are embedded for semantic search.",
+      "newArticle": "New article",
+      "bulkImport": "Bulk import",
+      "articleCreated": "Article created",
+      "articleCreatedEmbedded": "Article created and embedded ({count} chunk(s)).",
+      "articleDeleted": "Article deleted.",
+      "bulkImportCompleted": "Bulk import completed.",
+      "noArticlesYet": "No articles yet.",
+      "noArticlesYetCreate": "No articles yet. Create your first one.",
+      "new": {
+        "title": "New article",
+        "description": "Add curated content for the AI to reference when answering partner chat requests."
+      },
+      "edit": {
+        "editTitle": "Edit article",
+        "viewTitle": "View article"
+      },
+      "import": {
+        "title": "Bulk import",
+        "description": "Upload JSON, CSV, or Markdown files to add many knowledge articles at once. Articles are validated before import."
+      },
+      "team": {
+        "title": "Knowledge team",
+        "description": "Assign roles so colleagues can help manage articles. Everyone needs a partner account before you can add them."
+      }
+    },
+    "status": {
+      "title": "System Status",
+      "description": "Current uptime and incident history for the TanyaLah Ustaz Partners API."
+    }
+  },
+  "onboarding": {
+    "title": "Get started in 3 steps",
+    "subtitle": "New here? Follow these steps to make your first API call.",
+    "steps": [
+      {
+        "title": "Create an API key",
+        "body": "Generate a key to authenticate requests to the API.",
+        "cta": "Create key"
+      },
+      {
+        "title": "Try it live",
+        "body": "Send a message and verify the response before integrating.",
+        "cta": "Start testing"
+      },
+      {
+        "title": "Integrate in your app",
+        "body": "Connect your backend using your API key. See the docs for request details.",
+        "cta": "View API reference"
+      }
+    ]
+  },
+  "quickStart": {
+    "title": "Quick start",
+    "description": "Replace {apiKeyPlaceholder} with a key from {apiKeysLink}.",
+    "apiKeyPlaceholder": "YOUR_API_KEY",
+    "apiKeysLink": "API keys",
+    "baseUrl": "Base URL: {url}/api/v1"
+  },
+  "pagination": {
+    "showing": "Showing {from}–{to} of {total}",
+    "page": "Page {page} of {totalPages}"
+  },
+  "recentChats": {
+    "noRequestsYet": "No requests yet.",
+    "tryItLive": "Try it live"
+  },
+  "apiKeys": {
+    "manager": {
+      "copyNowTitle": "Copy your API key now",
+      "copyNowDescription": "This is the only time the full key will be displayed. Store it in a secure location.",
+      "createNewKeyTitle": "Create new key",
+      "createNewKeyDescription": "Name your key by environment, e.g. \"Production\" or \"Staging\".",
+      "keyNamePlaceholder": "Key name",
+      "creating": "Creating…",
+      "createKey": "Create key",
+      "activeKeysTitle": "Active keys",
+      "activeKeysDescription": "{count} key(s) available for API requests",
+      "noActiveKeysTitle": "No active keys",
+      "noActiveKeysDescription": "Create your first API key above to start making requests.",
+      "created": "Created {date}",
+      "lastUsed": "Last used {date}",
+      "revoke": "Revoke",
+      "revokedKeysTitle": "Revoked keys",
+      "revokedKeysDescription": "These keys can no longer be used."
+    },
+    "verifier": {
+      "title": "Verify connection",
+      "description": "Paste a key to test {endpoint}. Your key is not stored. For system uptime, see {statusLink}.",
+      "endpoint": "GET /api/v1/me",
+      "statusLink": "status page",
+      "placeholder": "tlh_live_…",
+      "testing": "Testing…",
+      "testConnection": "Test connection",
+      "keyValid": "API key is valid",
+      "connectionFailed": "Connection failed",
+      "httpStatus": "HTTP {status} · {latency}ms",
+      "authCheckTitle": "Auth check",
+      "authCheckDescription": "Requires a valid API key",
+      "requestFailed": "Request failed"
+    }
+  },
+  "playground": {
+    "settings": "Settings",
+    "category": "Category",
+    "session": "Session",
+    "viewLogs": "View logs",
+    "clearConversation": "New chat",
+    "apiReference": "API reference",
+    "title": "Try it live",
+    "subtitle": "Send a test message and preview the response",
+    "emptyTitle": "Test your integration",
+    "emptyDescription": "Ask a question to preview knowledge-backed answers before shipping to production.",
+    "assistant": "Assistant",
+    "generatingAnswer": "Generating answer…",
+    "thinking": "Thinking…",
+    "live": "Live",
+    "stop": "Stop",
+    "retry": "Retry",
+    "cancelled": "Generation stopped.",
+    "stopped": "You stopped this response.",
+    "streamError": "Something went wrong while generating the answer.",
+    "sources": "Sources",
+    "loadingHistory": "Loading conversation…",
+    "dismiss": "Dismiss",
+    "placeholder": "Ask an Islamic question…",
+    "sending": "Sending…",
+    "send": "Send",
+    "categories": {
+      "all": "All categories",
+      "fiqh": "Fiqh",
+      "ibadah": "Ibadah",
+      "general": "General"
+    },
+    "starterPrompts": [
+      "Can a traveler combine Dhuhr and Asr?",
+      "What is the intention (niat) in prayer?",
+      "What is sedekah and when is it encouraged?"
+    ]
+  },
+  "chatLogs": {
+    "filters": {
+      "searchPlaceholder": "Search messages or session ID…",
+      "search": "Search",
+      "clear": "Clear",
+      "sessionLabel": "Session:",
+      "removeFilter": "Remove filter"
+    },
+    "table": {
+      "sources": "{count} source(s)"
+    },
+    "detail": {
+      "chatRequest": "Chat request",
+      "closeDetail": "Close log detail",
+      "filterBySession": "Filter by session",
+      "userMessage": "User message",
+      "assistantResponse": "Assistant response",
+      "knowledgeSources": "Knowledge sources ({count})"
+    },
+    "origin": {
+      "liveTest": "Live test",
+      "api": "API"
+    }
+  },
+  "knowledge": {
+    "nav": {
+      "articles": "Articles",
+      "team": "Team",
+      "roleLabel": "Role:"
+    },
+    "articleForm": {
+      "detailsTitle": "Article details",
+      "detailsDescription": "Title, slug, and category appear in the knowledge API and search results.",
+      "titlePlaceholder": "e.g. Combining prayers while traveling",
+      "slugPlaceholder": "combining-prayers-travel",
+      "summaryPlaceholder": "Short description used in API responses and previews",
+      "contentTitle": "Content",
+      "contentDescription": "The main body powers AI answers. Published articles are automatically re-embedded for search.",
+      "articleContent": "Article content",
+      "contentPlaceholder": "Write the full article content here…",
+      "tagsPlaceholder": "solat, fiqh, travel",
+      "tagsHelp": "Comma-separated",
+      "publishedLabel": "Published",
+      "publishedDescription": "Visible to the AI and available via the knowledge API",
+      "saving": "Saving…",
+      "saveChanges": "Save changes",
+      "createArticle": "Create article"
+    },
+    "viewer": {
+      "slug": "Slug",
+      "category": "Category",
+      "status": "Status",
+      "updated": "Updated",
+      "summary": "Summary",
+      "content": "Content",
+      "tags": "Tags"
+    },
+    "bulkImport": {
+      "uploadTitle": "Upload file",
+      "uploadDescription": "Import many articles at once from JSON, CSV, or Markdown with frontmatter. Markdown files can be dropped in bulk.",
+      "dropFiles": "Drop files here or click to browse",
+      "fileTypes": ".json, .csv, .md — up to 500 articles per import",
+      "loaded": "Loaded {fileName} — {valid} valid, {invalid} invalid",
+      "markdownFiles": "{count} markdown files",
+      "optionsTitle": "Import options",
+      "duplicateSlugs": "Duplicate slugs",
+      "skipExisting": "Skip existing articles",
+      "updateExisting": "Update existing articles",
+      "publishByDefault": "Publish by default",
+      "publishByDefaultHelp": "Used when a row does not specify published",
+      "embedAfterImport": "Embed after import",
+      "embedAfterImportHelp": "Generate vector chunks for published articles (recommended)",
+      "templatesTitle": "Templates",
+      "templatesDescription": "Download a starter file and replace with your content.",
+      "jsonTemplate": "JSON template",
+      "csvTemplate": "CSV template",
+      "markdownTemplate": "Markdown template",
+      "validationErrors": "Validation errors ({count})",
+      "rowError": "Row {index}{source}: {error}",
+      "rowSource": " ({source})",
+      "moreErrors": "…and {count} more validation errors",
+      "previewTitle": "Preview",
+      "previewDescription": "Showing {shown} of {total} valid article(s).",
+      "importComplete": "Import complete",
+      "imported": "{count} article(s) created",
+      "updated": "{count} article(s) updated",
+      "skipped": "{count} duplicate(s) skipped",
+      "embedded": "{count} article(s) embedded ({chunks} chunk(s))",
+      "embedQueued": "Embedding queued for background processing",
+      "embeddingJob": "Embedding job: {status}",
+      "embeddingProgress": "{processed} / {total} articles processed · {chunks} chunk(s) written",
+      "importFailed": "Row {index} ({title}): {error}",
+      "importing": "Importing…",
+      "importCount": "Import {count} article(s)"
+    },
+    "teamManager": {
+      "inviteTitle": "Invite team member",
+      "inviteDescription": "They must already have a partner account (signed up). Assign a role to let them help manage the knowledge base.",
+      "emailPlaceholder": "colleague@company.com",
+      "assigning": "Assigning…",
+      "assignRole": "Assign role",
+      "currentTeamTitle": "Current team",
+      "memberCount": "{count} member(s)",
+      "noMembers": "No team members yet.",
+      "member": "Member",
+      "added": "Added",
+      "removing": "Removing…",
+      "remove": "Remove"
+    },
+    "reembed": {
+      "reembedding": "Re-embedding…",
+      "reembedAll": "Re-embed all published"
+    },
+    "deleteConfirm": "Delete this article and its embeddings? This cannot be undone."
+  },
+  "docs": {
+    "overview": {
+      "title": "Partner platform",
+      "lead": "Integrate the same knowledge-backed Islamic AI that powers {consumerApp} into your product. Send a user question; we retrieve relevant knowledge, build a grounded prompt, and return an AI answer with cited sources.",
+      "howItWorksTitle": "How it works",
+      "howItWorksSteps": [
+        "Your app sends a user question to POST /api/v1/chat.",
+        "We embed the question and search the knowledge base with semantic retrieval (RAG).",
+        "Relevant passages are injected into the AI prompt as context.",
+        "Earlier messages in the same session_id are included for follow-up questions.",
+        "We return the answer with source article references."
+      ],
+      "baseUrlTitle": "Base URL",
+      "quickStartTitle": "Quick start",
+      "quickStartSteps": [
+        "Create a partner account and sign in.",
+        "Go to Dashboard → API Keys and create a key.",
+        "POST a message to /api/v1/chat from your backend — or use the playground to test first."
+      ],
+      "playgroundLink": "playground",
+      "exampleTitle": "Example: AI chat",
+      "openapiTitle": "OpenAPI specification",
+      "openapiDescription": "Import the machine-readable API spec into Postman, Swagger UI, or your SDK generator.",
+      "openapiLink": "View OpenAPI docs"
+    },
+    "authentication": {
+      "title": "Authentication",
+      "lead": "Protected API endpoints require a partner API key. Keys are created in the {dashboardLink} and stored as SHA-256 hashes — we never store the full key.",
+      "dashboardLink": "Dashboard",
+      "loginVsAppTitle": "Partner login vs consumer app",
+      "loginVsAppBody": "{signInLink} on this site accesses the partner {dashboardName} (API keys, live testing, usage). It is separate from the {consumerAppLink}, where individuals ask questions. Accounts are not shared between the two products.",
+      "consumerAppLink": "{consumerApp} consumer app",
+      "apiKeyHeadersTitle": "API key headers",
+      "apiKeyHeadersDescription": "Send your key on every API request using either header:",
+      "keyFormatTitle": "Key format",
+      "keyFormatDescription": "Keys are prefixed with tlh_live_ followed by a random secret. Revoked keys return 401 Unauthorized.",
+      "dashboardVsApiTitle": "Dashboard vs API auth",
+      "dashboardVsApiDescription": "The partner dashboard uses email/password login. Your API integration uses API keys. Signing into the dashboard does not authenticate API requests, and API keys do not grant dashboard access."
+    },
+    "endpoints": {
+      "title": "API reference",
+      "description": "Every endpoint is prefixed with {baseUrl}/api/v1.",
+      "authRequired": "Auth required",
+      "public": "Public",
+      "requestBody": "Request body",
+      "response": "Response",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/health",
+          "description": "Health check. No authentication required."
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "description": "Returns the authenticated partner profile and API key metadata."
+        },
+        {
+          "method": "POST",
+          "path": "/chat",
+          "description": "Main integration endpoint. Sends a user message, retrieves relevant knowledge from the TanyaLah Ustaz library, and returns an AI reply with sources."
+        },
+        {
+          "method": "GET",
+          "path": "/knowledge",
+          "description": "Browse published knowledge articles that power the AI. Supports ?category=fiqh and ?q=search."
+        },
+        {
+          "method": "GET",
+          "path": "/knowledge/:slug",
+          "description": "Get a single knowledge article by slug."
+        },
+        {
+          "method": "GET",
+          "path": "/usage",
+          "description": "Usage stats for the current API key over the last 30 days."
+        },
+        {
+          "method": "GET",
+          "path": "/openapi.json",
+          "description": "OpenAPI 3.1 specification for this API. No authentication required."
+        }
+      ],
+      "errorResponse": "Error response",
+      "errorExample": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Field 'message' is required.\",\n    \"request_id\": \"req_abc123def456\"\n  }\n}"
+    },
+    "errors": {
+      "title": "Errors & rate limits",
+      "description": "All API errors return a consistent JSON shape with a stable code, human-readable message, and request_id for support.",
+      "formatTitle": "Error format",
+      "formatDescription": "Failed requests return HTTP 4xx/5xx with this body:",
+      "requestIdTitle": "Request tracing",
+      "requestIdDescription": "Every response includes an X-Request-Id header. You may pass your own X-Request-Id (8–64 alphanumeric characters) and we will echo it back. Include request_id when contacting support.",
+      "rateLimitTitle": "Rate limits",
+      "rateLimitDescription": "Authenticated endpoints return rate-limit headers on success and 429 responses when limits are exceeded.",
+      "rateLimitRetryAfter": "Seconds to wait before retrying",
+      "rateLimitMinute": "Remaining requests in the current minute",
+      "rateLimitDay": "Remaining requests for the current UTC day",
+      "catalogTitle": "Error codes",
+      "tableCode": "Code",
+      "tableStatus": "HTTP",
+      "tableDescription": "Description"
+    },
+    "openapi": {
+      "title": "OpenAPI",
+      "description": "Machine-readable API specification for tooling, SDK generation, and contract testing.",
+      "specTitle": "Specification URL",
+      "specDescription": "Download or import this URL into your API client:",
+      "openSpec": "Open openapi.json →",
+      "toolsTitle": "Compatible tools",
+      "toolsPostman": "Postman — Import → Link → paste the specification URL",
+      "toolsCodegen": "openapi-generator or Speakeasy — generate client SDKs from the spec",
+      "toolsSwagger": "Swagger UI — load the spec URL for interactive exploration"
+    },
+    "docsNav": {
+      "heading": "Documentation",
+      "overview": "Overview",
+      "authentication": "Authentication",
+      "apiReference": "API reference",
+      "errors": "Errors & rate limits",
+      "openapi": "OpenAPI"
+    }
+  },
+  "status": {
+    "pageTitle": "{portalName} Status",
+    "pageDescription": "Current status and {days}-day uptime for API services.",
+    "testApiKey": "Test your API key",
+    "lastChecked": "Last checked {time} · {latency}ms · API {version}",
+    "pastIncidents": "Past incidents",
+    "noIncidents": "No incidents reported in the last {days} days.",
+    "levels": {
+      "operational": "Operational",
+      "degraded": "Degraded",
+      "outage": "Outage"
+    },
+    "banner": {
+      "operational": "All systems operational",
+      "degraded": "Partial system degradation",
+      "outage": "Service disruption"
+    },
+    "uptime": {
+      "ariaLabel": "{service} uptime over the last 90 days",
+      "days": "90 days",
+      "today": "Today"
+    },
+    "services": {
+      "api": {
+        "name": "API",
+        "description": "Core API gateway and health endpoints"
+      },
+      "chat": {
+        "name": "Chat API",
+        "description": "POST /api/v1/chat — AI responses with knowledge retrieval"
+      },
+      "knowledge": {
+        "name": "Knowledge API",
+        "description": "GET /api/v1/knowledge — published article catalog"
+      },
+      "auth": {
+        "name": "Authentication",
+        "description": "API key validation for partner requests"
+      }
+    },
+    "incidents": {
+      "resolved": "resolved",
+      "investigating": "investigating",
+      "identified": "identified"
+    }
+  },
+  "roles": {
+    "admin": {
+      "label": "Admin",
+      "description": "Manage team roles and full knowledge access"
+    },
+    "editor": {
+      "label": "Editor",
+      "description": "Create, edit, publish, and delete articles"
+    },
+    "viewer": {
+      "label": "Viewer",
+      "description": "View drafts and published articles (read-only)"
+    }
+  },
+  "actionErrors": {
+    "notLoggedIn": "You must be logged in.",
+    "notSignedIn": "You must be signed in.",
+    "keyNameRequired": "Key name is required.",
+    "verifyEmailBeforeSignIn": "Please verify your email before signing in. Check your inbox for the confirmation link.",
+    "inviteRequired": "An invite code is required to create an account.",
+    "inviteInvalid": "Invalid or expired invite code.",
+    "messageTooShort": "Message must be at least 3 characters.",
+    "messageTooLong": "Message must be 4000 characters or fewer.",
+    "aiResponseFailed": "Failed to generate AI response.",
+    "rateLimitMinute": "Rate limit exceeded: {limit} requests per minute.",
+    "rateLimitDay": "Daily quota exceeded: {limit} requests per day.",
+    "editorAccessRequired": "Editor access required.",
+    "titleRequired": "Title is required (min 3 characters).",
+    "slugRequired": "Slug is required (min 3 characters).",
+    "summaryRequired": "Summary is required (min 10 characters).",
+    "contentRequired": "Content is required (min 20 characters).",
+    "noValidArticles": "No valid articles to import.",
+    "importMaxExceeded": "Maximum 500 articles per import. Split your file and try again.",
+    "reembedFailed": "Re-embed failed.",
+    "embedJobNotFound": "Embedding job not found.",
+    "adminAssignOnly": "Only knowledge admins can assign roles.",
+    "emailRequired": "Email is required.",
+    "invalidRole": "Choose a valid role.",
+    "accountNotFound": "No account found with that email. They must sign up first, then you can assign a role.",
+    "adminChangeOnly": "Only knowledge admins can change roles.",
+    "cannotDemoteSelf": "You cannot demote yourself while you are the only admin.",
+    "memberNotFound": "Team member not found.",
+    "adminRequired": "At least one admin is required on the knowledge team.",
+    "roleUpdated": "Role updated.",
+    "adminRemoveOnly": "Only knowledge admins can remove team members.",
+    "cannotRemoveSelf": "You cannot remove yourself. Ask another admin to do it.",
+    "cannotRemoveOnlyAdmin": "Cannot remove the only knowledge admin.",
+    "memberRemoved": "Team member removed."
+  },
+  "homeDemo": {
+    "sampleQuestion": "Can a traveler combine Dhuhr and Asr?",
+    "sampleResponse": "Yes. A traveler may combine Dhuhr and Asr (jama') during a journey, either advancing Asr into Dhuhr's time or delaying Dhuhr into Asr's time…",
+    "okStatus": "200 OK"
+  }
+}

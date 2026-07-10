@@ -2,8 +2,10 @@
 
 import { useActionState } from "react";
 import { reembedAllKnowledge } from "@/app/actions/knowledge-admin";
+import { useI18n } from "@/lib/i18n/client";
 
 export function KnowledgeReembedButton() {
+  const { t } = useI18n();
   const [state, action, isPending] = useActionState(
     async (_prev: { error?: string; success?: string }) => reembedAllKnowledge(),
     {},
@@ -17,7 +19,7 @@ export function KnowledgeReembedButton() {
           disabled={isPending}
           className="rounded-lg border border-zinc-300 px-4 py-2 text-sm transition hover:bg-zinc-50 disabled:opacity-60 dark:border-zinc-700 dark:hover:bg-zinc-900"
         >
-          {isPending ? "Re-embedding…" : "Re-embed all published"}
+          {isPending ? t("knowledge.reembed.reembedding") : t("knowledge.reembed.reembedAll")}
         </button>
       </form>
       {state.error && <p className="text-xs text-red-600">{state.error}</p>}
