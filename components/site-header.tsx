@@ -1,15 +1,20 @@
+"use client";
+
 import Link from "next/link";
 import { Logo } from "@/components/brand";
-import { GET_STARTED_LABEL, SIGN_IN_LABEL } from "@/lib/brand";
-
-const navLinks = [
-  { href: "/docs", label: "Documentation" },
-  { href: "/docs/endpoints", label: "API reference" },
-  { href: "/status", label: "Status" },
-  { href: "/#pricing", label: "Pricing" },
-];
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { useI18n } from "@/lib/i18n/client";
 
 export function SiteHeader() {
+  const { t } = useI18n();
+
+  const navLinks = [
+    { href: "/docs", label: t("nav.documentation") },
+    { href: "/docs/endpoints", label: t("nav.apiReference") },
+    { href: "/status", label: t("nav.status") },
+    { href: "/#pricing", label: t("nav.pricing") },
+  ];
+
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
@@ -27,18 +32,20 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-4 md:flex">
+          <LanguageSwitcher />
+          <div className="h-4 w-px bg-border" />
           <Link
             href="/login"
             className="text-sm font-medium text-[color:var(--muted)] transition hover:text-foreground"
           >
-            {SIGN_IN_LABEL}
+            {t("brand.signIn")}
           </Link>
           <Link
             href="/signup"
             className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700"
           >
-            {GET_STARTED_LABEL}
+            {t("brand.getStarted")}
           </Link>
         </div>
 
@@ -51,6 +58,8 @@ export function SiteHeader() {
             </svg>
           </summary>
           <div className="absolute right-0 mt-2 w-56 rounded-xl border border-border bg-card p-2 shadow-lg">
+            <LanguageSwitcher variant="menu" />
+            <div className="my-2 h-px bg-border" />
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -65,13 +74,13 @@ export function SiteHeader() {
               href="/login"
               className="block rounded-lg px-3 py-2 text-sm text-[color:var(--muted)] transition hover:bg-background-subtle hover:text-foreground"
             >
-              {SIGN_IN_LABEL}
+              {t("brand.signIn")}
             </Link>
             <Link
               href="/signup"
               className="mt-1 block rounded-lg bg-brand-600 px-3 py-2 text-center text-sm font-semibold text-white transition hover:bg-brand-700"
             >
-              {GET_STARTED_LABEL}
+              {t("brand.getStarted")}
             </Link>
           </div>
         </details>

@@ -5,10 +5,15 @@ import { PageHeader } from "@/components/dashboard/page-header";
 import { getDashboardContext } from "@/lib/dashboard";
 import { createClient } from "@/lib/supabase/server";
 import type { KnowledgeTeamMember, KnowledgeTeamMemberWithProfile } from "@/lib/types";
+import { getTranslations } from "@/lib/i18n/server";
 
-export const metadata = { title: "Knowledge Team" };
+export async function generateMetadata() {
+  const t = await getTranslations();
+  return { title: t("pages.knowledge.team.title") };
+}
 
 export default async function KnowledgeTeamPage() {
+  const t = await getTranslations();
   const context = await getDashboardContext();
   const supabase = await createClient();
 
@@ -36,7 +41,7 @@ export default async function KnowledgeTeamPage() {
       const profile = profileById.get(member.user_id);
       return {
         ...member,
-        email: profile?.email ?? "Unknown",
+        email: profile?.email ?? t("common.unknown"),
         company_name: profile?.company_name ?? null,
       };
     },
@@ -47,8 +52,8 @@ export default async function KnowledgeTeamPage() {
       <KnowledgeNav knowledge={context!.knowledge} active="team" />
 
       <PageHeader
-        title="Knowledge team"
-        description="Assign roles so colleagues can help manage articles. Everyone needs a partner account before you can add them."
+        title={t("pages.knowledge.team.title")}
+        description={t("pages.knowledge.team.description")}
       />
 
       <KnowledgeTeamManager members={team} currentUserId={context!.userId} />

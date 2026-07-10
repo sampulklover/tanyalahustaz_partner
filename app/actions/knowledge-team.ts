@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireKnowledgeAdmin } from "@/lib/dashboard";
+import { getActionTranslations } from "@/lib/i18n/actions";
 import { parseKnowledgeTeamRole, type KnowledgeTeamRole } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 
@@ -22,19 +23,20 @@ async function countTeamAdmins() {
 }
 
 export async function assignKnowledgeTeamMember(formData: FormData): Promise<ActionResult> {
+  const t = await getActionTranslations();
   const admin = await requireKnowledgeAdmin();
   if (!admin) {
-    return { error: "Only knowledge admins can assign roles." };
+    return { error: t("actionErrors.adminAssignOnly") };
   }
 
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const role = parseKnowledgeTeamRole(String(formData.get("role") ?? ""));
 
   if (!email) {
-    return { error: "Email is required." };
+    return { error: t("actionErrors.emailRequired") };
   }
   if (!role) {
-    return { error: "Choose a valid role." };
+    return { error: t("actionErrors.invalidRole") };
   }
 
   const supabase = await createClient();
@@ -48,9 +50,7 @@ export async function assignKnowledgeTeamMember(formData: FormData): Promise<Act
     return { error: profileError.message };
   }
   if (!profile) {
-    return {
-      error: "No account found with that email. They must sign up first, then you can assign a role.",
-    };
+    return { error: t("actionErrors.accountNotFound") };
   }
 
   const { error } = await supabase.from("knowledge_team_members").upsert(
@@ -74,13 +74,14 @@ export async function updateKnowledgeTeamMemberRole(
   userId: string,
   role: KnowledgeTeamRole,
 ): Promise<ActionResult> {
+  const t = await getActionTranslations();
   const admin = await requireKnowledgeAdmin();
   if (!admin) {
-    return { error: "Only knowledge admins can change roles." };
+    return { error: t("actionErrors.adminChangeOnly") };
   }
 
   if (!parseKnowledgeTeamRole(role)) {
-    return { error: "Invalid role." };
+    return { error: t("actionErrors.invalidRole") };
   }
 
   const supabase = await createClient();
@@ -88,7 +89,7 @@ export async function updateKnowledgeTeamMemberRole(
   if (userId === admin.userId && role !== "admin") {
     const adminCount = await countTeamAdmins();
     if (adminCount <= 1) {
-      return { error: "You cannot demote yourself while you are the only admin." };
+      return { error: t("actionErrors.cannotDemoteSelf") };
     }
   }
 
@@ -102,13 +103,13 @@ export async function updateKnowledgeTeamMemberRole(
     return { error: existingError.message };
   }
   if (!existing) {
-    return { error: "Team member not found." };
+    return { error: t("actionErrors.memberNotFound") };
   }
 
   if (existing.role === "admin" && role !== "admin") {
     const adminCount = await countTeamAdmins();
     if (adminCount <= 1) {
-      return { error: "At least one admin is required on the knowledge team." };
+      return { error: t("actionErrors.adminRequired") };
     }
   }
 
@@ -122,17 +123,18 @@ export async function updateKnowledgeTeamMemberRole(
   }
 
   revalidatePath("/dashboard/knowledge/team");
-  return { success: "Role updated." };
+  return { success: t("actionErrors.roleUpdated") };
 }
 
 export async function removeKnowledgeTeamMember(userId: string): Promise<ActionResult> {
+  const t = await getActionTranslations();
   const admin = await requireKnowledgeAdmin();
   if (!admin) {
-    return { error: "Only knowledge admins can remove team members." };
+    return { error: t("actionErrors.adminRemoveOnly") };
   }
 
   if (userId === admin.userId) {
-    return { error: "You cannot remove yourself. Ask another admin to do it." };
+    return { error: t("actionErrors.cannotRemoveSelf") };
   }
 
   const supabase = await createClient();
@@ -146,13 +148,13 @@ export async function removeKnowledgeTeamMember(userId: string): Promise<ActionR
     return { error: existingError.message };
   }
   if (!existing) {
-    return { error: "Team member not found." };
+    return { error: t("actionErrors.memberNotFound") };
   }
 
   if (existing.role === "admin") {
     const adminCount = await countTeamAdmins();
     if (adminCount <= 1) {
-      return { error: "Cannot remove the only knowledge admin." };
+      return { error: t("actionErrors.cannotRemoveOnlyAdmin") };
     }
   }
 
@@ -163,5 +165,5 @@ export async function removeKnowledgeTeamMember(userId: string): Promise<ActionR
   }
 
   revalidatePath("/dashboard/knowledge/team");
-  return { success: "Team member removed." };
+  return { success: t("actionErrors.memberRemoved") };
 }

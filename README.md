@@ -169,7 +169,7 @@ supabase/migrations/
 4. Optional `category` narrows retrieval (e.g. `"fiqh"`)
 5. Previous messages for the same `session_id` are loaded from `partner_chat_logs` (up to 8 turns)
 6. Top chunks + chat history are sent to OpenRouter
-7. Response includes `reply`, `sources`, `model`, and `session_id`
+7. Response includes `reply`, `sources`, and `session_id`
 8. Request is logged in `partner_chat_logs` (visible in dashboard)
 
 ## Production setup

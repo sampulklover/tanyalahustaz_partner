@@ -1,3 +1,4 @@
+import { ApiErrorCode, type ApiErrorCode as ApiErrorCodeType } from "@/lib/api/errors";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logError } from "@/lib/logger";
 
@@ -5,7 +6,12 @@ export type RateLimitTier = "chat" | "api" | "playground";
 
 export type RateLimitResult =
   | { ok: true; remaining: { minute: number; day: number } }
-  | { ok: false; error: string; retryAfterSeconds: number };
+  | {
+      ok: false;
+      error: string;
+      code: ApiErrorCodeType;
+      retryAfterSeconds: number;
+    };
 
 type RateLimitConfig = {
   perMinute: number;
@@ -53,6 +59,7 @@ function evaluateCounts(
   if (minuteCount >= config.perMinute) {
     return {
       ok: false,
+      code: ApiErrorCode.RATE_LIMIT_EXCEEDED,
       error: `Rate limit exceeded: ${config.perMinute} requests per minute.`,
       retryAfterSeconds: 60,
     };
@@ -61,6 +68,7 @@ function evaluateCounts(
   if (dayCount >= config.perDay) {
     return {
       ok: false,
+      code: ApiErrorCode.DAILY_QUOTA_EXCEEDED,
       error: `Daily quota exceeded: ${config.perDay} requests per day.`,
       retryAfterSeconds: 3600,
     };

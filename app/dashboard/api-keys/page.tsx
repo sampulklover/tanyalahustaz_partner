@@ -5,10 +5,15 @@ import { DashboardPage as DashboardShell } from "@/components/dashboard/page";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { createClient } from "@/lib/supabase/server";
 import type { ApiKey } from "@/lib/types";
+import { getTranslations } from "@/lib/i18n/server";
 
-export const metadata = { title: "API Keys" };
+export async function generateMetadata() {
+  const t = await getTranslations();
+  return { title: t("pages.apiKeys.title") };
+}
 
 export default async function ApiKeysPage() {
+  const t = await getTranslations();
   const supabase = await createClient();
   const {
     data: { user },
@@ -27,8 +32,8 @@ export default async function ApiKeysPage() {
   return (
     <DashboardShell>
       <PageHeader
-        title="API keys"
-        description="Create and manage keys used to authenticate requests to the API. Keys are shown once at creation — store them securely."
+        title={t("pages.apiKeys.title")}
+        description={t("pages.apiKeys.description")}
         actions={
           <div className="flex flex-wrap gap-2">
             <Link
@@ -37,7 +42,7 @@ export default async function ApiKeysPage() {
               rel="noopener noreferrer"
               className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-semibold transition hover:bg-background-subtle"
             >
-              API reference ↗
+              {t("common.apiReferenceLink")} ↗
             </Link>
             <Link
               href="/status"
@@ -45,7 +50,7 @@ export default async function ApiKeysPage() {
               rel="noopener noreferrer"
               className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-semibold transition hover:bg-background-subtle"
             >
-              System status ↗
+              {t("common.systemStatusLink")} ↗
             </Link>
           </div>
         }

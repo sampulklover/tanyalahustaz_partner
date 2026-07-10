@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { buildChatLogsPath } from "@/lib/chat-logs";
+import { useI18n } from "@/lib/i18n/client";
 
 export function ChatLogsFilters({
   q,
@@ -11,6 +12,7 @@ export function ChatLogsFilters({
   q?: string;
   session?: string;
 }) {
+  const { t } = useI18n();
   const router = useRouter();
   const [query, setQuery] = useState(q ?? "");
 
@@ -49,7 +51,7 @@ export function ChatLogsFilters({
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search messages or session ID…"
+            placeholder={t("chatLogs.filters.searchPlaceholder")}
             className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30"
           />
         </div>
@@ -58,7 +60,7 @@ export function ChatLogsFilters({
             type="submit"
             className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
           >
-            Search
+            {t("chatLogs.filters.search")}
           </button>
           {(q || session) && (
             <button
@@ -69,7 +71,7 @@ export function ChatLogsFilters({
               }}
               className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium transition hover:bg-background-subtle"
             >
-              Clear
+              {t("chatLogs.filters.clear")}
             </button>
           )}
         </div>
@@ -77,14 +79,14 @@ export function ChatLogsFilters({
 
       {session && (
         <div className="mt-3 flex items-center gap-2 text-sm">
-          <span className="text-[color:var(--muted)]">Session:</span>
+          <span className="text-[color:var(--muted)]">{t("chatLogs.filters.sessionLabel")}</span>
           <code className="rounded bg-card px-2 py-0.5 font-mono text-xs">{session}</code>
           <button
             type="button"
             onClick={() => applyFilters({ q })}
             className="text-xs font-medium text-brand-600 hover:underline dark:text-brand-500"
           >
-            Remove filter
+            {t("chatLogs.filters.removeFilter")}
           </button>
         </div>
       )}

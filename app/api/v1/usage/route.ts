@@ -42,6 +42,6 @@ export async function GET(request: Request) {
       total_requests: totalRequests ?? 0,
       top_endpoints: topEndpoints,
       recent_requests: recentRequests ?? [],
-    });
+    }, 200, context.requestId);
   });
 }

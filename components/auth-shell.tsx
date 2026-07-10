@@ -1,13 +1,10 @@
+"use client";
+
 import type { ReactNode } from "react";
 import { Logo, LogoMark } from "@/components/brand";
 import { ConsumerAppLink } from "@/components/consumer-app-link";
-import { DEVELOPER_PORTAL_SHORT } from "@/lib/brand";
-
-const highlights = [
-  "REST API with knowledge-backed answers",
-  "API keys, playground, and usage analytics",
-  "Same curated content as the consumer app",
-];
+import { CONSUMER_APP_NAME } from "@/lib/brand";
+import { useI18n } from "@/lib/i18n/client";
 
 export function AuthShell({
   title,
@@ -18,9 +15,16 @@ export function AuthShell({
   subtitle: string;
   children: ReactNode;
 }) {
+  const { t } = useI18n();
+
+  const highlights = [
+    t("auth.authHighlight1"),
+    t("auth.authHighlight2"),
+    t("auth.authHighlight3"),
+  ];
+
   return (
     <main className="grid min-h-screen flex-1 lg:grid-cols-2">
-      {/* Brand panel — value prop (Stripe/Twilio split-screen pattern) */}
       <aside className="relative hidden overflow-hidden bg-brand-600 lg:flex lg:flex-col lg:justify-between lg:p-12">
         <div className="pointer-events-none absolute inset-0 bg-dot-grid opacity-20" />
         <div className="relative">
@@ -28,10 +32,10 @@ export function AuthShell({
         </div>
         <div className="relative">
           <p className="text-sm font-medium uppercase tracking-wider text-brand-200">
-            Developer platform
+            {t("auth.developerPlatform")}
           </p>
           <h2 className="mt-3 max-w-md text-3xl font-bold leading-tight text-white">
-            Build with TanyaLah Ustaz Islamic AI
+            {t("auth.authHeroTitle")}
           </h2>
           <ul className="mt-8 space-y-4">
             {highlights.map((item) => (
@@ -47,17 +51,16 @@ export function AuthShell({
           </ul>
         </div>
         <p className="relative text-sm text-brand-100">
-          {DEVELOPER_PORTAL_SHORT} accounts are separate from the consumer app.
+          {t("auth.authFooterNote", { consumerApp: CONSUMER_APP_NAME })}
         </p>
       </aside>
 
-      {/* Form panel */}
       <div className="flex flex-col justify-center px-6 py-12 sm:px-12">
         <div className="mx-auto w-full max-w-sm">
           <div className="mb-8 flex items-center gap-2.5 lg:hidden">
             <LogoMark className="h-10 w-10" />
             <span className="text-sm font-medium text-[color:var(--muted)]">
-              {DEVELOPER_PORTAL_SHORT}
+              {t("brand.developers")}
             </span>
           </div>
           <h1 className="text-2xl font-bold tracking-tight">{title}</h1>

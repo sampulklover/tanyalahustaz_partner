@@ -8,6 +8,7 @@ import {
 } from "@/app/actions/knowledge-admin";
 import { slugify } from "@/lib/knowledge-form";
 import type { KnowledgeArticle } from "@/lib/types";
+import { useI18n } from "@/lib/i18n/client";
 
 const CATEGORIES = ["general", "fiqh", "ibadah", "aqidah", "akhlak"];
 
@@ -21,6 +22,7 @@ type KnowledgeArticleFormProps = {
 };
 
 export function KnowledgeArticleForm({ article }: KnowledgeArticleFormProps) {
+  const { t } = useI18n();
   const isEdit = Boolean(article);
   const [slug, setSlug] = useState(article?.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(isEdit);
@@ -45,16 +47,16 @@ export function KnowledgeArticleForm({ article }: KnowledgeArticleFormProps) {
     <form action={formAction} className="space-y-8">
       <section className="space-y-6">
         <div>
-          <h2 className="text-sm font-semibold">Article details</h2>
+          <h2 className="text-sm font-semibold">{t("knowledge.articleForm.detailsTitle")}</h2>
           <p className="mt-1 text-sm text-[color:var(--muted)]">
-            Title, slug, and category appear in the knowledge API and search results.
+            {t("knowledge.articleForm.detailsDescription")}
           </p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
           <div className="md:col-span-2">
             <label htmlFor="title" className="mb-1.5 block text-sm font-medium">
-              Title
+              {t("common.title")}
             </label>
             <input
               id="title"
@@ -63,13 +65,13 @@ export function KnowledgeArticleForm({ article }: KnowledgeArticleFormProps) {
               defaultValue={article?.title}
               onChange={(e) => handleTitleChange(e.target.value)}
               className={inputClass}
-              placeholder="e.g. Combining prayers while traveling"
+              placeholder={t("knowledge.articleForm.titlePlaceholder")}
             />
           </div>
 
           <div>
             <label htmlFor="slug" className="mb-1.5 block text-sm font-medium">
-              Slug
+              {t("common.slug")}
             </label>
             <input
               id="slug"
@@ -81,13 +83,13 @@ export function KnowledgeArticleForm({ article }: KnowledgeArticleFormProps) {
                 setSlug(e.target.value);
               }}
               className={`${inputClass} font-mono`}
-              placeholder="combining-prayers-travel"
+              placeholder={t("knowledge.articleForm.slugPlaceholder")}
             />
           </div>
 
           <div>
             <label htmlFor="category" className="mb-1.5 block text-sm font-medium">
-              Category
+              {t("common.category")}
             </label>
             <input
               id="category"
@@ -105,7 +107,7 @@ export function KnowledgeArticleForm({ article }: KnowledgeArticleFormProps) {
 
           <div className="md:col-span-2">
             <label htmlFor="summary" className="mb-1.5 block text-sm font-medium">
-              Summary
+              {t("common.summary")}
             </label>
             <textarea
               id="summary"
@@ -114,7 +116,7 @@ export function KnowledgeArticleForm({ article }: KnowledgeArticleFormProps) {
               rows={2}
               defaultValue={article?.summary}
               className={inputClass}
-              placeholder="Short description used in API responses and previews"
+              placeholder={t("knowledge.articleForm.summaryPlaceholder")}
             />
           </div>
         </div>
@@ -122,15 +124,15 @@ export function KnowledgeArticleForm({ article }: KnowledgeArticleFormProps) {
 
       <section className="space-y-6 border-t border-border pt-8">
         <div>
-          <h2 className="text-sm font-semibold">Content</h2>
+          <h2 className="text-sm font-semibold">{t("knowledge.articleForm.contentTitle")}</h2>
           <p className="mt-1 text-sm text-[color:var(--muted)]">
-            The main body powers AI answers. Published articles are automatically re-embedded for search.
+            {t("knowledge.articleForm.contentDescription")}
           </p>
         </div>
 
         <div>
           <label htmlFor="content" className="mb-1.5 block text-sm font-medium">
-            Article content
+            {t("knowledge.articleForm.articleContent")}
           </label>
           <textarea
             id="content"
@@ -139,22 +141,22 @@ export function KnowledgeArticleForm({ article }: KnowledgeArticleFormProps) {
             rows={14}
             defaultValue={article?.content}
             className={`${inputClass} font-mono text-[13px] leading-relaxed`}
-            placeholder="Write the full article content here…"
+            placeholder={t("knowledge.articleForm.contentPlaceholder")}
           />
         </div>
 
         <div>
           <label htmlFor="tags" className="mb-1.5 block text-sm font-medium">
-            Tags
+            {t("common.tags")}
           </label>
           <input
             id="tags"
             name="tags"
             defaultValue={article?.tags?.join(", ") ?? ""}
-            placeholder="solat, fiqh, travel"
+            placeholder={t("knowledge.articleForm.tagsPlaceholder")}
             className={inputClass}
           />
-          <p className="mt-1.5 text-xs text-[color:var(--muted)]">Comma-separated</p>
+          <p className="mt-1.5 text-xs text-[color:var(--muted)]">{t("knowledge.articleForm.tagsHelp")}</p>
         </div>
       </section>
 
@@ -168,9 +170,9 @@ export function KnowledgeArticleForm({ article }: KnowledgeArticleFormProps) {
             className="mt-0.5 h-4 w-4 rounded border-border text-brand-600 focus:ring-brand-500"
           />
           <span>
-            <span className="block text-sm font-medium">Published</span>
+            <span className="block text-sm font-medium">{t("knowledge.articleForm.publishedLabel")}</span>
             <span className="mt-0.5 block text-sm text-[color:var(--muted)]">
-              Visible to the AI and available via the knowledge API
+              {t("knowledge.articleForm.publishedDescription")}
             </span>
           </span>
         </label>
@@ -193,13 +195,17 @@ export function KnowledgeArticleForm({ article }: KnowledgeArticleFormProps) {
           disabled={isPending}
           className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-60"
         >
-          {isPending ? "Saving…" : isEdit ? "Save changes" : "Create article"}
+          {isPending
+            ? t("knowledge.articleForm.saving")
+            : isEdit
+              ? t("knowledge.articleForm.saveChanges")
+              : t("knowledge.articleForm.createArticle")}
         </button>
         <Link
           href="/dashboard/knowledge"
           className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium transition hover:bg-background-subtle"
         >
-          Cancel
+          {t("common.cancel")}
         </Link>
       </div>
     </form>

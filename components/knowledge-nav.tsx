@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { KnowledgePermissions } from "@/lib/roles";
+import { translateKnowledgeRole } from "@/lib/i18n/labels";
+import { useI18n } from "@/lib/i18n/client";
 
 type KnowledgeNavProps = {
   knowledge: KnowledgePermissions;
@@ -19,12 +21,13 @@ function isArticlesSection(pathname: string) {
 }
 
 export function KnowledgeNav({ knowledge, active }: KnowledgeNavProps) {
+  const { t } = useI18n();
   const pathname = usePathname();
 
   const tabs = [
-    { href: "/dashboard/knowledge", label: "Articles", id: "articles" as const },
+    { href: "/dashboard/knowledge", id: "articles" as const },
     ...(knowledge.canManageTeam
-      ? [{ href: "/dashboard/knowledge/team", label: "Team", id: "team" as const }]
+      ? [{ href: "/dashboard/knowledge/team", id: "team" as const }]
       : []),
   ];
 
@@ -45,13 +48,16 @@ export function KnowledgeNav({ knowledge, active }: KnowledgeNavProps) {
                 : "rounded-lg px-4 py-2 text-sm font-medium text-[color:var(--muted)] transition hover:bg-background-subtle hover:text-foreground"
             }
           >
-            {tab.label}
+            {t(`knowledge.nav.${tab.id}`)}
           </Link>
         );
       })}
       {knowledge.role && (
         <span className="ml-auto text-xs text-[color:var(--muted)]">
-          Role: <span className="font-medium capitalize text-foreground">{knowledge.role}</span>
+          {t("knowledge.nav.roleLabel")}{" "}
+          <span className="font-medium text-foreground">
+            {translateKnowledgeRole(t, knowledge.role)}
+          </span>
         </span>
       )}
     </nav>

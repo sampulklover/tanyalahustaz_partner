@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { logError } from "@/lib/logger";
+import { getActionTranslations } from "@/lib/i18n/actions";
 import {
   consumeSignupInvite,
   isInviteRequired,
@@ -67,6 +68,7 @@ export async function signUp(formData: FormData): Promise<{ error: string } | vo
 }
 
 export async function signIn(formData: FormData): Promise<{ error: string } | void> {
+  const t = await getActionTranslations();
   const supabase = await createClient();
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
@@ -80,8 +82,7 @@ export async function signIn(formData: FormData): Promise<{ error: string } | vo
   if (data.user && !isEmailConfirmed(data.user)) {
     await supabase.auth.signOut();
     return {
-      error:
-        "Please verify your email before signing in. Check your inbox for the confirmation link.",
+      error: t("actionErrors.verifyEmailBeforeSignIn"),
     };
   }
 

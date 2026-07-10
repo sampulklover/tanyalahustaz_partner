@@ -7,6 +7,8 @@ import {
   formatChatLogTime,
   type ChatLogRow,
 } from "@/lib/chat-logs";
+import { translateChatLogOrigin } from "@/lib/i18n/labels";
+import { useI18n } from "@/lib/i18n/client";
 
 function truncate(text: string, max: number) {
   if (text.length <= max) return text;
@@ -14,6 +16,7 @@ function truncate(text: string, max: number) {
 }
 
 export function ChatLogsTable({ logs }: { logs: ChatLogRow[] }) {
+  const { t } = useI18n();
   const [selected, setSelected] = useState<ChatLogRow | null>(null);
 
   return (
@@ -25,16 +28,14 @@ export function ChatLogsTable({ logs }: { logs: ChatLogRow[] }) {
             <col />
             <col className="w-[8rem]" />
             <col className="w-[11rem]" />
-            <col className="w-[12rem]" />
             <col className="w-[5.5rem]" />
           </colgroup>
           <thead className="border-b border-border bg-background-subtle text-xs uppercase tracking-wide text-[color:var(--muted)]">
             <tr>
-              <th className="px-5 py-3 font-medium">Time</th>
-              <th className="px-5 py-3 font-medium">Message</th>
-              <th className="px-5 py-3 font-medium">Origin</th>
-              <th className="px-5 py-3 font-medium">Session</th>
-              <th className="px-5 py-3 font-medium">Model</th>
+              <th className="px-5 py-3 font-medium">{t("common.time")}</th>
+              <th className="px-5 py-3 font-medium">{t("common.message")}</th>
+              <th className="px-5 py-3 font-medium">{t("common.origin")}</th>
+              <th className="px-5 py-3 font-medium">{t("common.session")}</th>
               <th className="px-5 py-3 font-medium text-right"> </th>
             </tr>
           </thead>
@@ -42,6 +43,7 @@ export function ChatLogsTable({ logs }: { logs: ChatLogRow[] }) {
             {logs.map((log) => {
               const sourceCount = log.sources?.length ?? 0;
               const isSelected = selected?.id === log.id;
+              const origin = translateChatLogOrigin(t, chatLogOrigin(log));
 
               return (
                 <tr
@@ -60,7 +62,7 @@ export function ChatLogsTable({ logs }: { logs: ChatLogRow[] }) {
                     <p className="truncate font-medium">{truncate(log.user_message, 100)}</p>
                     {sourceCount > 0 && (
                       <p className="mt-0.5 text-xs text-[color:var(--muted)]">
-                        {sourceCount} source{sourceCount === 1 ? "" : "s"}
+                        {t("chatLogs.table.sources", { count: sourceCount })}
                       </p>
                     )}
                   </td>
@@ -72,20 +74,12 @@ export function ChatLogsTable({ logs }: { logs: ChatLogRow[] }) {
                           : "bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-200"
                       }`}
                     >
-                      {chatLogOrigin(log)}
+                      {origin}
                     </span>
                   </td>
                   <td className="px-5 py-3.5 font-mono text-xs text-[color:var(--muted)]">
                     <span className="block truncate" title={log.session_id}>
                       {log.session_id.slice(0, 8)}…
-                    </span>
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <span
-                      className="inline-block max-w-full truncate rounded-full bg-background-subtle px-2 py-0.5 text-xs"
-                      title={log.model}
-                    >
-                      {log.model}
                     </span>
                   </td>
                   <td className="px-5 py-3.5 text-right">
@@ -97,7 +91,7 @@ export function ChatLogsTable({ logs }: { logs: ChatLogRow[] }) {
                       }}
                       className="text-sm font-medium text-brand-600 hover:underline dark:text-brand-500"
                     >
-                      View
+                      {t("common.view")}
                     </button>
                   </td>
                 </tr>

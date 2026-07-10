@@ -1,4 +1,5 @@
 import { apiError, apiSuccess, withApiAuth } from "@/lib/api/handler";
+import { ApiErrorCode } from "@/lib/api/errors";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { KnowledgeArticle } from "@/lib/types";
 
@@ -9,7 +10,7 @@ type RouteContext = {
 export async function GET(request: Request, { params }: RouteContext) {
   const { slug } = await params;
 
-  return withApiAuth(request, async () => {
+  return withApiAuth(request, async (_req, context) => {
     const admin = createAdminClient();
 
     const { data, error } = await admin
@@ -20,13 +21,27 @@ export async function GET(request: Request, { params }: RouteContext) {
       .maybeSingle();
 
     if (error) {
-      return apiError(error.message, 500);
+      return apiError(
+        ApiErrorCode.INTERNAL_ERROR,
+        "Failed to load knowledge article.",
+        500,
+        { requestId: context.requestId },
+      );
     }
 
     if (!data) {
-      return apiError("Knowledge article not found.", 404);
+      return apiError(
+        ApiErrorCode.NOT_FOUND,
+        "Knowledge article not found.",
+        404,
+        { requestId: context.requestId },
+      );
     }
 
-    return apiSuccess({ data: data as Omit<KnowledgeArticle, "id" | "published" | "created_at"> });
+    return apiSuccess(
+      { data: data as Omit<KnowledgeArticle, "id" | "published" | "created_at"> },
+      200,
+      context.requestId,
+    );
   });
 }

@@ -1,44 +1,50 @@
+"use client";
+
 import Link from "next/link";
 import { LogoMark } from "@/components/brand";
 import {
   CONSUMER_APP_NAME,
   CONSUMER_APP_URL,
-  DEVELOPER_PORTAL_SHORT,
-  GET_STARTED_LABEL,
-  SIGN_IN_LABEL,
 } from "@/lib/brand";
+import { useI18n } from "@/lib/i18n/client";
 
 type FooterLink = { href: string; label: string; external?: boolean };
 
-const footerNav: { heading: string; links: FooterLink[] }[] = [
-  {
-    heading: "Developers",
-    links: [
-      { href: "/docs", label: "Documentation" },
-      { href: "/docs/endpoints", label: "API reference" },
-      { href: "/status", label: "System status" },
-      { href: "/docs/authentication", label: "Authentication" },
-      { href: "/#pricing", label: "Pricing" },
-    ],
-  },
-  {
-    heading: "Dashboard",
-    links: [
-      { href: "/signup", label: GET_STARTED_LABEL },
-      { href: "/login", label: SIGN_IN_LABEL },
-      { href: "/dashboard", label: "Overview" },
-      { href: "/dashboard/playground", label: "Playground" },
-    ],
-  },
-  {
-    heading: CONSUMER_APP_NAME,
-    links: [
-      { href: CONSUMER_APP_URL, label: "Consumer app", external: true },
-    ],
-  },
-];
-
 export function SiteFooter() {
+  const { t } = useI18n();
+
+  const footerNav: { heading: string; links: FooterLink[] }[] = [
+    {
+      heading: t("footer.developersHeading"),
+      links: [
+        { href: "/docs", label: t("nav.documentation") },
+        { href: "/docs/endpoints", label: t("nav.apiReference") },
+        { href: "/status", label: t("footer.systemStatus") },
+        { href: "/docs/authentication", label: t("footer.authentication") },
+        { href: "/#pricing", label: t("nav.pricing") },
+      ],
+    },
+    {
+      heading: t("footer.dashboardHeading"),
+      links: [
+        { href: "/signup", label: t("brand.getStarted") },
+        { href: "/login", label: t("brand.signIn") },
+        { href: "/dashboard", label: t("footer.overview") },
+        { href: "/dashboard/playground", label: t("footer.playground") },
+      ],
+    },
+    {
+      heading: CONSUMER_APP_NAME,
+      links: [
+        {
+          href: CONSUMER_APP_URL,
+          label: t("brand.visitApp"),
+          external: true,
+        },
+      ],
+    },
+  ];
+
   return (
     <footer className="border-t border-border bg-background-subtle">
       <div className="mx-auto max-w-6xl px-6 py-14">
@@ -49,22 +55,12 @@ export function SiteFooter() {
               <span className="flex flex-col leading-none">
                 <span className="font-semibold tracking-tight">TanyaLah Ustaz</span>
                 <span className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-brand-600 dark:text-brand-500">
-                  {DEVELOPER_PORTAL_SHORT}
+                  {t("brand.developers")}
                 </span>
               </span>
             </div>
             <p className="mt-4 text-sm leading-relaxed text-[color:var(--muted)]">
-              Developer platform and API for embedding knowledge-backed Islamic AI in
-              your product. Powered by the same content as{" "}
-              <a
-                href={CONSUMER_APP_URL}
-                className="font-medium text-brand-600 hover:underline dark:text-brand-500"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {CONSUMER_APP_NAME}
-              </a>
-              .
+              {t("footer.description", { consumerApp: CONSUMER_APP_NAME })}
             </p>
           </div>
 
@@ -99,10 +95,8 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-border pt-8 text-sm text-[color:var(--muted)] sm:flex-row sm:items-center">
-          <p>© {new Date().getFullYear()} TanyaLah Ustaz. All rights reserved.</p>
-          <p className="text-xs">
-            AI-generated answers are for guidance only. Consult a qualified scholar for personal rulings.
-          </p>
+          <p>{t("footer.copyright", { year: new Date().getFullYear() })}</p>
+          <p className="text-xs">{t("footer.disclaimer")}</p>
         </div>
       </div>
     </footer>

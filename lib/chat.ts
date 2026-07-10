@@ -6,7 +6,7 @@ import {
 } from "@/lib/knowledge";
 import { createSessionId, generateChatReply } from "@/lib/openrouter";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { ChatResponse } from "@/lib/types";
+import type { ChatResponse, KnowledgeSource } from "@/lib/types";
 
 export type ExecuteChatInput = {
   message: string;
@@ -34,7 +34,17 @@ export function validateChatMessage(message: string) {
   return { ok: true as const, message: trimmed };
 }
 
-export async function executeChat(input: ExecuteChatInput): Promise<ExecuteChatResult> {
+export type PreparedChatContext = {
+  message: string;
+  sessionId: string;
+  knowledgeContext: string;
+  history: Awaited<ReturnType<typeof loadChatHistory>>;
+  sources: KnowledgeSource[];
+};
+
+export async function prepareChatContext(
+  input: Pick<ExecuteChatInput, "message" | "sessionId" | "category" | "partnerId">,
+): Promise<{ ok: true; data: PreparedChatContext } | { ok: false; error: string }> {
   const validation = validateChatMessage(input.message);
 
   if (!validation.ok) {
@@ -48,22 +58,73 @@ export async function executeChat(input: ExecuteChatInput): Promise<ExecuteChatR
       loadChatHistory({ partnerId: input.partnerId, sessionId }),
     ]);
 
-    const knowledgeContext = buildKnowledgeContext(retrievedKnowledge);
+    return {
+      ok: true,
+      data: {
+        message: validation.message,
+        sessionId,
+        knowledgeContext: buildKnowledgeContext(retrievedKnowledge),
+        history,
+        sources: dedupeSources(retrievedKnowledge),
+      },
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to prepare chat context.";
+    return { ok: false, error: message };
+  }
+}
+
+export async function persistChatExchange({
+  partnerId,
+  apiKeyId,
+  sessionId,
+  userMessage,
+  assistantMessage,
+  model,
+  sources,
+}: {
+  partnerId: string;
+  apiKeyId?: string | null;
+  sessionId: string;
+  userMessage: string;
+  assistantMessage: string;
+  model: string;
+  sources: KnowledgeSource[];
+}) {
+  const admin = createAdminClient();
+
+  await admin.from("partner_chat_logs").insert({
+    partner_id: partnerId,
+    api_key_id: apiKeyId ?? null,
+    session_id: sessionId,
+    user_message: userMessage,
+    assistant_message: assistantMessage,
+    model,
+    sources,
+  });
+}
+
+export async function executeChat(input: ExecuteChatInput): Promise<ExecuteChatResult> {
+  const prepared = await prepareChatContext(input);
+
+  if (!prepared.ok) {
+    return { ok: false, error: prepared.error };
+  }
+
+  try {
+    const { message, sessionId, knowledgeContext, history, sources } = prepared.data;
     const { reply, model } = await generateChatReply({
-      userMessage: validation.message,
+      userMessage: message,
       knowledgeContext,
       history,
     });
 
-    const sources = dedupeSources(retrievedKnowledge);
-    const admin = createAdminClient();
-
-    await admin.from("partner_chat_logs").insert({
-      partner_id: input.partnerId,
-      api_key_id: input.apiKeyId ?? null,
-      session_id: sessionId,
-      user_message: validation.message,
-      assistant_message: reply,
+    await persistChatExchange({
+      partnerId: input.partnerId,
+      apiKeyId: input.apiKeyId,
+      sessionId,
+      userMessage: message,
+      assistantMessage: reply,
       model,
       sources,
     });
@@ -73,7 +134,6 @@ export async function executeChat(input: ExecuteChatInput): Promise<ExecuteChatR
       data: {
         reply,
         session_id: sessionId,
-        model,
         sources,
       },
     };

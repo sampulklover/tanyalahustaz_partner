@@ -8,7 +8,6 @@ export type ChatLogRow = Pick<
   | "session_id"
   | "user_message"
   | "assistant_message"
-  | "model"
   | "sources"
   | "created_at"
   | "api_key_id"
@@ -72,7 +71,7 @@ export function normalizeChatLogRow(
 }
 
 export function chatLogOrigin(log: ChatLogRow) {
-  if (!log.api_key_id) return "Playground";
+  if (!log.api_key_id) return "Live test";
   const key = log.api_keys;
   if (!key) return "API";
   return key.name || `${key.key_prefix}…`;

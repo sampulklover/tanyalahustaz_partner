@@ -2,21 +2,23 @@
 
 import { revalidatePath } from "next/cache";
 import { generateApiKey } from "@/lib/api-keys";
+import { getActionTranslations } from "@/lib/i18n/actions";
 import { createClient } from "@/lib/supabase/server";
 
 export async function createApiKey(formData: FormData) {
+  const t = await getActionTranslations();
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "You must be logged in." };
+    return { error: t("actionErrors.notLoggedIn") };
   }
 
   const name = String(formData.get("name") ?? "").trim();
   if (!name) {
-    return { error: "Key name is required." };
+    return { error: t("actionErrors.keyNameRequired") };
   }
 
   const { fullKey, keyHash, displayPrefix } = generateApiKey();

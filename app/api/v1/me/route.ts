@@ -1,4 +1,5 @@
 import { apiError, apiSuccess, withApiAuth } from "@/lib/api/handler";
+import { ApiErrorCode } from "@/lib/api/errors";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function GET(request: Request) {
@@ -15,12 +16,21 @@ export async function GET(request: Request) {
     ]);
 
     if (!profile || !apiKey) {
-      return apiError("Partner profile not found.", 404);
+      return apiError(
+        ApiErrorCode.NOT_FOUND,
+        "Partner profile not found.",
+        404,
+        { requestId: context.requestId },
+      );
     }
 
-    return apiSuccess({
-      partner: profile,
-      api_key: apiKey,
-    });
+    return apiSuccess(
+      {
+        partner: profile,
+        api_key: apiKey,
+      },
+      200,
+      context.requestId,
+    );
   });
 }

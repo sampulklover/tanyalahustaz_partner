@@ -1,9 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import type { PartnerChatLog } from "@/lib/types";
+import { useI18n } from "@/lib/i18n/client";
 
 type ChatPreview = Pick<
   PartnerChatLog,
-  "id" | "user_message" | "model" | "created_at"
+  "id" | "user_message" | "created_at"
 >;
 
 function truncate(text: string, max: number) {
@@ -21,12 +24,14 @@ function formatTime(iso: string) {
 }
 
 export function RecentChatsPreview({ chats }: { chats: ChatPreview[] }) {
+  const { t } = useI18n();
+
   if (chats.length === 0) {
     return (
       <p className="text-sm text-[color:var(--muted)]">
-        No requests yet.{" "}
+        {t("recentChats.noRequestsYet")}{" "}
         <Link href="/dashboard/playground" className="text-brand-600 hover:underline dark:text-brand-500">
-          Try the playground
+          {t("recentChats.tryItLive")}
         </Link>
       </p>
     );
@@ -42,8 +47,8 @@ export function RecentChatsPreview({ chats }: { chats: ChatPreview[] }) {
         </colgroup>
         <thead className="border-b border-border text-xs uppercase tracking-wide text-[color:var(--muted)]">
           <tr>
-            <th className="pb-3 font-medium">Time</th>
-            <th className="pb-3 font-medium">Message</th>
+            <th className="pb-3 font-medium">{t("common.time")}</th>
+            <th className="pb-3 font-medium">{t("common.message")}</th>
             <th className="pb-3 font-medium text-right"> </th>
           </tr>
         </thead>
@@ -55,14 +60,13 @@ export function RecentChatsPreview({ chats }: { chats: ChatPreview[] }) {
               </td>
               <td className="py-3">
                 <p className="line-clamp-1 font-medium">{truncate(chat.user_message, 72)}</p>
-                <p className="mt-0.5 text-xs text-[color:var(--muted)]">{chat.model}</p>
               </td>
               <td className="py-3 text-right">
                 <Link
                   href="/dashboard/chat"
                   className="text-xs font-medium text-brand-600 hover:underline dark:text-brand-500"
                 >
-                  View
+                  {t("common.view")}
                 </Link>
               </td>
             </tr>
