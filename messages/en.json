@@ -522,10 +522,10 @@
     },
     "articleForm": {
       "detailsTitle": "Article details",
-      "detailsDescription": "Title, slug, and category appear in the knowledge API and search results.",
+      "detailsDescription": "Title, slug, and category are used in AI search and source citations.",
       "titlePlaceholder": "e.g. Combining prayers while traveling",
       "slugPlaceholder": "combining-prayers-travel",
-      "summaryPlaceholder": "Short description used in API responses and previews",
+      "summaryPlaceholder": "Short description used in search previews",
       "contentTitle": "Content",
       "contentDescription": "The main body powers AI answers. Published articles are automatically re-embedded for search.",
       "articleContent": "Article content",
@@ -533,7 +533,7 @@
       "tagsPlaceholder": "solat, fiqh, travel",
       "tagsHelp": "Comma-separated",
       "publishedLabel": "Published",
-      "publishedDescription": "Visible to the AI and available via the knowledge API",
+      "publishedDescription": "Visible to the AI for retrieval and source citations",
       "saving": "Saving…",
       "saveChanges": "Save changes",
       "createArticle": "Create article"
@@ -669,13 +669,23 @@
         },
         {
           "method": "GET",
-          "path": "/knowledge",
-          "description": "Browse published knowledge articles that power the AI. Supports ?category=fiqh and ?q=search."
+          "path": "/chat/sessions",
+          "description": "List conversation sessions for your partner account, newest activity first. Supports ?limit and ?offset."
+        },
+        {
+          "method": "DELETE",
+          "path": "/chat/sessions",
+          "description": "Delete all chat history for your partner account. Requires ?confirm=all."
         },
         {
           "method": "GET",
-          "path": "/knowledge/:slug",
-          "description": "Get a single knowledge article by slug."
+          "path": "/chat/sessions/:sessionId",
+          "description": "Get chronological chat history for a session. Pagination limit/offset apply to conversation turns (each turn is one user + one assistant message)."
+        },
+        {
+          "method": "DELETE",
+          "path": "/chat/sessions/:sessionId",
+          "description": "Delete one chat session and all of its turns."
         },
         {
           "method": "GET",
@@ -758,10 +768,6 @@
       "chat": {
         "name": "Chat API",
         "description": "POST /api/v1/chat — AI responses with knowledge retrieval"
-      },
-      "knowledge": {
-        "name": "Knowledge API",
-        "description": "GET /api/v1/knowledge — published article catalog"
       },
       "auth": {
         "name": "Authentication",

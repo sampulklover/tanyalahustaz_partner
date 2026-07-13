@@ -522,10 +522,10 @@
     },
     "articleForm": {
       "detailsTitle": "Butiran artikel",
-      "detailsDescription": "Tajuk, slug, dan kategori dipaparkan dalam API pengetahuan dan hasil carian.",
+      "detailsDescription": "Tajuk, slug, dan kategori diguna dalam carian AI dan petikan sumber.",
       "titlePlaceholder": "cth. Jamak solat semasa musafir",
       "slugPlaceholder": "jamak-solat-musafir",
-      "summaryPlaceholder": "Penerangan ringkas digunakan dalam respons API dan pratonton",
+      "summaryPlaceholder": "Penerangan ringkas digunakan dalam pratonton carian",
       "contentTitle": "Kandungan",
       "contentDescription": "Badan utama menguasakan jawapan AI. Artikel diterbitkan dibenamkan semula secara automatik untuk carian.",
       "articleContent": "Kandungan artikel",
@@ -533,7 +533,7 @@
       "tagsPlaceholder": "solat, fiqh, musafir",
       "tagsHelp": "Dipisahkan koma",
       "publishedLabel": "Diterbitkan",
-      "publishedDescription": "Kelihatan kepada AI dan tersedia melalui API pengetahuan",
+      "publishedDescription": "Kelihatan kepada AI untuk pengambilan dan petikan sumber",
       "saving": "Sedang menyimpan…",
       "saveChanges": "Simpan perubahan",
       "createArticle": "Cipta artikel"
@@ -669,13 +669,23 @@
         },
         {
           "method": "GET",
-          "path": "/knowledge",
-          "description": "Layari artikel pengetahuan diterbitkan yang menguasakan AI. Menyokong ?category=fiqh dan ?q=search."
+          "path": "/chat/sessions",
+          "description": "Senaraikan sesi perbualan untuk akaun rakan kongsi anda, aktiviti terbaru dahulu. Menyokong ?limit dan ?offset."
+        },
+        {
+          "method": "DELETE",
+          "path": "/chat/sessions",
+          "description": "Padam semua sejarah sembang untuk akaun rakan kongsi anda. Memerlukan ?confirm=all."
         },
         {
           "method": "GET",
-          "path": "/knowledge/:slug",
-          "description": "Dapatkan satu artikel pengetahuan mengikut slug."
+          "path": "/chat/sessions/:sessionId",
+          "description": "Dapatkan sejarah sembang mengikut kronologi untuk sesuatu sesi. Had dan offset penomboran halaman diguna pada pusingan perbualan (setiap pusingan ialah satu mesej pengguna + satu mesej pembantu)."
+        },
+        {
+          "method": "DELETE",
+          "path": "/chat/sessions/:sessionId",
+          "description": "Padam satu sesi sembang dan semua pusingannya."
         },
         {
           "method": "GET",
@@ -758,10 +768,6 @@
       "chat": {
         "name": "API Sembang",
         "description": "POST /api/v1/chat — respons AI dengan pengambilan pengetahuan"
-      },
-      "knowledge": {
-        "name": "API Pengetahuan",
-        "description": "GET /api/v1/knowledge — katalog artikel diterbitkan"
       },
       "auth": {
         "name": "Pengesahan",

@@ -19,8 +19,8 @@ Partner portal   →  Next.js dashboard  →  API keys, chat logs, usage
 ## Features
 
 - **AI chat API** — `POST /api/v1/chat` with knowledge-backed prompts
-- **Knowledge base** — curated Islamic articles managed by TanyaLah Ustaz, used as AI context
-- **Knowledge browse API** — `GET /api/v1/knowledge` for partners to inspect available content
+- **Knowledge base** — curated Islamic articles managed in the admin dashboard, used as AI context
+- **Chat history API** — list, fetch, and delete sessions (or clear all history)
 - **Developer portal** — signup, API keys, chat logs, usage stats
 - **OpenRouter integration** — server-side only; model configurable via env
 
@@ -129,8 +129,8 @@ curl -X POST http://localhost:3000/api/v1/chat \
   -H "Content-Type: application/json" \
   -d '{"message":"Can a traveler combine Dhuhr and Asr?","category":"fiqh","session_id":"user-123"}'
 
-# Browse knowledge articles
-curl "http://localhost:3000/api/v1/knowledge?category=fiqh" \
+# List chat sessions
+curl "http://localhost:3000/api/v1/chat/sessions" \
   -H "Authorization: Bearer tlh_live_YOUR_KEY"
 
 # Partner profile
@@ -143,8 +143,7 @@ curl http://localhost:3000/api/v1/me \
 ```
 app/
   api/v1/
-    chat/           # AI chat endpoint (OpenRouter + knowledge)
-    knowledge/      # Browse knowledge articles
+    chat/           # AI chat + session history
     me/             # Partner profile
     usage/          # API usage stats
   dashboard/        # Partner portal

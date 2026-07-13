@@ -28,11 +28,6 @@ export const STATUS_SERVICES: StatusService[] = [
     description: "POST /api/v1/chat — AI responses with knowledge retrieval",
   },
   {
-    id: "knowledge",
-    name: "Knowledge API",
-    description: "GET /api/v1/knowledge — published article catalog",
-  },
-  {
     id: "auth",
     name: "Authentication",
     description: "API key validation for partner requests",

@@ -9,18 +9,18 @@ const endpointExamples: Record<
   string,
   { auth: boolean; request?: string; response: string }
 > = {
-  "/health": {
+  "GET /health": {
     auth: false,
     response: `{ "status": "ok", "version": "v1", "timestamp": "..." }`,
   },
-  "/me": {
+  "GET /me": {
     auth: true,
     response: `{
   "partner": { "id": "uuid", "email": "...", "company_name": "..." },
   "api_key": { "id": "uuid", "name": "Production", "last_used_at": null }
 }`,
   },
-  "/chat": {
+  "POST /chat": {
     auth: true,
     request: `{
   "message": "Can a traveler combine Dhuhr and Asr?",
@@ -33,18 +33,43 @@ const endpointExamples: Record<
   "sources": [{ "slug": "jamak-solat-musafir", "title": "...", "category": "fiqh" }]
 }`,
   },
-  "/knowledge": {
+  "GET /chat/sessions": {
     auth: true,
     response: `{
-  "data": [{ "slug": "jamak-solat-musafir", "title": "...", "category": "fiqh", "summary": "..." }],
+  "data": [{
+    "session_id": "your-user-session-id",
+    "turn_count": 3,
+    "created_at": "...",
+    "updated_at": "...",
+    "last_user_message": "Can a traveler combine Dhuhr and Asr?"
+  }],
+  "pagination": { "limit": 20, "offset": 0, "total": 1 }
+}`,
+  },
+  "DELETE /chat/sessions": {
+    auth: true,
+    response: `{ "deleted": true, "deleted_turns": 12 }`,
+  },
+  "GET /chat/sessions/:sessionId": {
+    auth: true,
+    response: `{
+  "session_id": "your-user-session-id",
+  "data": [
+    { "id": "...-user", "role": "user", "content": "...", "created_at": "..." },
+    { "id": "...-assistant", "role": "assistant", "content": "...", "sources": [...], "created_at": "..." }
+  ],
   "pagination": { "limit": 20, "offset": 0, "total": 3 }
 }`,
   },
-  "/knowledge/:slug": {
+  "DELETE /chat/sessions/:sessionId": {
     auth: true,
-    response: `{ "data": { "slug": "jamak-solat-musafir", "title": "...", "content": "..." } }`,
+    response: `{
+  "deleted": true,
+  "session_id": "your-user-session-id",
+  "deleted_turns": 3
+}`,
   },
-  "/usage": {
+  "GET /usage": {
     auth: true,
     response: `{
   "period_days": 30,
@@ -53,11 +78,21 @@ const endpointExamples: Record<
   "recent_requests": [...]
 }`,
   },
-  "/openapi.json": {
+  "GET /openapi.json": {
     auth: false,
     response: `{ "openapi": "3.1.0", "info": { "title": "TanyaLah Ustaz Partner API", "version": "1.0.0" }, ... }`,
   },
 };
+
+function methodBadgeClass(method: string) {
+  if (method === "GET") {
+    return "bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-200";
+  }
+  if (method === "DELETE") {
+    return "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300";
+  }
+  return "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300";
+}
 
 export default async function EndpointsDocsPage() {
   const t = await getTranslations();
@@ -75,7 +110,7 @@ export default async function EndpointsDocsPage() {
       </div>
 
       {endpoints.map((endpoint) => {
-        const example = endpointExamples[endpoint.path];
+        const example = endpointExamples[`${endpoint.method} ${endpoint.path}`];
 
         return (
           <section
@@ -84,11 +119,7 @@ export default async function EndpointsDocsPage() {
           >
             <div className="flex flex-wrap items-center gap-3">
               <span
-                className={`rounded-md px-2 py-1 font-mono text-xs font-semibold ${
-                  endpoint.method === "GET"
-                    ? "bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-200"
-                    : "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300"
-                }`}
+                className={`rounded-md px-2 py-1 font-mono text-xs font-semibold ${methodBadgeClass(endpoint.method)}`}
               >
                 {endpoint.method}
               </span>
