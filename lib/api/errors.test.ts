@@ -53,9 +53,14 @@ describe("getOpenApiSpec", () => {
     assert.equal(spec.servers[0].url, "https://partner.example.com/api/v1");
     assert.ok(spec.paths["/health"]);
     assert.ok(spec.paths["/chat"]);
-    assert.ok(spec.paths["/knowledge"]);
-    assert.ok(spec.paths["/knowledge/{slug}"]);
+    assert.ok(spec.paths["/chat/sessions"]);
+    assert.ok(spec.paths["/chat/sessions"]?.get);
+    assert.ok(spec.paths["/chat/sessions"]?.delete);
+    assert.ok(spec.paths["/chat/sessions/{sessionId}"]);
+    assert.ok(spec.paths["/chat/sessions/{sessionId}"]?.get);
+    assert.ok(spec.paths["/chat/sessions/{sessionId}"]?.delete);
     assert.ok(spec.paths["/usage"]);
+    assert.ok(!("/knowledge" in spec.paths));
     assert.ok(spec.components.schemas.ApiError);
   });
 });

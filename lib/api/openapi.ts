@@ -53,7 +53,6 @@ export function getOpenApiSpec(baseUrl: string) {
       { name: "System", description: "Health and metadata endpoints" },
       { name: "Partner", description: "Authenticated partner endpoints" },
       { name: "Chat", description: "AI chat with knowledge retrieval" },
-      { name: "Knowledge", description: "Published knowledge articles" },
     ],
     components: {
       securitySchemes,
@@ -130,27 +129,68 @@ export function getOpenApiSpec(baseUrl: string) {
             },
           },
         },
-        KnowledgeArticleSummary: {
+        ChatSessionSummary: {
           type: "object",
           properties: {
-            slug: { type: "string" },
-            title: { type: "string" },
-            category: { type: "string" },
-            summary: { type: "string" },
-            tags: { type: "array", items: { type: "string" } },
+            session_id: { type: "string" },
+            turn_count: {
+              type: "integer",
+              description: "Number of user/assistant turns stored for this session.",
+            },
+            created_at: { type: "string", format: "date-time" },
             updated_at: { type: "string", format: "date-time" },
+            last_user_message: { type: "string" },
           },
         },
-        KnowledgeArticle: {
-          allOf: [
-            { $ref: "#/components/schemas/KnowledgeArticleSummary" },
-            {
-              type: "object",
-              properties: {
-                content: { type: "string" },
-              },
+        ChatSessionListResponse: {
+          type: "object",
+          properties: {
+            data: {
+              type: "array",
+              items: { $ref: "#/components/schemas/ChatSessionSummary" },
             },
-          ],
+            pagination: { $ref: "#/components/schemas/Pagination" },
+          },
+        },
+        ChatSessionMessage: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+            role: { type: "string", enum: ["user", "assistant"] },
+            content: { type: "string" },
+            sources: {
+              type: "array",
+              items: { $ref: "#/components/schemas/KnowledgeSource" },
+              description: "Present on assistant messages when knowledge sources were cited.",
+            },
+            created_at: { type: "string", format: "date-time" },
+          },
+        },
+        ChatSessionHistoryResponse: {
+          type: "object",
+          properties: {
+            session_id: { type: "string" },
+            data: {
+              type: "array",
+              items: { $ref: "#/components/schemas/ChatSessionMessage" },
+            },
+            pagination: { $ref: "#/components/schemas/Pagination" },
+          },
+        },
+        ChatSessionDeleteResponse: {
+          type: "object",
+          properties: {
+            deleted: { type: "boolean", example: true },
+            session_id: { type: "string" },
+            deleted_turns: { type: "integer" },
+          },
+        },
+        ChatSessionsDeleteAllResponse: {
+          type: "object",
+          properties: {
+            deleted: { type: "boolean", example: true },
+            deleted_turns: { type: "integer" },
+          },
         },
         Pagination: {
           type: "object",
@@ -158,17 +198,6 @@ export function getOpenApiSpec(baseUrl: string) {
             limit: { type: "integer" },
             offset: { type: "integer" },
             total: { type: "integer" },
-          },
-        },
-        KnowledgeListResponse: {
-          type: "object",
-          properties: {
-            data: {
-              type: "array",
-              items: { $ref: "#/components/schemas/KnowledgeArticleSummary" },
-            },
-            pagination: { $ref: "#/components/schemas/Pagination" },
-            note: { type: "string" },
           },
         },
         UsageEndpointCount: {
@@ -357,24 +386,14 @@ export function getOpenApiSpec(baseUrl: string) {
           },
         },
       },
-      "/knowledge": {
+      "/chat/sessions": {
         get: {
-          tags: ["Knowledge"],
-          summary: "List published knowledge articles",
+          tags: ["Chat"],
+          summary: "List chat sessions",
+          description:
+            "Returns conversation sessions for the authenticated partner, newest activity first. Supports limit and offset pagination.",
           security: [{ bearerAuth: [] }, { apiKeyHeader: [] }],
           parameters: [
-            {
-              name: "category",
-              in: "query",
-              schema: { type: "string" },
-              description: "Filter by category such as fiqh or ibadah.",
-            },
-            {
-              name: "q",
-              in: "query",
-              schema: { type: "string" },
-              description: "Search title, summary, and content.",
-            },
             {
               name: "limit",
               in: "query",
@@ -388,7 +407,7 @@ export function getOpenApiSpec(baseUrl: string) {
           ],
           responses: {
             "200": {
-              description: "Paginated article list",
+              description: "Paginated session list",
               headers: {
                 "X-Request-Id": { schema: { type: "string" } },
                 "X-RateLimit-Remaining-Minute": { schema: { type: "integer" } },
@@ -396,7 +415,7 @@ export function getOpenApiSpec(baseUrl: string) {
               },
               content: {
                 "application/json": {
-                  schema: { $ref: "#/components/schemas/KnowledgeListResponse" },
+                  schema: { $ref: "#/components/schemas/ChatSessionListResponse" },
                 },
               },
             },
@@ -405,23 +424,24 @@ export function getOpenApiSpec(baseUrl: string) {
             "500": { $ref: "#/components/responses/InternalError" },
           },
         },
-      },
-      "/knowledge/{slug}": {
-        get: {
-          tags: ["Knowledge"],
-          summary: "Get a knowledge article by slug",
+        delete: {
+          tags: ["Chat"],
+          summary: "Delete all chat history",
+          description:
+            "Permanently deletes every chat session for the authenticated partner. Requires ?confirm=all to prevent accidental wipes.",
           security: [{ bearerAuth: [] }, { apiKeyHeader: [] }],
           parameters: [
             {
-              name: "slug",
-              in: "path",
+              name: "confirm",
+              in: "query",
               required: true,
-              schema: { type: "string" },
+              schema: { type: "string", enum: ["all"] },
+              description: 'Must be the literal value "all".',
             },
           ],
           responses: {
             "200": {
-              description: "Article details",
+              description: "All chat history deleted",
               headers: {
                 "X-Request-Id": { schema: { type: "string" } },
                 "X-RateLimit-Remaining-Minute": { schema: { type: "integer" } },
@@ -429,15 +449,96 @@ export function getOpenApiSpec(baseUrl: string) {
               },
               content: {
                 "application/json": {
-                  schema: {
-                    type: "object",
-                    properties: {
-                      data: { $ref: "#/components/schemas/KnowledgeArticle" },
-                    },
-                  },
+                  schema: { $ref: "#/components/schemas/ChatSessionsDeleteAllResponse" },
                 },
               },
             },
+            "400": { $ref: "#/components/responses/ValidationError" },
+            "401": { $ref: "#/components/responses/Unauthorized" },
+            "429": { $ref: "#/components/responses/RateLimited" },
+            "500": { $ref: "#/components/responses/InternalError" },
+          },
+        },
+      },
+      "/chat/sessions/{sessionId}": {
+        get: {
+          tags: ["Chat"],
+          summary: "Get chat history for a session",
+          description:
+            "Returns messages for a session in chronological order. Pagination limit/offset apply to conversation turns (each turn expands to one user and one assistant message).",
+          security: [{ bearerAuth: [] }, { apiKeyHeader: [] }],
+          parameters: [
+            {
+              name: "sessionId",
+              in: "path",
+              required: true,
+              schema: { type: "string" },
+              description: "The session_id previously used with POST /chat.",
+            },
+            {
+              name: "limit",
+              in: "query",
+              schema: { type: "integer", minimum: 1, maximum: 100, default: 20 },
+              description: "Max conversation turns to return.",
+            },
+            {
+              name: "offset",
+              in: "query",
+              schema: { type: "integer", minimum: 0, default: 0 },
+              description: "Number of conversation turns to skip.",
+            },
+          ],
+          responses: {
+            "200": {
+              description: "Session message history",
+              headers: {
+                "X-Request-Id": { schema: { type: "string" } },
+                "X-RateLimit-Remaining-Minute": { schema: { type: "integer" } },
+                "X-RateLimit-Remaining-Day": { schema: { type: "integer" } },
+              },
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/ChatSessionHistoryResponse" },
+                },
+              },
+            },
+            "400": { $ref: "#/components/responses/ValidationError" },
+            "401": { $ref: "#/components/responses/Unauthorized" },
+            "404": { $ref: "#/components/responses/NotFound" },
+            "429": { $ref: "#/components/responses/RateLimited" },
+            "500": { $ref: "#/components/responses/InternalError" },
+          },
+        },
+        delete: {
+          tags: ["Chat"],
+          summary: "Delete a chat session",
+          description:
+            "Permanently deletes all turns for the given session_id belonging to the authenticated partner.",
+          security: [{ bearerAuth: [] }, { apiKeyHeader: [] }],
+          parameters: [
+            {
+              name: "sessionId",
+              in: "path",
+              required: true,
+              schema: { type: "string" },
+              description: "The session_id previously used with POST /chat.",
+            },
+          ],
+          responses: {
+            "200": {
+              description: "Session deleted",
+              headers: {
+                "X-Request-Id": { schema: { type: "string" } },
+                "X-RateLimit-Remaining-Minute": { schema: { type: "integer" } },
+                "X-RateLimit-Remaining-Day": { schema: { type: "integer" } },
+              },
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/ChatSessionDeleteResponse" },
+                },
+              },
+            },
+            "400": { $ref: "#/components/responses/ValidationError" },
             "401": { $ref: "#/components/responses/Unauthorized" },
             "404": { $ref: "#/components/responses/NotFound" },
             "429": { $ref: "#/components/responses/RateLimited" },
