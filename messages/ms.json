@@ -128,7 +128,7 @@
     },
     "howItWorks": {
       "eyebrow": "Cara ia berfungsi",
-      "title": "Dari soalan ke jawapan berujukan dalam satu langkah",
+      "title": "Dari soalan ke jawapan dengan rujukan dalam satu langkah",
       "subtitle": "Anda hantar mesej. Kami cari, asaskan, dan jana jawapan. Pengguna anda mendapat panduan yang boleh dipercayai.",
       "steps": [
         {
@@ -137,14 +137,14 @@
         },
         {
           "title": "Hantar soalan",
-          "body": "Hantar mesej pengguna melalui API sembang kami. Pilihan untuk menetapkan kategori topik bagi jawapan yang lebih relevan."
+          "body": "Hantar mesej pengguna melalui API sembang kami. Anda boleh menetapkan kategori topik bagi jawapan yang lebih relevan."
         },
         {
           "title": "Kami cari & asaskan",
           "body": "Kami cari petikan paling relevan dalam pangkalan pengetahuan dan bina respons berasaskan konteks."
         },
         {
-          "title": "Kembalikan jawapan berujukan",
+          "title": "Kembalikan jawapan dengan rujukan",
           "body": "Pengguna anda mendapat balasan jelas berasaskan pengetahuan — lengkap dengan artikel sumber di sebaliknya."
         }
       ]
@@ -190,7 +190,7 @@
       },
       "partner": {
         "title": "Rakan kongsi",
-        "subtitle": "Untuk aplikasi produksi dan pasukan yang berkembang.",
+        "subtitle": "Untuk aplikasi dalam pengeluaran dan pasukan yang berkembang.",
         "price": "Mari berbincang",
         "features": [
           "Semua dalam Permulaan",
@@ -207,7 +207,7 @@
       "subtitle": "Semua yang anda perlu tahu sebelum mengintegrasikan.",
       "items": [
         {
-          "q": "Apakah bezanya dengan tanyalahustaz.com?",
+          "q": "Apakah perbezaannya dengan tanyalahustaz.com?",
           "a": "Ini adalah platform rakan kongsi untuk perniagaan. {consumerApp} ({consumerUrl}) adalah tempat individu bertanya soalan secara langsung. API ini membolehkan anda membenamkan AI berasaskan pengetahuan yang sama ke dalam produk anda sendiri."
         },
         {
@@ -216,7 +216,7 @@
         },
         {
           "q": "Daripada mana jawapan datang?",
-          "a": "Jawapan dijana daripada pangkalan pengetahuan TanyaLah Ustaz terkurati yang sama dengan yang digunakan dalam aplikasi. Kami cari petikan paling relevan untuk setiap soalan dan menggunakannya untuk menjana respons berasaskan konteks dengan rujukan."
+          "a": "Jawapan dijana daripada pangkalan pengetahuan TanyaLah Ustaz terkurasi yang sama dengan yang digunakan dalam aplikasi. Kami cari petikan paling relevan untuk setiap soalan dan menggunakannya untuk menjana respons berasaskan konteks dengan rujukan."
         },
         {
           "q": "Adakah saya perlu menguruskan infrastruktur AI sendiri?",
@@ -228,11 +228,11 @@
         },
         {
           "q": "Bolehkah saya uji sebelum mengintegrasikan?",
-          "a": "Ya. Papan pemuka termasuk ruang ujian langsung yang menggunakan saluran yang sama seperti produksi, jadi anda boleh mencuba soalan dan kategori sebelum menulis sebarang kod."
+          "a": "Ya. Papan pemuka termasuk ruang ujian langsung yang menggunakan saluran yang sama seperti pengeluaran, jadi anda boleh mencuba soalan dan kategori sebelum menulis sebarang kod."
         },
         {
           "q": "Adakah jawapan ini pengganti ulama?",
-          "a": "Tidak. Respons dijana AI untuk panduan dan kemudahan. Untuk keputusan perkara sensitif atau peribadi, pengguna harus merujuk ulama yang berkelayakan. Kami mengesyorkan agar ini dipaparkan dengan jelas dalam produk anda."
+          "a": "Tidak. Respons dijana AI untuk panduan dan kemudahan. Untuk hukum tentang perkara sensitif atau peribadi, pengguna hendaklah merujuk ulama yang berkelayakan. Kami mengesyorkan agar ini dipaparkan dengan jelas dalam produk anda."
         }
       ]
     },
@@ -250,7 +250,7 @@
     "save": "Simpan",
     "close": "Tutup",
     "view": "Lihat",
-    "edit": "Edit",
+    "edit": "Sunting",
     "delete": "Padam",
     "search": "Cari",
     "clear": "Kosongkan",
@@ -294,7 +294,7 @@
     "subtitle": "Kami menghantar pautan pengesahan untuk melengkapkan persediaan akaun anda.",
     "sentTo": "Pautan pengesahan telah dihantar ke {email}. Klik pautan dalam e-mel tersebut untuk mengakses papan pemuka anda.",
     "sentGeneric": "Pautan pengesahan telah dihantar ke alamat e-mel anda. Klik pautan untuk mengakses papan pemuka anda.",
-    "spamHelp": "Tidak menerimanya? Semak folder e-mel remeh anda, atau daftar semula dengan e-mel yang sama untuk menghantar semula pengesahan.",
+    "spamHelp": "Tidak menerimanya? Semak folder spam atau mel sampah anda, atau daftar semula dengan e-mel yang sama untuk menghantar semula pengesahan.",
     "backToSignIn": "Kembali ke log masuk"
   },
   "meta": {
@@ -333,7 +333,7 @@
     },
     "playground": {
       "title": "Cuba secara langsung",
-      "description": "Uji API sembang dengan pangkalan pengetahuan dan saluran yang sama seperti produksi."
+      "description": "Uji API sembang dengan pangkalan pengetahuan dan saluran yang sama seperti pengeluaran."
     },
     "chatLogs": {
       "title": "Log sembang",
@@ -364,12 +364,12 @@
         "description": "Tambah kandungan terkurasi untuk AI rujuk semasa menjawab permintaan sembang rakan kongsi."
       },
       "edit": {
-        "editTitle": "Edit artikel",
+        "editTitle": "Sunting artikel",
         "viewTitle": "Lihat artikel"
       },
       "import": {
         "title": "Import pukal",
-        "description": "Muat naik fail JSON, CSV, atau Markdown untuk menambah banyak artikel pengetahuan serentak. Artikel disahkan sebelum import."
+        "description": "Muat naik fail JSON, CSV, atau Markdown untuk menambah banyak artikel pengetahuan sekali gus. Artikel disahkan sebelum import."
       },
       "team": {
         "title": "Pasukan pengetahuan",
@@ -422,7 +422,7 @@
       "copyNowTitle": "Salin kunci API anda sekarang",
       "copyNowDescription": "Ini adalah satu-satunya kali kunci penuh akan dipaparkan. Simpan di lokasi yang selamat.",
       "createNewKeyTitle": "Cipta kunci baharu",
-      "createNewKeyDescription": "Namakan kunci mengikut persekitaran, cth. \"Produksi\" atau \"Pra-produksi\".",
+      "createNewKeyDescription": "Namakan kunci mengikut persekitaran, cth. \"Pengeluaran\" atau \"Pementasan\".",
       "keyNamePlaceholder": "Nama kunci",
       "creating": "Sedang mencipta…",
       "createKey": "Cipta kunci",
@@ -462,7 +462,7 @@
     "title": "Cuba secara langsung",
     "subtitle": "Hantar mesej ujian dan pratonton respons",
     "emptyTitle": "Uji integrasi anda",
-    "emptyDescription": "Tanya soalan untuk pratonton jawapan berasaskan pengetahuan sebelum melancarkan ke produksi.",
+    "emptyDescription": "Tanya soalan untuk pratonton jawapan berasaskan pengetahuan sebelum melancarkan ke persekitaran pengeluaran.",
     "assistant": "Pembantu",
     "generatingAnswer": "Menjana jawapan…",
     "thinking": "Sedang berfikir…",
@@ -522,7 +522,7 @@
     },
     "articleForm": {
       "detailsTitle": "Butiran artikel",
-      "detailsDescription": "Tajuk, slug, dan kategori diguna dalam carian AI dan petikan sumber.",
+      "detailsDescription": "Tajuk, slug, dan kategori digunakan dalam carian AI dan petikan sumber.",
       "titlePlaceholder": "cth. Jamak solat semasa musafir",
       "slugPlaceholder": "jamak-solat-musafir",
       "summaryPlaceholder": "Penerangan ringkas digunakan dalam pratonton carian",
@@ -531,7 +531,7 @@
       "articleContent": "Kandungan artikel",
       "contentPlaceholder": "Tulis kandungan artikel penuh di sini…",
       "tagsPlaceholder": "solat, fiqh, musafir",
-      "tagsHelp": "Dipisahkan koma",
+      "tagsHelp": "Dipisahkan dengan koma",
       "publishedLabel": "Diterbitkan",
       "publishedDescription": "Kelihatan kepada AI untuk pengambilan dan petikan sumber",
       "saving": "Sedang menyimpan…",
@@ -549,7 +549,7 @@
     },
     "bulkImport": {
       "uploadTitle": "Muat naik fail",
-      "uploadDescription": "Import banyak artikel serentak daripada JSON, CSV, atau Markdown dengan frontmatter. Fail Markdown boleh diletakkan secara pukal.",
+      "uploadDescription": "Import banyak artikel sekali gus daripada JSON, CSV, atau Markdown dengan frontmatter. Fail Markdown boleh diletakkan secara pukal.",
       "dropFiles": "Letakkan fail di sini atau klik untuk melayari",
       "fileTypes": ".json, .csv, .md — sehingga 500 artikel setiap import",
       "loaded": "Dimuatkan {fileName} — {valid} sah, {invalid} tidak sah",
@@ -578,8 +578,8 @@
       "updated": "{count} artikel dikemas kini",
       "skipped": "{count} pendua dilangkau",
       "embedded": "{count} artikel dibenamkan ({chunks} petikan)",
-      "embedQueued": "Penyembenan disusun untuk pemprosesan latar belakang",
-      "embeddingJob": "Kerja penyembenan: {status}",
+      "embedQueued": "Pembenaman disusun untuk pemprosesan latar belakang",
+      "embeddingJob": "Kerja pembenaman: {status}",
       "embeddingProgress": "{processed} / {total} artikel diproses · {chunks} petikan ditulis",
       "importFailed": "Baris {index} ({title}): {error}",
       "importing": "Sedang mengimport…",
@@ -600,10 +600,10 @@
       "remove": "Buang"
     },
     "reembed": {
-      "reembedding": "Sedang menyembenakkan semula…",
+      "reembedding": "Sedang membenamkan semula…",
       "reembedAll": "Benamkan semula semua diterbitkan"
     },
-    "deleteConfirm": "Padam artikel ini dan penyembenannya? Tindakan ini tidak boleh dibatalkan."
+    "deleteConfirm": "Padam artikel ini dan pembenamannya? Tindakan ini tidak boleh dibatalkan."
   },
   "docs": {
     "overview": {
@@ -640,7 +640,7 @@
       "apiKeyHeadersTitle": "Header kunci API",
       "apiKeyHeadersDescription": "Hantar kunci anda pada setiap permintaan API menggunakan salah satu header:",
       "keyFormatTitle": "Format kunci",
-      "keyFormatDescription": "Kunci berawalan tlh_live_ diikuti rahsia rawak. Kunci dibatalkan mengembalikan 401 Unauthorized.",
+      "keyFormatDescription": "Kunci berawalan tlh_live_ diikuti rahsia rawak. Kunci yang dibatalkan akan memulangkan 401 Unauthorized.",
       "dashboardVsApiTitle": "Papan pemuka vs pengesahan API",
       "dashboardVsApiDescription": "Papan pemuka rakan kongsi menggunakan log masuk e-mel/kata laluan. Integrasi API anda menggunakan kunci API. Log masuk ke papan pemuka tidak mengesahkan permintaan API, dan kunci API tidak memberikan akses papan pemuka."
     },
@@ -660,12 +660,12 @@
         {
           "method": "GET",
           "path": "/me",
-          "description": "Mengembalikan profil rakan kongsi yang disahkan dan metadata kunci API."
+          "description": "Memulangkan profil rakan kongsi yang disahkan dan metadata kunci API."
         },
         {
           "method": "POST",
           "path": "/chat",
-          "description": "Titik akhir integrasi utama. Menghantar mesej pengguna, mengambil pengetahuan relevan daripada perpustakaan TanyaLah Ustaz, dan mengembalikan balasan AI dengan sumber."
+          "description": "Titik akhir integrasi utama. Menghantar mesej pengguna, mengambil pengetahuan relevan daripada perpustakaan TanyaLah Ustaz, dan memulangkan balasan AI dengan sumber."
         },
         {
           "method": "GET",
@@ -680,7 +680,7 @@
         {
           "method": "GET",
           "path": "/chat/sessions/:sessionId",
-          "description": "Dapatkan sejarah sembang mengikut kronologi untuk sesuatu sesi. Had dan offset penomboran halaman diguna pada pusingan perbualan (setiap pusingan ialah satu mesej pengguna + satu mesej pembantu)."
+          "description": "Dapatkan sejarah sembang mengikut kronologi untuk sesuatu sesi. Had dan offset penomboran halaman digunakan pada pusingan perbualan (setiap pusingan ialah satu mesej pengguna + satu mesej pembantu)."
         },
         {
           "method": "DELETE",
@@ -703,13 +703,13 @@
     },
     "errors": {
       "title": "Ralat & had kadar",
-      "description": "Semua ralat API mengembalikan bentuk JSON yang konsisten dengan kod stabil, mesej yang boleh dibaca, dan request_id untuk sokongan.",
+      "description": "Semua ralat API memulangkan bentuk JSON yang konsisten dengan kod stabil, mesej yang boleh dibaca, dan request_id untuk sokongan.",
       "formatTitle": "Format ralat",
-      "formatDescription": "Permintaan gagal mengembalikan HTTP 4xx/5xx dengan badan ini:",
+      "formatDescription": "Permintaan yang gagal memulangkan HTTP 4xx/5xx dengan badan ini:",
       "requestIdTitle": "Penjejakan permintaan",
       "requestIdDescription": "Setiap respons termasuk header X-Request-Id. Anda boleh hantar X-Request-Id sendiri (8–64 aksara alfanumerik) dan kami akan mengembalikannya. Sertakan request_id apabila menghubungi sokongan.",
       "rateLimitTitle": "Had kadar",
-      "rateLimitDescription": "Titik akhir yang disahkan mengembalikan header had kadar pada kejayaan dan respons 429 apabila had dilampaui.",
+      "rateLimitDescription": "Titik akhir yang disahkan memulangkan header had kadar pada kejayaan dan respons 429 apabila had dilampaui.",
       "rateLimitRetryAfter": "Saat untuk menunggu sebelum mencuba semula",
       "rateLimitMinute": "Baki permintaan dalam minit semasa",
       "rateLimitDay": "Baki permintaan untuk hari UTC semasa",
@@ -813,20 +813,20 @@
     "contentRequired": "Kandungan diperlukan (min 20 aksara).",
     "noValidArticles": "Tiada artikel sah untuk diimport.",
     "importMaxExceeded": "Maksimum 500 artikel setiap import. Pisahkan fail anda dan cuba lagi.",
-    "reembedFailed": "Penyembenan semula gagal.",
-    "embedJobNotFound": "Kerja penyembenan tidak dijumpai.",
-    "adminAssignOnly": "Hanya admin pengetahuan boleh menetapkan peranan.",
+    "reembedFailed": "Pembenaman semula gagal.",
+    "embedJobNotFound": "Kerja pembenaman tidak ditemui.",
+    "adminAssignOnly": "Hanya pentadbir pengetahuan boleh menetapkan peranan.",
     "emailRequired": "E-mel diperlukan.",
     "invalidRole": "Pilih peranan yang sah.",
-    "accountNotFound": "Tiada akaun dijumpai dengan e-mel tersebut. Mereka mesti mendaftar dahulu, kemudian anda boleh menetapkan peranan.",
-    "adminChangeOnly": "Hanya admin pengetahuan boleh menukar peranan.",
-    "cannotDemoteSelf": "Anda tidak boleh menurunkan diri sendiri semasa anda satu-satunya admin.",
-    "memberNotFound": "Ahli pasukan tidak dijumpai.",
+    "accountNotFound": "Tiada akaun ditemui dengan e-mel tersebut. Mereka mesti mendaftar dahulu, kemudian anda boleh menetapkan peranan.",
+    "adminChangeOnly": "Hanya pentadbir pengetahuan boleh menukar peranan.",
+    "cannotDemoteSelf": "Anda tidak boleh menurunkan diri sendiri semasa anda satu-satunya pentadbir.",
+    "memberNotFound": "Ahli pasukan tidak ditemui.",
     "adminRequired": "Sekurang-kurangnya satu admin diperlukan dalam pasukan pengetahuan.",
     "roleUpdated": "Peranan dikemas kini.",
-    "adminRemoveOnly": "Hanya admin pengetahuan boleh membuang ahli pasukan.",
-    "cannotRemoveSelf": "Anda tidak boleh membuang diri sendiri. Minta admin lain melakukannya.",
-    "cannotRemoveOnlyAdmin": "Tidak boleh membuang satu-satunya admin pengetahuan.",
+    "adminRemoveOnly": "Hanya pentadbir pengetahuan boleh membuang ahli pasukan.",
+    "cannotRemoveSelf": "Anda tidak boleh membuang diri sendiri. Minta pentadbir lain melakukannya.",
+    "cannotRemoveOnlyAdmin": "Tidak boleh membuang satu-satunya pentadbir pengetahuan.",
     "memberRemoved": "Ahli pasukan dibuang."
   },
   "homeDemo": {
