@@ -38,7 +38,7 @@ export function Logo({
     <Link
       href={href}
       className="group flex items-center gap-2.5"
-      aria-label={`TanyaLah Ustaz ${DEVELOPER_PORTAL_SHORT} — home`}
+      aria-label={`TanyaLah Ustaz ${DEVELOPER_PORTAL_SHORT} home`}
     >
       <LogoMark className="h-9 w-9" />
       <span className="flex flex-col leading-none">

@@ -2,7 +2,7 @@
   "brand": {
     "signIn": "Sign in",
     "getStarted": "Get started",
-    "developers": "Partners",
+    "developers": "Developers",
     "dashboard": "Dashboard",
     "visitApp": "Visit app"
   },
@@ -37,8 +37,8 @@
     "companyName": "Company name",
     "optional": "(optional)",
     "inviteCode": "Invite code",
-    "invitePlaceholder": "Enter your partner invite code",
-    "inviteHelp": "Partner signup is invite-only. Contact us if you need access.",
+    "invitePlaceholder": "Enter your invite code",
+    "inviteHelp": "Signup is invite-only. Contact us if you need access.",
     "companyPlaceholder": "Acme Inc.",
     "emailPlaceholder": "you@company.com",
     "passwordHint": "At least 8 characters.",
@@ -51,13 +51,13 @@
     "continueToDashboard": "to continue to {dashboard}",
     "createYourAccount": "Create your account",
     "signupInviteSubtitle": "Enter your invite code to join the TanyaLah Ustaz partner program.",
-    "signupOpenSubtitle": "Start building with the TanyaLah Ustaz API — free to get started.",
-    "developerPlatform": "Partner platform",
+    "signupOpenSubtitle": "Start building with the TanyaLah Ustaz API. Free to get started.",
+    "developerPlatform": "Developer platform",
     "authHeroTitle": "Bring TanyaLah Ustaz Islamic AI to your users",
     "authHighlight1": "Knowledge-backed answers with source citations",
     "authHighlight2": "API keys, live testing, and usage insights",
     "authHighlight3": "Same trusted content as the TanyaLah Ustaz app",
-    "authFooterNote": "Partner accounts are separate from personal accounts on {consumerApp}.",
+    "authFooterNote": "Developer accounts are separate from personal accounts on {consumerApp}.",
     "consumerAppPrompt": "Looking for the personal app?",
     "consumerAppLink": "Go to {consumerUrl} →"
   },
@@ -78,7 +78,7 @@
     },
     "hero": {
       "title": "Bring TanyaLah Ustaz Islamic AI to your users",
-      "subtitle": "The same trusted Islamic AI behind {consumerApp} — now available for your platform, app, or website. One integration, cited answers, and no AI infrastructure to manage.",
+      "subtitle": "The same trusted Islamic AI behind {consumerApp}, now available for your platform, app, or website. One integration, cited answers, and no AI infrastructure to manage.",
       "viewDocs": "View documentation",
       "freeToStart": "Free to start",
       "noAiSetup": "No AI setup required",
@@ -86,7 +86,7 @@
     },
     "trust": {
       "eyebrow": "Powered by TanyaLah Ustaz",
-      "body": "Your integration uses the same curated knowledge base and answer quality as our app — built for teams who want to offer trusted Islamic guidance inside their own products.",
+      "body": "Your integration uses the same curated knowledge base and answer quality as our app, built for teams who want to offer trusted Islamic guidance inside their own products.",
       "visitConsumer": "Visit {consumerApp} ↗"
     },
     "stats": {
@@ -96,13 +96,13 @@
       "sources": "Answers with sources"
     },
     "features": {
-      "eyebrow": "Partner platform",
+      "eyebrow": "Developer platform",
       "title": "Everything you need to integrate",
-      "subtitle": "A complete pipeline behind a single API — so your team ships faster, without building AI infrastructure from scratch.",
+      "subtitle": "A complete pipeline behind a single API, so your team ships faster, without building AI infrastructure from scratch.",
       "items": [
         {
           "title": "Grounded in the same knowledge base",
-          "body": "Answers draw from the curated library that powers TanyaLah Ustaz — articles on fiqh, ibadah, aqidah, and akhlak. Scholarship-backed responses, not generic guesses."
+          "body": "Answers draw from the curated library that powers TanyaLah Ustaz: articles on fiqh, ibadah, aqidah, and akhlak. Scholarship-backed responses, not generic guesses."
         },
         {
           "title": "Cited sources on every reply",
@@ -110,19 +110,19 @@
         },
         {
           "title": "One simple integration",
-          "body": "Send a user's question and get a reply back. No prompt engineering, no databases to run, no model providers to manage — we handle it all."
+          "body": "Send a user's question and get a reply back. No prompt engineering, no databases to run, no model providers to manage. We handle it all."
         },
         {
           "title": "Conversation memory",
-          "body": "Follow-up questions stay in context across multiple turns — just like a real conversation with a knowledgeable guide."
+          "body": "Follow-up questions stay in context across multiple turns, just like a real conversation with a knowledgeable guide."
         },
         {
           "title": "Category filtering",
           "body": "Scope answers to fiqh, ibadah, aqidah, akhlak, or general so responses match the context of the page your users are on."
         },
         {
-          "title": "Partner dashboard",
-          "body": "API keys, live testing, chat logs, and usage insights — everything your team needs to launch and monitor your integration."
+          "title": "Developer dashboard",
+          "body": "API keys, live testing, chat logs, and usage insights: everything your team needs to launch and monitor your integration."
         }
       ]
     },
@@ -145,7 +145,7 @@
         },
         {
           "title": "Return a cited answer",
-          "body": "Your users get a clear, knowledge-backed reply — complete with the source articles behind it."
+          "body": "Your users get a clear, knowledge-backed reply, complete with the source articles behind it."
         }
       ]
     },
@@ -160,7 +160,7 @@
         },
         {
           "title": "Mosque & community apps",
-          "body": "Add a Q&A helper for prayer, fasting, and daily practice — grounded in vetted content."
+          "body": "Add a Q&A helper for prayer, fasting, and daily practice, grounded in vetted content."
         },
         {
           "title": "Fintech & halal commerce",
@@ -208,11 +208,11 @@
       "items": [
         {
           "q": "How is this different from tanyalahustaz.com?",
-          "a": "This is the partner platform for businesses. {consumerApp} ({consumerUrl}) is where individuals ask questions directly. This API lets you embed the same knowledge-backed AI into your own product."
+          "a": "This is the developer platform for businesses. {consumerApp} ({consumerUrl}) is where individuals ask questions directly. This API lets you embed the same knowledge-backed AI into your own product."
         },
         {
           "q": "Is this login the same as tanyalahustaz.com?",
-          "a": "No. Sign in here to manage your partner dashboard — API keys, testing, and usage. The {consumerApp} app has its own login for individuals. The two accounts are not interchangeable."
+          "a": "No. Sign in here to manage your developer dashboard: API keys, testing, and usage. The {consumerApp} app has its own login for individuals. The two accounts are not interchangeable."
         },
         {
           "q": "Where do the answers come from?",
@@ -298,8 +298,8 @@
     "backToSignIn": "Back to sign in"
   },
   "meta": {
-    "layoutTitle": "TanyaLah Ustaz Partners — Islamic AI API",
-    "layoutDescription": "Partner platform and API for embedding TanyaLah Ustaz Islamic AI in your product. Knowledge-backed answers with source citations.",
+    "layoutTitle": "TanyaLah Ustaz Developers: Islamic AI API",
+    "layoutDescription": "Developer platform and API for embedding TanyaLah Ustaz Islamic AI in your product. Knowledge-backed answers with source citations.",
     "ogDescription": "Add trustworthy, knowledge-backed Islamic AI to your product with a single API call. Grounded answers with source citations."
   },
   "pages": {
@@ -307,7 +307,7 @@
       "title": "Overview",
       "welcomeBack": "Welcome back",
       "welcomeBackWithCompany": "Welcome back, {company}",
-      "description": "Manage API keys, test your integration, and monitor usage from your partner dashboard.",
+      "description": "Manage API keys, test your integration, and monitor usage from your dashboard.",
       "tryItLive": "Try it live",
       "activeApiKeys": "Active API keys",
       "manageKeys": "Manage keys",
@@ -324,12 +324,12 @@
       "noApiCallsDescription": "Create an API key and send your first request, or try it live.",
       "createApiKey": "Create API key",
       "recentChatRequests": "Recent chat requests",
-      "recentChatRequestsDescription": "Last 3 requests — view full logs for details",
+      "recentChatRequestsDescription": "Last 3 requests. View full logs for details.",
       "viewAllLogs": "View all logs"
     },
     "apiKeys": {
       "title": "API keys",
-      "description": "Create and manage keys used to authenticate requests to the API. Keys are shown once at creation — store them securely."
+      "description": "Create and manage keys used to authenticate requests to the API. Keys are shown once at creation. Store them securely."
     },
     "playground": {
       "title": "Try it live",
@@ -361,7 +361,7 @@
       "noArticlesYetCreate": "No articles yet. Create your first one.",
       "new": {
         "title": "New article",
-        "description": "Add curated content for the AI to reference when answering partner chat requests."
+        "description": "Add curated content for the AI to reference when answering API chat requests."
       },
       "edit": {
         "editTitle": "Edit article",
@@ -373,12 +373,12 @@
       },
       "team": {
         "title": "Knowledge team",
-        "description": "Assign roles so colleagues can help manage articles. Everyone needs a partner account before you can add them."
+        "description": "Assign roles so colleagues can help manage articles. Everyone needs a developer account before you can add them."
       }
     },
     "status": {
       "title": "System Status",
-      "description": "Current uptime and incident history for the TanyaLah Ustaz Partners API."
+      "description": "Current uptime and incident history for the TanyaLah Ustaz Developers API."
     }
   },
   "onboarding": {
@@ -551,8 +551,8 @@
       "uploadTitle": "Upload file",
       "uploadDescription": "Import many articles at once from JSON, CSV, or Markdown with frontmatter. Markdown files can be dropped in bulk.",
       "dropFiles": "Drop files here or click to browse",
-      "fileTypes": ".json, .csv, .md — up to 500 articles per import",
-      "loaded": "Loaded {fileName} — {valid} valid, {invalid} invalid",
+      "fileTypes": ".json, .csv, .md (up to 500 articles per import)",
+      "loaded": "Loaded {fileName}: {valid} valid, {invalid} invalid",
       "markdownFiles": "{count} markdown files",
       "optionsTitle": "Import options",
       "duplicateSlugs": "Duplicate slugs",
@@ -587,7 +587,7 @@
     },
     "teamManager": {
       "inviteTitle": "Invite team member",
-      "inviteDescription": "They must already have a partner account (signed up). Assign a role to let them help manage the knowledge base.",
+      "inviteDescription": "They must already have a developer account (signed up). Assign a role to let them help manage the knowledge base.",
       "emailPlaceholder": "colleague@company.com",
       "assigning": "Assigning…",
       "assignRole": "Assign role",
@@ -607,7 +607,7 @@
   },
   "docs": {
     "overview": {
-      "title": "Partner platform",
+      "title": "Developer platform",
       "lead": "Integrate the same knowledge-backed Islamic AI that powers {consumerApp} into your product. Send a user question; we retrieve relevant knowledge, build a grounded prompt, and return an AI answer with cited sources.",
       "howItWorksTitle": "How it works",
       "howItWorksSteps": [
@@ -620,9 +620,9 @@
       "baseUrlTitle": "Base URL",
       "quickStartTitle": "Quick start",
       "quickStartSteps": [
-        "Create a partner account and sign in.",
+        "Create a developer account and sign in.",
         "Go to Dashboard → API Keys and create a key.",
-        "POST a message to /api/v1/chat from your backend — or use the playground to test first."
+        "POST a message to /api/v1/chat from your backend, or use the playground to test first."
       ],
       "playgroundLink": "playground",
       "exampleTitle": "Example: AI chat",
@@ -632,17 +632,17 @@
     },
     "authentication": {
       "title": "Authentication",
-      "lead": "Protected API endpoints require a partner API key. Keys are created in the {dashboardLink} and stored as SHA-256 hashes — we never store the full key.",
+      "lead": "Protected API endpoints require an API key. Keys are created in the {dashboardLink} and stored as SHA-256 hashes. We never store the full key.",
       "dashboardLink": "Dashboard",
-      "loginVsAppTitle": "Partner login vs consumer app",
-      "loginVsAppBody": "{signInLink} on this site accesses the partner {dashboardName} (API keys, live testing, usage). It is separate from the {consumerAppLink}, where individuals ask questions. Accounts are not shared between the two products.",
+      "loginVsAppTitle": "Developer login vs consumer app",
+      "loginVsAppBody": "{signInLink} on this site accesses the {dashboardName} (API keys, live testing, usage). It is separate from the {consumerAppLink}, where individuals ask questions. Accounts are not shared between the two products.",
       "consumerAppLink": "{consumerApp} consumer app",
       "apiKeyHeadersTitle": "API key headers",
       "apiKeyHeadersDescription": "Send your key on every API request using either header:",
       "keyFormatTitle": "Key format",
       "keyFormatDescription": "Keys are prefixed with tlh_live_ followed by a random secret. Revoked keys return 401 Unauthorized.",
       "dashboardVsApiTitle": "Dashboard vs API auth",
-      "dashboardVsApiDescription": "The partner dashboard uses email/password login. Your API integration uses API keys. Signing into the dashboard does not authenticate API requests, and API keys do not grant dashboard access."
+      "dashboardVsApiDescription": "The dashboard uses email/password login. Your API integration uses API keys. Signing into the dashboard does not authenticate API requests, and API keys do not grant dashboard access."
     },
     "endpoints": {
       "title": "API reference",
@@ -660,7 +660,7 @@
         {
           "method": "GET",
           "path": "/me",
-          "description": "Returns the authenticated partner profile and API key metadata."
+          "description": "Returns the authenticated account profile and API key metadata."
         },
         {
           "method": "POST",
@@ -670,12 +670,12 @@
         {
           "method": "GET",
           "path": "/chat/sessions",
-          "description": "List conversation sessions for your partner account, newest activity first. Supports ?limit and ?offset."
+          "description": "List conversation sessions for your account, newest activity first. Supports ?limit and ?offset."
         },
         {
           "method": "DELETE",
           "path": "/chat/sessions",
-          "description": "Delete all chat history for your partner account. Requires ?confirm=all."
+          "description": "Delete all chat history for your account. Requires ?confirm=all."
         },
         {
           "method": "GET",
@@ -725,9 +725,9 @@
       "specDescription": "Download or import this URL into your API client:",
       "openSpec": "Open openapi.json →",
       "toolsTitle": "Compatible tools",
-      "toolsPostman": "Postman — Import → Link → paste the specification URL",
-      "toolsCodegen": "openapi-generator or Speakeasy — generate client SDKs from the spec",
-      "toolsSwagger": "Swagger UI — load the spec URL for interactive exploration"
+      "toolsPostman": "Postman: Import → Link → paste the specification URL",
+      "toolsCodegen": "openapi-generator or Speakeasy: generate client SDKs from the spec",
+      "toolsSwagger": "Swagger UI: load the spec URL for interactive exploration"
     },
     "docsNav": {
       "heading": "Documentation",
@@ -767,11 +767,11 @@
       },
       "chat": {
         "name": "Chat API",
-        "description": "POST /api/v1/chat — AI responses with knowledge retrieval"
+        "description": "POST /api/v1/chat: AI responses with knowledge retrieval"
       },
       "auth": {
         "name": "Authentication",
-        "description": "API key validation for partner requests"
+        "description": "API key validation for API requests"
       }
     },
     "incidents": {

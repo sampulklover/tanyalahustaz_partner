@@ -23,7 +23,7 @@ const securitySchemes = {
   bearerAuth: {
     type: "http",
     scheme: "bearer",
-    description: "Partner API key prefixed with tlh_live_",
+    description: "API key prefixed with tlh_live_",
   },
   apiKeyHeader: {
     type: "apiKey",
@@ -39,19 +39,19 @@ export function getOpenApiSpec(baseUrl: string) {
   return {
     openapi: "3.1.0",
     info: {
-      title: "TanyaLah Ustaz Partner API",
+      title: "TanyaLah Ustaz Developer API",
       version: "1.0.0",
       description:
-        "Knowledge-backed Islamic AI API for partner integrations. Authenticate with a tlh_live_* API key.",
+        "Knowledge-backed Islamic AI API for developer integrations. Authenticate with a tlh_live_* API key.",
       contact: {
-        name: "TanyaLah Ustaz Partner Support",
+        name: "TanyaLah Ustaz Developer Support",
         url: baseUrl,
       },
     },
     servers: [{ url: serverUrl }],
     tags: [
       { name: "System", description: "Health and metadata endpoints" },
-      { name: "Partner", description: "Authenticated partner endpoints" },
+      { name: "Partner", description: "Authenticated account endpoints" },
       { name: "Chat", description: "AI chat with knowledge retrieval" },
     ],
     components: {
@@ -328,11 +328,11 @@ export function getOpenApiSpec(baseUrl: string) {
       "/me": {
         get: {
           tags: ["Partner"],
-          summary: "Get authenticated partner profile",
+          summary: "Get authenticated account profile",
           security: [{ bearerAuth: [] }, { apiKeyHeader: [] }],
           responses: {
             "200": {
-              description: "Partner profile and API key metadata",
+              description: "Account profile and API key metadata",
               headers: {
                 "X-Request-Id": { schema: { type: "string" } },
                 "X-RateLimit-Remaining-Minute": { schema: { type: "integer" } },
@@ -391,7 +391,7 @@ export function getOpenApiSpec(baseUrl: string) {
           tags: ["Chat"],
           summary: "List chat sessions",
           description:
-            "Returns conversation sessions for the authenticated partner, newest activity first. Supports limit and offset pagination.",
+            "Returns conversation sessions for the authenticated account, newest activity first. Supports limit and offset pagination.",
           security: [{ bearerAuth: [] }, { apiKeyHeader: [] }],
           parameters: [
             {
@@ -428,7 +428,7 @@ export function getOpenApiSpec(baseUrl: string) {
           tags: ["Chat"],
           summary: "Delete all chat history",
           description:
-            "Permanently deletes every chat session for the authenticated partner. Requires ?confirm=all to prevent accidental wipes.",
+            "Permanently deletes every chat session for the authenticated account. Requires ?confirm=all to prevent accidental wipes.",
           security: [{ bearerAuth: [] }, { apiKeyHeader: [] }],
           parameters: [
             {
@@ -513,7 +513,7 @@ export function getOpenApiSpec(baseUrl: string) {
           tags: ["Chat"],
           summary: "Delete a chat session",
           description:
-            "Permanently deletes all turns for the given session_id belonging to the authenticated partner.",
+            "Permanently deletes all turns for the given session_id belonging to the authenticated account.",
           security: [{ bearerAuth: [] }, { apiKeyHeader: [] }],
           parameters: [
             {

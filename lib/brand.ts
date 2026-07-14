@@ -15,11 +15,11 @@ export const CONSUMER_APP_URL =
 
 export const CONSUMER_APP_NAME = "TanyaLah Ustaz";
 
-/** Partner portal (B2B) — API keys, docs, dashboard. */
-export const DEVELOPER_PORTAL_NAME = "TanyaLah Ustaz Partners";
+/** Developer portal (B2B): API keys, docs, dashboard. */
+export const DEVELOPER_PORTAL_NAME = "TanyaLah Ustaz Developers";
 
 /** Short label shown in logo subtitle and nav. */
-export const DEVELOPER_PORTAL_SHORT = "Partners";
+export const DEVELOPER_PORTAL_SHORT = "Developers";
 
 export const DASHBOARD_NAME = "Dashboard";
 

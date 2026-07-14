@@ -39,9 +39,9 @@ export default async function ErrorsDocsPage() {
         <h2 className="text-xl font-semibold">{t("docs.errors.rateLimitTitle")}</h2>
         <p className="text-sm text-[color:var(--muted)]">{t("docs.errors.rateLimitDescription")}</p>
         <ul className="list-disc space-y-1 pl-5 text-sm text-[color:var(--muted)]">
-          <li><code>Retry-After</code> — {t("docs.errors.rateLimitRetryAfter")}</li>
-          <li><code>X-RateLimit-Remaining-Minute</code> — {t("docs.errors.rateLimitMinute")}</li>
-          <li><code>X-RateLimit-Remaining-Day</code> — {t("docs.errors.rateLimitDay")}</li>
+          <li><code>Retry-After</code>: {t("docs.errors.rateLimitRetryAfter")}</li>
+          <li><code>X-RateLimit-Remaining-Minute</code>: {t("docs.errors.rateLimitMinute")}</li>
+          <li><code>X-RateLimit-Remaining-Day</code>: {t("docs.errors.rateLimitDay")}</li>
         </ul>
       </section>
 

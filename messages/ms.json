@@ -2,7 +2,7 @@
   "brand": {
     "signIn": "Log masuk",
     "getStarted": "Mula sekarang",
-    "developers": "Rakan kongsi",
+    "developers": "Pembangun",
     "dashboard": "Papan pemuka",
     "visitApp": "Lawati aplikasi"
   },
@@ -37,8 +37,8 @@
     "companyName": "Nama syarikat",
     "optional": "(pilihan)",
     "inviteCode": "Kod jemputan",
-    "invitePlaceholder": "Masukkan kod jemputan rakan kongsi anda",
-    "inviteHelp": "Pendaftaran rakan kongsi memerlukan jemputan. Hubungi kami jika anda memerlukan akses.",
+    "invitePlaceholder": "Masukkan kod jemputan anda",
+    "inviteHelp": "Pendaftaran memerlukan jemputan. Hubungi kami jika anda memerlukan akses.",
     "companyPlaceholder": "Syarikat Sdn. Bhd.",
     "emailPlaceholder": "anda@syarikat.com",
     "passwordHint": "Sekurang-kurangnya 8 aksara.",
@@ -51,13 +51,13 @@
     "continueToDashboard": "untuk meneruskan ke {dashboard}",
     "createYourAccount": "Cipta akaun anda",
     "signupInviteSubtitle": "Masukkan kod jemputan anda untuk menyertai program rakan kongsi TanyaLah Ustaz.",
-    "signupOpenSubtitle": "Mula membina dengan API TanyaLah Ustaz — percuma untuk bermula.",
-    "developerPlatform": "Platform rakan kongsi",
+    "signupOpenSubtitle": "Mula membina dengan API TanyaLah Ustaz. Percuma untuk bermula.",
+    "developerPlatform": "Platform pembangun",
     "authHeroTitle": "Bawa AI Islam TanyaLah Ustaz kepada pengguna anda",
     "authHighlight1": "Jawapan berasaskan pengetahuan dengan rujukan sumber",
     "authHighlight2": "Kunci API, ujian langsung, dan pandangan penggunaan",
     "authHighlight3": "Kandungan dipercayai yang sama seperti aplikasi TanyaLah Ustaz",
-    "authFooterNote": "Akaun rakan kongsi adalah berasingan daripada akaun peribadi di {consumerApp}.",
+    "authFooterNote": "Akaun pembangun adalah berasingan daripada akaun peribadi di {consumerApp}.",
     "consumerAppPrompt": "Mencari aplikasi peribadi?",
     "consumerAppLink": "Pergi ke {consumerUrl} →"
   },
@@ -78,7 +78,7 @@
     },
     "hero": {
       "title": "Bawa AI Islam TanyaLah Ustaz kepada pengguna anda",
-      "subtitle": "AI Islam dipercayai yang sama di sebalik {consumerApp} — kini tersedia untuk platform, aplikasi, atau laman web anda. Satu integrasi, jawapan dengan rujukan, dan tiada infrastruktur AI untuk diuruskan.",
+      "subtitle": "AI Islam dipercayai yang sama di sebalik {consumerApp}, kini tersedia untuk platform, aplikasi, atau laman web anda. Satu integrasi, jawapan dengan rujukan, dan tiada infrastruktur AI untuk diuruskan.",
       "viewDocs": "Lihat dokumentasi",
       "freeToStart": "Percuma untuk bermula",
       "noAiSetup": "Tiada persediaan AI diperlukan",
@@ -86,7 +86,7 @@
     },
     "trust": {
       "eyebrow": "Dikuasakan oleh TanyaLah Ustaz",
-      "body": "Integrasi anda menggunakan pangkalan pengetahuan terkurasi dan kualiti jawapan yang sama seperti aplikasi kami — dibina untuk pasukan yang ingin menawarkan panduan Islam yang dipercayai dalam produk mereka sendiri.",
+      "body": "Integrasi anda menggunakan pangkalan pengetahuan terkurasi dan kualiti jawapan yang sama seperti aplikasi kami, dibina untuk pasukan yang ingin menawarkan panduan Islam yang dipercayai dalam produk mereka sendiri.",
       "visitConsumer": "Lawati {consumerApp} ↗"
     },
     "stats": {
@@ -96,13 +96,13 @@
       "sources": "Jawapan dengan rujukan"
     },
     "features": {
-      "eyebrow": "Platform rakan kongsi",
+      "eyebrow": "Platform pembangun",
       "title": "Semua yang anda perlukan untuk integrasi",
-      "subtitle": "Saluran lengkap di sebalik satu API — supaya pasukan anda boleh melancarkan lebih pantas, tanpa membina infrastruktur AI sejak awal.",
+      "subtitle": "Saluran lengkap di sebalik satu API, supaya pasukan anda boleh melancarkan lebih pantas, tanpa membina infrastruktur AI sejak awal.",
       "items": [
         {
           "title": "Berasaskan pangkalan pengetahuan yang sama",
-          "body": "Jawapan diambil daripada perpustakaan terkurasi yang menguasakan TanyaLah Ustaz — artikel tentang fiqh, ibadah, aqidah, dan akhlak. Respons disokong ilmu, bukan tekaan generik."
+          "body": "Jawapan diambil daripada perpustakaan terkurasi yang menguasakan TanyaLah Ustaz: artikel tentang fiqh, ibadah, aqidah, dan akhlak. Respons disokong ilmu, bukan tekaan generik."
         },
         {
           "title": "Rujukan sumber pada setiap balasan",
@@ -110,19 +110,19 @@
         },
         {
           "title": "Satu integrasi mudah",
-          "body": "Hantar soalan pengguna dan dapatkan balasan. Tiada kejuruteraan prompt, tiada pangkalan data untuk diuruskan, tiada penyedia model untuk diuruskan — kami uruskan semuanya."
+          "body": "Hantar soalan pengguna dan dapatkan balasan. Tiada kejuruteraan prompt, tiada pangkalan data untuk diuruskan, tiada penyedia model untuk diuruskan. Kami uruskan semuanya."
         },
         {
           "title": "Ingatan perbualan",
-          "body": "Soalan susulan kekal dalam konteks merentasi beberapa giliran — seperti perbualan sebenar dengan panduan yang berpengetahuan."
+          "body": "Soalan susulan kekal dalam konteks merentasi beberapa giliran, seperti perbualan sebenar dengan panduan yang berpengetahuan."
         },
         {
           "title": "Penapisan kategori",
           "body": "Hadkan jawapan kepada fiqh, ibadah, aqidah, akhlak, atau umum supaya respons sepadan dengan konteks halaman pengguna anda."
         },
         {
-          "title": "Papan pemuka rakan kongsi",
-          "body": "Kunci API, ujian langsung, log sembang, dan pandangan penggunaan — semua yang diperlukan pasukan anda untuk melancarkan dan memantau integrasi."
+          "title": "Papan pemuka pembangun",
+          "body": "Kunci API, ujian langsung, log sembang, dan pandangan penggunaan: semua yang diperlukan pasukan anda untuk melancarkan dan memantau integrasi."
         }
       ]
     },
@@ -145,7 +145,7 @@
         },
         {
           "title": "Kembalikan jawapan dengan rujukan",
-          "body": "Pengguna anda mendapat balasan jelas berasaskan pengetahuan — lengkap dengan artikel sumber di sebaliknya."
+          "body": "Pengguna anda mendapat balasan jelas berasaskan pengetahuan, lengkap dengan artikel sumber di sebaliknya."
         }
       ]
     },
@@ -160,7 +160,7 @@
         },
         {
           "title": "Aplikasi masjid & komuniti",
-          "body": "Tambah pembantu soal jawab untuk solat, puasa, dan amalan harian — berasaskan kandungan yang disahkan."
+          "body": "Tambah pembantu soal jawab untuk solat, puasa, dan amalan harian, berasaskan kandungan yang disahkan."
         },
         {
           "title": "Fintech & perdagangan halal",
@@ -208,11 +208,11 @@
       "items": [
         {
           "q": "Apakah perbezaannya dengan tanyalahustaz.com?",
-          "a": "Ini adalah platform rakan kongsi untuk perniagaan. {consumerApp} ({consumerUrl}) adalah tempat individu bertanya soalan secara langsung. API ini membolehkan anda membenamkan AI berasaskan pengetahuan yang sama ke dalam produk anda sendiri."
+          "a": "Ini adalah platform pembangun untuk perniagaan. {consumerApp} ({consumerUrl}) adalah tempat individu bertanya soalan secara langsung. API ini membolehkan anda membenamkan AI berasaskan pengetahuan yang sama ke dalam produk anda sendiri."
         },
         {
           "q": "Adakah log masuk ini sama dengan tanyalahustaz.com?",
-          "a": "Tidak. Log masuk di sini untuk mengurus papan pemuka rakan kongsi anda — kunci API, ujian, dan penggunaan. Aplikasi {consumerApp} mempunyai log masuk sendiri untuk individu. Kedua-dua akaun tidak boleh ditukar ganti."
+          "a": "Tidak. Log masuk di sini untuk mengurus papan pemuka pembangun anda: kunci API, ujian, dan penggunaan. Aplikasi {consumerApp} mempunyai log masuk sendiri untuk individu. Kedua-dua akaun tidak boleh ditukar ganti."
         },
         {
           "q": "Daripada mana jawapan datang?",
@@ -298,8 +298,8 @@
     "backToSignIn": "Kembali ke log masuk"
   },
   "meta": {
-    "layoutTitle": "TanyaLah Ustaz Rakan Kongsi — API AI Islam",
-    "layoutDescription": "Platform rakan kongsi dan API untuk membenamkan AI Islam TanyaLah Ustaz dalam produk anda. Jawapan berasaskan pengetahuan dengan rujukan sumber.",
+    "layoutTitle": "TanyaLah Ustaz Pembangun: API AI Islam",
+    "layoutDescription": "Platform pembangun dan API untuk membenamkan AI Islam TanyaLah Ustaz dalam produk anda. Jawapan berasaskan pengetahuan dengan rujukan sumber.",
     "ogDescription": "Tambah AI Islam berasaskan pengetahuan yang dipercayai ke produk anda dengan satu panggilan API. Jawapan berasaskan konteks dengan rujukan sumber."
   },
   "pages": {
@@ -307,7 +307,7 @@
       "title": "Gambaran keseluruhan",
       "welcomeBack": "Selamat kembali",
       "welcomeBackWithCompany": "Selamat kembali, {company}",
-      "description": "Urus kunci API, uji integrasi anda, dan pantau penggunaan daripada papan pemuka rakan kongsi anda.",
+      "description": "Urus kunci API, uji integrasi anda, dan pantau penggunaan daripada papan pemuka anda.",
       "tryItLive": "Cuba secara langsung",
       "activeApiKeys": "Kunci API aktif",
       "manageKeys": "Urus kunci",
@@ -324,12 +324,12 @@
       "noApiCallsDescription": "Cipta kunci API dan hantar permintaan pertama anda, atau cuba secara langsung.",
       "createApiKey": "Cipta kunci API",
       "recentChatRequests": "Permintaan sembang terkini",
-      "recentChatRequestsDescription": "3 permintaan terakhir — lihat log penuh untuk butiran",
+      "recentChatRequestsDescription": "3 permintaan terakhir. Lihat log penuh untuk butiran.",
       "viewAllLogs": "Lihat semua log"
     },
     "apiKeys": {
       "title": "Kunci API",
-      "description": "Cipta dan urus kunci yang digunakan untuk mengesahkan permintaan ke API. Kunci dipaparkan sekali semasa penciptaan — simpan dengan selamat."
+      "description": "Cipta dan urus kunci yang digunakan untuk mengesahkan permintaan ke API. Kunci dipaparkan sekali semasa penciptaan. Simpan dengan selamat."
     },
     "playground": {
       "title": "Cuba secara langsung",
@@ -361,7 +361,7 @@
       "noArticlesYetCreate": "Tiada artikel lagi. Cipta yang pertama.",
       "new": {
         "title": "Artikel baharu",
-        "description": "Tambah kandungan terkurasi untuk AI rujuk semasa menjawab permintaan sembang rakan kongsi."
+        "description": "Tambah kandungan terkurasi untuk AI rujuk semasa menjawab permintaan sembang API."
       },
       "edit": {
         "editTitle": "Sunting artikel",
@@ -373,12 +373,12 @@
       },
       "team": {
         "title": "Pasukan pengetahuan",
-        "description": "Tetapkan peranan supaya rakan sekerja boleh membantu mengurus artikel. Semua orang memerlukan akaun rakan kongsi sebelum anda boleh menambah mereka."
+        "description": "Tetapkan peranan supaya rakan sekerja boleh membantu mengurus artikel. Semua orang memerlukan akaun pembangun sebelum anda boleh menambah mereka."
       }
     },
     "status": {
       "title": "Status Sistem",
-      "description": "Masa operasi semasa dan sejarah insiden untuk API TanyaLah Ustaz Rakan Kongsi."
+      "description": "Masa operasi semasa dan sejarah insiden untuk API TanyaLah Ustaz Pembangun."
     }
   },
   "onboarding": {
@@ -551,8 +551,8 @@
       "uploadTitle": "Muat naik fail",
       "uploadDescription": "Import banyak artikel sekali gus daripada JSON, CSV, atau Markdown dengan frontmatter. Fail Markdown boleh diletakkan secara pukal.",
       "dropFiles": "Letakkan fail di sini atau klik untuk melayari",
-      "fileTypes": ".json, .csv, .md — sehingga 500 artikel setiap import",
-      "loaded": "Dimuatkan {fileName} — {valid} sah, {invalid} tidak sah",
+      "fileTypes": ".json, .csv, .md (sehingga 500 artikel setiap import)",
+      "loaded": "Dimuatkan {fileName}: {valid} sah, {invalid} tidak sah",
       "markdownFiles": "{count} fail markdown",
       "optionsTitle": "Pilihan import",
       "duplicateSlugs": "Slug pendua",
@@ -587,7 +587,7 @@
     },
     "teamManager": {
       "inviteTitle": "Jemput ahli pasukan",
-      "inviteDescription": "Mereka mesti sudah mempunyai akaun rakan kongsi (berdaftar). Tetapkan peranan untuk membantu mengurus pangkalan pengetahuan.",
+      "inviteDescription": "Mereka mesti sudah mempunyai akaun pembangun (berdaftar). Tetapkan peranan untuk membantu mengurus pangkalan pengetahuan.",
       "emailPlaceholder": "rakan@syarikat.com",
       "assigning": "Sedang menetapkan…",
       "assignRole": "Tetapkan peranan",
@@ -607,7 +607,7 @@
   },
   "docs": {
     "overview": {
-      "title": "Platform rakan kongsi",
+      "title": "Platform pembangun",
       "lead": "Integrasikan AI Islam berasaskan pengetahuan yang sama yang menguasakan {consumerApp} ke dalam produk anda. Hantar soalan pengguna; kami cari pengetahuan relevan, bina prompt berasaskan konteks, dan kembalikan jawapan AI dengan rujukan sumber.",
       "howItWorksTitle": "Cara ia berfungsi",
       "howItWorksSteps": [
@@ -620,9 +620,9 @@
       "baseUrlTitle": "URL asas",
       "quickStartTitle": "Permulaan pantas",
       "quickStartSteps": [
-        "Cipta akaun rakan kongsi dan log masuk.",
+        "Cipta akaun pembangun dan log masuk.",
         "Pergi ke Papan Pemuka → Kunci API dan cipta kunci.",
-        "POST mesej ke /api/v1/chat daripada backend anda — atau gunakan ruang ujian untuk menguji dahulu."
+        "POST mesej ke /api/v1/chat daripada backend anda, atau gunakan ruang ujian untuk menguji dahulu."
       ],
       "playgroundLink": "ruang ujian",
       "exampleTitle": "Contoh: sembang AI",
@@ -632,17 +632,17 @@
     },
     "authentication": {
       "title": "Pengesahan",
-      "lead": "Titik akhir API yang dilindungi memerlukan kunci API rakan kongsi. Kunci dicipta dalam {dashboardLink} dan disimpan sebagai hash SHA-256 — kami tidak pernah menyimpan kunci penuh.",
+      "lead": "Titik akhir API yang dilindungi memerlukan kunci API. Kunci dicipta dalam {dashboardLink} dan disimpan sebagai hash SHA-256. Kami tidak pernah menyimpan kunci penuh.",
       "dashboardLink": "Papan Pemuka",
-      "loginVsAppTitle": "Log masuk rakan kongsi vs aplikasi pengguna",
-      "loginVsAppBody": "{signInLink} di laman ini mengakses {dashboardName} rakan kongsi (kunci API, ujian langsung, penggunaan). Ia berasingan daripada {consumerAppLink}, di mana individu bertanya soalan. Akaun tidak dikongsi antara kedua-dua produk.",
+      "loginVsAppTitle": "Log masuk pembangun vs aplikasi pengguna",
+      "loginVsAppBody": "{signInLink} di laman ini mengakses {dashboardName} (kunci API, ujian langsung, penggunaan). Ia berasingan daripada {consumerAppLink}, di mana individu bertanya soalan. Akaun tidak dikongsi antara kedua-dua produk.",
       "consumerAppLink": "aplikasi pengguna {consumerApp}",
       "apiKeyHeadersTitle": "Header kunci API",
       "apiKeyHeadersDescription": "Hantar kunci anda pada setiap permintaan API menggunakan salah satu header:",
       "keyFormatTitle": "Format kunci",
       "keyFormatDescription": "Kunci berawalan tlh_live_ diikuti rahsia rawak. Kunci yang dibatalkan akan memulangkan 401 Unauthorized.",
       "dashboardVsApiTitle": "Papan pemuka vs pengesahan API",
-      "dashboardVsApiDescription": "Papan pemuka rakan kongsi menggunakan log masuk e-mel/kata laluan. Integrasi API anda menggunakan kunci API. Log masuk ke papan pemuka tidak mengesahkan permintaan API, dan kunci API tidak memberikan akses papan pemuka."
+      "dashboardVsApiDescription": "Papan pemuka menggunakan log masuk e-mel/kata laluan. Integrasi API anda menggunakan kunci API. Log masuk ke papan pemuka tidak mengesahkan permintaan API, dan kunci API tidak memberikan akses papan pemuka."
     },
     "endpoints": {
       "title": "Rujukan API",
@@ -660,7 +660,7 @@
         {
           "method": "GET",
           "path": "/me",
-          "description": "Memulangkan profil rakan kongsi yang disahkan dan metadata kunci API."
+          "description": "Memulangkan profil akaun yang disahkan dan metadata kunci API."
         },
         {
           "method": "POST",
@@ -670,12 +670,12 @@
         {
           "method": "GET",
           "path": "/chat/sessions",
-          "description": "Senaraikan sesi perbualan untuk akaun rakan kongsi anda, aktiviti terbaru dahulu. Menyokong ?limit dan ?offset."
+          "description": "Senaraikan sesi perbualan untuk akaun anda, aktiviti terbaru dahulu. Menyokong ?limit dan ?offset."
         },
         {
           "method": "DELETE",
           "path": "/chat/sessions",
-          "description": "Padam semua sejarah sembang untuk akaun rakan kongsi anda. Memerlukan ?confirm=all."
+          "description": "Padam semua sejarah sembang untuk akaun anda. Memerlukan ?confirm=all."
         },
         {
           "method": "GET",
@@ -725,9 +725,9 @@
       "specDescription": "Muat turun atau import URL ini ke klien API anda:",
       "openSpec": "Buka openapi.json →",
       "toolsTitle": "Alat serasi",
-      "toolsPostman": "Postman — Import → Link → tampal URL spesifikasi",
-      "toolsCodegen": "openapi-generator atau Speakeasy — jana SDK klien daripada spesifikasi",
-      "toolsSwagger": "Swagger UI — muat URL spesifikasi untuk penerokaan interaktif"
+      "toolsPostman": "Postman: Import → Link → tampal URL spesifikasi",
+      "toolsCodegen": "openapi-generator atau Speakeasy: jana SDK klien daripada spesifikasi",
+      "toolsSwagger": "Swagger UI: muat URL spesifikasi untuk penerokaan interaktif"
     },
     "docsNav": {
       "heading": "Dokumentasi",
@@ -767,11 +767,11 @@
       },
       "chat": {
         "name": "API Sembang",
-        "description": "POST /api/v1/chat — respons AI dengan pengambilan pengetahuan"
+        "description": "POST /api/v1/chat: respons AI dengan pengambilan pengetahuan"
       },
       "auth": {
         "name": "Pengesahan",
-        "description": "Pengesahan kunci API untuk permintaan rakan kongsi"
+        "description": "Pengesahan kunci API untuk permintaan API"
       }
     },
     "incidents": {
