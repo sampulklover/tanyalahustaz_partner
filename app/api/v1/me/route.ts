@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     if (!profile || !apiKey) {
       return apiError(
         ApiErrorCode.NOT_FOUND,
-        "Partner profile not found.",
+        "Account profile not found.",
         404,
         { requestId: context.requestId },
       );

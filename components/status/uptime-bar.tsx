@@ -50,7 +50,7 @@ export function StatusBanner({ level }: { level: ServiceStatusLevel }) {
   const config = {
     operational: {
       className:
-        "border-brand-200 bg-brand-50 text-brand-900 dark:border-brand-900 dark:bg-brand-950/40 dark:text-brand-100",
+        "border-brand-200 bg-brand-50 text-brand-900 dark:border-brand-800 dark:bg-brand-900/30 dark:text-brand-200",
       label: t("status.banner.operational"),
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -60,7 +60,7 @@ export function StatusBanner({ level }: { level: ServiceStatusLevel }) {
     },
     degraded: {
       className:
-        "border-amber-200 bg-amber-50 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100",
+        "border-amber-200 bg-amber-50 text-amber-950 dark:border-amber-800 dark:bg-amber-900/30 dark:text-amber-200",
       label: t("status.banner.degraded"),
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -71,7 +71,7 @@ export function StatusBanner({ level }: { level: ServiceStatusLevel }) {
     },
     outage: {
       className:
-        "border-red-200 bg-red-50 text-red-950 dark:border-red-900 dark:bg-red-950/40 dark:text-red-100",
+        "border-red-200 bg-red-50 text-red-950 dark:border-red-800 dark:bg-red-900/30 dark:text-red-200",
       label: t("status.banner.outage"),
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">

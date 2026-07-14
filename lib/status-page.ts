@@ -25,12 +25,12 @@ export const STATUS_SERVICES: StatusService[] = [
   {
     id: "chat",
     name: "Chat API",
-    description: "POST /api/v1/chat — AI responses with knowledge retrieval",
+    description: "POST /api/v1/chat: AI responses with knowledge retrieval",
   },
   {
     id: "auth",
     name: "Authentication",
-    description: "API key validation for partner requests",
+    description: "API key validation for API requests",
   },
 ];
 

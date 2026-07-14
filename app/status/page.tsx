@@ -121,7 +121,7 @@ export default async function PublicStatusPage() {
                         <span className="font-medium capitalize text-[color:var(--muted)]">
                           {t(`status.incidents.${incident.status}`)}
                         </span>
-                        <span className="text-[color:var(--muted)]"> — </span>
+                        <span className="text-[color:var(--muted)]">: </span>
                         {update.message}
                         <span className="mt-0.5 block text-xs text-[color:var(--muted)]">
                           {update.time}
