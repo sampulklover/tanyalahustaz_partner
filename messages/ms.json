@@ -1,7 +1,7 @@
 {
   "brand": {
     "signIn": "Log masuk",
-    "getStarted": "Mulakan",
+    "getStarted": "Mula sekarang",
     "developers": "Rakan kongsi",
     "dashboard": "Papan pemuka",
     "visitApp": "Lawati aplikasi"
@@ -282,7 +282,7 @@
     "role": "Peranan"
   },
   "errors": {
-    "somethingWentWrong": "Sesuatu tidak kena",
+    "somethingWentWrong": "Ada sesuatu yang tidak kena",
     "unexpectedError": "Ralat tidak dijangka berlaku. Sila cuba lagi.",
     "applicationError": "Ralat aplikasi",
     "criticalError": "Ralat kritikal berlaku. Sila muat semula halaman.",
