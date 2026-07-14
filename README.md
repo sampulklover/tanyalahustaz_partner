@@ -197,7 +197,7 @@ Use `SIGNUP_MODE=open` only for local development.
 
 ### Vercel Cron
 
-Set `CRON_SECRET` in Vercel — the cron at `/api/cron/embed-jobs` runs every 5 minutes to process embedding jobs from bulk imports.
+Set `CRON_SECRET` in Vercel — the cron at `/api/cron/embed-jobs` runs once daily (Hobby plan limit) as a backup sweeper for embedding jobs from bulk imports. Primary processing still runs via `after()` on import. Upgrade to Pro if you need sub-daily cron schedules.
 
 ## Security notes
 
