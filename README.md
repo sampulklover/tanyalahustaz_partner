@@ -100,7 +100,7 @@ cp .env.example .env.local
 |----------|-------------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Server-only admin access |
+| `SUPABASE_SECRET_KEY` | Server-only admin access (`sb_secret_…`; or legacy `SUPABASE_SERVICE_ROLE_KEY`) |
 | `OPENROUTER_API_KEY` | Your OpenRouter API key ([openrouter.ai](https://openrouter.ai)) |
 | `OPENROUTER_EMBEDDING_MODEL` | Embedding model for RAG (default: `nvidia/llama-nemotron-embed-vl-1b-v2:free`, 2048-dim) |
 | `NEXT_PUBLIC_APP_URL` | App URL for auth redirects |
@@ -201,7 +201,7 @@ Set `CRON_SECRET` in Vercel — the cron at `/api/cron/embed-jobs` runs every 5 
 
 ## Security notes
 
-- `OPENROUTER_API_KEY` and `SUPABASE_SERVICE_ROLE_KEY` are server-only
+- `OPENROUTER_API_KEY` and `SUPABASE_SECRET_KEY` are server-only
 - Partner API keys are SHA-256 hashed
 - Knowledge articles are read-only for partners via API
 - Rate limiting is enabled per API key (chat: 20/min, 500/day by default) and playground (10/min, 50/day)

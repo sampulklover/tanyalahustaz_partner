@@ -216,7 +216,7 @@
         },
         {
           "q": "Daripada mana jawapan datang?",
-          "a": "Jawapan dijana daripada pangkalan pengetahuan TanyaLah Ustaz terkurati yang sama dengan yang digunakan dalam aplikasi. Kami cari petikan paling relevan untuk setiap soalan dan menggunakannya untuk menjana respons berasaskan konteks dengan rujukan."
+          "a": "Jawapan dijana daripada pangkalan pengetahuan TanyaLah Ustaz terkurasi yang sama dengan yang digunakan dalam aplikasi. Kami cari petikan paling relevan untuk setiap soalan dan menggunakannya untuk menjana respons berasaskan konteks dengan rujukan."
         },
         {
           "q": "Adakah saya perlu menguruskan infrastruktur AI sendiri?",
@@ -250,7 +250,7 @@
     "save": "Simpan",
     "close": "Tutup",
     "view": "Lihat",
-    "edit": "Edit",
+    "edit": "Sunting",
     "delete": "Padam",
     "search": "Cari",
     "clear": "Kosongkan",
@@ -294,7 +294,7 @@
     "subtitle": "Kami menghantar pautan pengesahan untuk melengkapkan persediaan akaun anda.",
     "sentTo": "Pautan pengesahan telah dihantar ke {email}. Klik pautan dalam e-mel tersebut untuk mengakses papan pemuka anda.",
     "sentGeneric": "Pautan pengesahan telah dihantar ke alamat e-mel anda. Klik pautan untuk mengakses papan pemuka anda.",
-    "spamHelp": "Tidak menerimanya? Semak folder e-mel remeh anda, atau daftar semula dengan e-mel yang sama untuk menghantar semula pengesahan.",
+    "spamHelp": "Tidak menerimanya? Semak folder spam atau mel sampah anda, atau daftar semula dengan e-mel yang sama untuk menghantar semula pengesahan.",
     "backToSignIn": "Kembali ke log masuk"
   },
   "meta": {
@@ -364,7 +364,7 @@
         "description": "Tambah kandungan terkurasi untuk AI rujuk semasa menjawab permintaan sembang rakan kongsi."
       },
       "edit": {
-        "editTitle": "Edit artikel",
+        "editTitle": "Sunting artikel",
         "viewTitle": "Lihat artikel"
       },
       "import": {
@@ -422,7 +422,7 @@
       "copyNowTitle": "Salin kunci API anda sekarang",
       "copyNowDescription": "Ini adalah satu-satunya kali kunci penuh akan dipaparkan. Simpan di lokasi yang selamat.",
       "createNewKeyTitle": "Cipta kunci baharu",
-      "createNewKeyDescription": "Namakan kunci mengikut persekitaran, cth. \"Produksi\" atau \"Pra-produksi\".",
+      "createNewKeyDescription": "Namakan kunci mengikut persekitaran, cth. \"Pengeluaran\" atau \"Ujian\".",
       "keyNamePlaceholder": "Nama kunci",
       "creating": "Sedang mencipta…",
       "createKey": "Cipta kunci",
@@ -522,7 +522,7 @@
     },
     "articleForm": {
       "detailsTitle": "Butiran artikel",
-      "detailsDescription": "Tajuk, slug, dan kategori diguna dalam carian AI dan petikan sumber.",
+      "detailsDescription": "Tajuk, slug, dan kategori digunakan dalam carian AI dan petikan sumber.",
       "titlePlaceholder": "cth. Jamak solat semasa musafir",
       "slugPlaceholder": "jamak-solat-musafir",
       "summaryPlaceholder": "Penerangan ringkas digunakan dalam pratonton carian",
@@ -578,8 +578,8 @@
       "updated": "{count} artikel dikemas kini",
       "skipped": "{count} pendua dilangkau",
       "embedded": "{count} artikel dibenamkan ({chunks} petikan)",
-      "embedQueued": "Penyembenan disusun untuk pemprosesan latar belakang",
-      "embeddingJob": "Kerja penyembenan: {status}",
+      "embedQueued": "Pembenaman dijadualkan untuk pemprosesan latar belakang",
+      "embeddingJob": "Kerja pembenaman: {status}",
       "embeddingProgress": "{processed} / {total} artikel diproses · {chunks} petikan ditulis",
       "importFailed": "Baris {index} ({title}): {error}",
       "importing": "Sedang mengimport…",
@@ -600,10 +600,10 @@
       "remove": "Buang"
     },
     "reembed": {
-      "reembedding": "Sedang menyembenakkan semula…",
+      "reembedding": "Sedang membenamkan semula…",
       "reembedAll": "Benamkan semula semua diterbitkan"
     },
-    "deleteConfirm": "Padam artikel ini dan penyembenannya? Tindakan ini tidak boleh dibatalkan."
+    "deleteConfirm": "Padam artikel ini dan pembenamannya? Tindakan ini tidak boleh dibatalkan."
   },
   "docs": {
     "overview": {
@@ -680,7 +680,7 @@
         {
           "method": "GET",
           "path": "/chat/sessions/:sessionId",
-          "description": "Dapatkan sejarah sembang mengikut kronologi untuk sesuatu sesi. Had dan offset penomboran halaman diguna pada pusingan perbualan (setiap pusingan ialah satu mesej pengguna + satu mesej pembantu)."
+          "description": "Dapatkan sejarah sembang mengikut kronologi untuk sesuatu sesi. Had dan offset penomboran halaman digunakan pada pusingan perbualan (setiap pusingan ialah satu mesej pengguna + satu mesej pembantu)."
         },
         {
           "method": "DELETE",
@@ -813,8 +813,8 @@
     "contentRequired": "Kandungan diperlukan (min 20 aksara).",
     "noValidArticles": "Tiada artikel sah untuk diimport.",
     "importMaxExceeded": "Maksimum 500 artikel setiap import. Pisahkan fail anda dan cuba lagi.",
-    "reembedFailed": "Penyembenan semula gagal.",
-    "embedJobNotFound": "Kerja penyembenan tidak dijumpai.",
+    "reembedFailed": "Pembenaman semula gagal.",
+    "embedJobNotFound": "Kerja pembenaman tidak dijumpai.",
     "adminAssignOnly": "Hanya admin pengetahuan boleh menetapkan peranan.",
     "emailRequired": "E-mel diperlukan.",
     "invalidRole": "Pilih peranan yang sah.",
