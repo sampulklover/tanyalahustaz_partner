@@ -13,10 +13,10 @@
 export const CONSUMER_APP_URL =
   process.env.NEXT_PUBLIC_CONSUMER_APP_URL ?? "https://tanyalahustaz.com/home";
 
-export const CONSUMER_APP_NAME = "TanyaLah Ustaz";
+export const CONSUMER_APP_NAME = "Tanyalah Ustaz";
 
 /** Developer portal (B2B): API keys, docs, dashboard. */
-export const DEVELOPER_PORTAL_NAME = "TanyaLah Ustaz Developers";
+export const DEVELOPER_PORTAL_NAME = "Tanyalah Ustaz Developers";
 
 /** Short label shown in logo subtitle and nav. */
 export const DEVELOPER_PORTAL_SHORT = "Developers";

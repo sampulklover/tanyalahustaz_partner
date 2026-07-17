@@ -38,11 +38,11 @@ export function Logo({
     <Link
       href={href}
       className="group flex items-center gap-2.5"
-      aria-label={`TanyaLah Ustaz ${DEVELOPER_PORTAL_SHORT} home`}
+      aria-label={`Tanyalah Ustaz ${DEVELOPER_PORTAL_SHORT} home`}
     >
       <LogoMark className="h-9 w-9" />
       <span className="flex flex-col leading-none">
-        <span className="font-semibold tracking-tight">TanyaLah Ustaz</span>
+        <span className="font-semibold tracking-tight">Tanyalah Ustaz</span>
         {subtitle && (
           <span className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-brand-600 dark:text-brand-500">
             {DEVELOPER_PORTAL_SHORT}

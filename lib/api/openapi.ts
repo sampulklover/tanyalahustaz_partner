@@ -39,12 +39,12 @@ export function getOpenApiSpec(baseUrl: string) {
   return {
     openapi: "3.1.0",
     info: {
-      title: "TanyaLah Ustaz Developer API",
+      title: "Tanyalah Ustaz Developer API",
       version: "1.0.0",
       description:
         "Knowledge-backed Islamic AI API for developer integrations. Authenticate with a tlh_live_* API key.",
       contact: {
-        name: "TanyaLah Ustaz Developer Support",
+        name: "Tanyalah Ustaz Developer Support",
         url: baseUrl,
       },
     },

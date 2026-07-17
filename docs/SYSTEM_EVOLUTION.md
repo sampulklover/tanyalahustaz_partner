@@ -1,4 +1,4 @@
-# TanyaLah Ustaz Partner API — System Evolution
+# Tanyalah Ustaz Partner API — System Evolution
 
 A short history of how this project grew, so future you (or your team) can understand **why** things are built this way.
 
@@ -6,7 +6,7 @@ A short history of how this project grew, so future you (or your team) can under
 
 ## What this system is
 
-A **partner platform** for websites that want TanyaLah Ustaz Islamic AI:
+A **partner platform** for websites that want Tanyalah Ustaz Islamic AI:
 
 - Partners **sign up**, get **API keys**, read **docs**, test in a **playground**
 - They call **`POST /api/v1/chat`** from their site

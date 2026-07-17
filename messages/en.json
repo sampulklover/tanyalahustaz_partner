@@ -27,7 +27,7 @@
     "overview": "Overview",
     "playground": "Try it live",
     "description": "Bring trusted, knowledge-backed Islamic AI into your product. Powered by the same content as {consumerApp}.",
-    "copyright": "© {year} TanyaLah Ustaz. All rights reserved.",
+    "copyright": "© {year} Tanyalah Ustaz. All rights reserved.",
     "disclaimer": "AI-generated answers are for guidance only. Consult a qualified scholar for personal rulings."
   },
   "auth": {
@@ -50,13 +50,13 @@
     "backToDevelopers": "← Back to home",
     "continueToDashboard": "to continue to {dashboard}",
     "createYourAccount": "Create your account",
-    "signupInviteSubtitle": "Enter your invite code to join the TanyaLah Ustaz partner program.",
-    "signupOpenSubtitle": "Start building with the TanyaLah Ustaz API. Free to get started.",
+    "signupInviteSubtitle": "Enter your invite code to join the Tanyalah Ustaz partner program.",
+    "signupOpenSubtitle": "Start building with the Tanyalah Ustaz API. Free to get started.",
     "developerPlatform": "Developer platform",
-    "authHeroTitle": "Bring TanyaLah Ustaz Islamic AI to your users",
+    "authHeroTitle": "Bring Tanyalah Ustaz Islamic AI to your users",
     "authHighlight1": "Knowledge-backed answers with source citations",
     "authHighlight2": "API keys, live testing, and usage insights",
-    "authHighlight3": "Same trusted content as the TanyaLah Ustaz app",
+    "authHighlight3": "Same trusted content as the Tanyalah Ustaz app",
     "authFooterNote": "Developer accounts are separate from personal accounts on {consumerApp}.",
     "consumerAppPrompt": "Looking for the personal app?",
     "consumerAppLink": "Go to {consumerUrl} →"
@@ -74,10 +74,10 @@
   "home": {
     "meta": {
       "title": "Islamic AI for your product",
-      "description": "Embed the same knowledge-backed Islamic AI behind TanyaLah Ustaz into your platform, app, or website."
+      "description": "Embed the same knowledge-backed Islamic AI behind Tanyalah Ustaz into your platform, app, or website."
     },
     "hero": {
-      "title": "Bring TanyaLah Ustaz Islamic AI to your users",
+      "title": "Bring Tanyalah Ustaz Islamic AI to your users",
       "subtitle": "The same trusted Islamic AI behind {consumerApp}, now available for your platform, app, or website. One integration, cited answers, and no AI infrastructure to manage.",
       "viewDocs": "View documentation",
       "freeToStart": "Free to start",
@@ -85,7 +85,7 @@
       "sourcesEveryAnswer": "Sources on every answer"
     },
     "trust": {
-      "eyebrow": "Powered by TanyaLah Ustaz",
+      "eyebrow": "Powered by Tanyalah Ustaz",
       "body": "Your integration uses the same curated knowledge base and answer quality as our app, built for teams who want to offer trusted Islamic guidance inside their own products.",
       "visitConsumer": "Visit {consumerApp} ↗"
     },
@@ -102,7 +102,7 @@
       "items": [
         {
           "title": "Grounded in the same knowledge base",
-          "body": "Answers draw from the curated library that powers TanyaLah Ustaz: articles on fiqh, ibadah, aqidah, and akhlak. Scholarship-backed responses, not generic guesses."
+          "body": "Answers draw from the curated library that powers Tanyalah Ustaz: articles on fiqh, ibadah, aqidah, and akhlak. Scholarship-backed responses, not generic guesses."
         },
         {
           "title": "Cited sources on every reply",
@@ -216,7 +216,7 @@
         },
         {
           "q": "Where do the answers come from?",
-          "a": "Answers are generated from the same curated TanyaLah Ustaz knowledge base used in the app. We find the most relevant passages for each question and use them to produce grounded, cited responses."
+          "a": "Answers are generated from the same curated Tanyalah Ustaz knowledge base used in the app. We find the most relevant passages for each question and use them to produce grounded, cited responses."
         },
         {
           "q": "Do I need to run my own AI infrastructure?",
@@ -237,7 +237,7 @@
       ]
     },
     "cta": {
-      "title": "Bring TanyaLah Ustaz to your users",
+      "title": "Bring Tanyalah Ustaz to your users",
       "subtitle": "Create a free account, get your API key, and make your first chat request in minutes.",
       "exploreDocs": "Explore the docs"
     }
@@ -298,8 +298,8 @@
     "backToSignIn": "Back to sign in"
   },
   "meta": {
-    "layoutTitle": "TanyaLah Ustaz Developers: Islamic AI API",
-    "layoutDescription": "Developer platform and API for embedding TanyaLah Ustaz Islamic AI in your product. Knowledge-backed answers with source citations.",
+    "layoutTitle": "Tanyalah Ustaz Developers: Islamic AI API",
+    "layoutDescription": "Developer platform and API for embedding Tanyalah Ustaz Islamic AI in your product. Knowledge-backed answers with source citations.",
     "ogDescription": "Add trustworthy, knowledge-backed Islamic AI to your product with a single API call. Grounded answers with source citations."
   },
   "pages": {
@@ -378,7 +378,7 @@
     },
     "status": {
       "title": "System Status",
-      "description": "Current uptime and incident history for the TanyaLah Ustaz Developers API."
+      "description": "Current uptime and incident history for the Tanyalah Ustaz Developers API."
     }
   },
   "onboarding": {
@@ -665,7 +665,7 @@
         {
           "method": "POST",
           "path": "/chat",
-          "description": "Main integration endpoint. Sends a user message, retrieves relevant knowledge from the TanyaLah Ustaz library, and returns an AI reply with sources."
+          "description": "Main integration endpoint. Sends a user message, retrieves relevant knowledge from the Tanyalah Ustaz library, and returns an AI reply with sources."
         },
         {
           "method": "GET",

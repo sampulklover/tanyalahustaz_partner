@@ -1,6 +1,6 @@
-# TanyaLah Ustaz Partner AI API
+# Tanyalah Ustaz Partner AI API
 
-Partner platform for websites that want to offer **TanyaLah Ustaz Islamic AI** to their users.
+Partner platform for websites that want to offer **Tanyalah Ustaz Islamic AI** to their users.
 
 Built with **Next.js**, **Supabase**, and **OpenRouter**. Partners get API keys and call `/api/v1/chat`. We retrieve relevant knowledge articles, build a grounded prompt, and return AI answers — partners never touch OpenRouter or Supabase directly.
 
