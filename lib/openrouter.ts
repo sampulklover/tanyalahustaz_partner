@@ -27,7 +27,7 @@ function buildOpenRouterHeaders(apiKey: string) {
     Authorization: `Bearer ${apiKey}`,
     "Content-Type": "application/json",
     "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
-    "X-Title": "TanyaLah Ustaz Developers",
+    "X-Title": "Tanyalah Ustaz Developers",
   };
 }
 
@@ -52,7 +52,7 @@ export function buildChatMessages({
 }): ChatMessage[] {
   const systemMessage: ChatMessage = {
     role: "system",
-    content: `You are the TanyaLah Ustaz AI assistant for partner websites.
+    content: `You are the Tanyalah Ustaz AI assistant for partner websites.
 Answer in clear, respectful language suitable for Muslim users seeking Islamic guidance.
 Use the KNOWLEDGE CONTEXT below as your primary source. If the context does not cover the question, say you are unsure and recommend consulting a qualified local scholar.
 Do not invent fatwas or cite sources not in the context.

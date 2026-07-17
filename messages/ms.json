@@ -27,7 +27,7 @@
     "overview": "Gambaran keseluruhan",
     "playground": "Cuba secara langsung",
     "description": "Bawa AI Islam berasaskan pengetahuan yang dipercayai ke dalam produk anda. Dikuasakan oleh kandungan yang sama seperti {consumerApp}.",
-    "copyright": "© {year} TanyaLah Ustaz. Hak cipta terpelihara.",
+    "copyright": "© {year} Tanyalah Ustaz. Hak cipta terpelihara.",
     "disclaimer": "Jawapan dijana AI adalah untuk panduan sahaja. Rujuk ulama yang berkelayakan untuk keputusan peribadi."
   },
   "auth": {
@@ -50,13 +50,13 @@
     "backToDevelopers": "← Kembali ke laman utama",
     "continueToDashboard": "untuk meneruskan ke {dashboard}",
     "createYourAccount": "Cipta akaun anda",
-    "signupInviteSubtitle": "Masukkan kod jemputan anda untuk menyertai program rakan kongsi TanyaLah Ustaz.",
-    "signupOpenSubtitle": "Mula membina dengan API TanyaLah Ustaz. Percuma untuk bermula.",
+    "signupInviteSubtitle": "Masukkan kod jemputan anda untuk menyertai program rakan kongsi Tanyalah Ustaz.",
+    "signupOpenSubtitle": "Mula membina dengan API Tanyalah Ustaz. Percuma untuk bermula.",
     "developerPlatform": "Platform pembangun",
-    "authHeroTitle": "Bawa AI Islam TanyaLah Ustaz kepada pengguna anda",
+    "authHeroTitle": "Bawa AI Islam Tanyalah Ustaz kepada pengguna anda",
     "authHighlight1": "Jawapan berasaskan pengetahuan dengan rujukan sumber",
     "authHighlight2": "Kunci API, ujian langsung, dan pandangan penggunaan",
-    "authHighlight3": "Kandungan dipercayai yang sama seperti aplikasi TanyaLah Ustaz",
+    "authHighlight3": "Kandungan dipercayai yang sama seperti aplikasi Tanyalah Ustaz",
     "authFooterNote": "Akaun pembangun adalah berasingan daripada akaun peribadi di {consumerApp}.",
     "consumerAppPrompt": "Mencari aplikasi peribadi?",
     "consumerAppLink": "Pergi ke {consumerUrl} →"
@@ -74,10 +74,10 @@
   "home": {
     "meta": {
       "title": "AI Islam untuk produk anda",
-      "description": "Benamkan AI Islam berasaskan pengetahuan yang sama di sebalik TanyaLah Ustaz ke dalam platform, aplikasi, atau laman web anda."
+      "description": "Benamkan AI Islam berasaskan pengetahuan yang sama di sebalik Tanyalah Ustaz ke dalam platform, aplikasi, atau laman web anda."
     },
     "hero": {
-      "title": "Bawa AI Islam TanyaLah Ustaz kepada pengguna anda",
+      "title": "Bawa AI Islam Tanyalah Ustaz kepada pengguna anda",
       "subtitle": "AI Islam dipercayai yang sama di sebalik {consumerApp}, kini tersedia untuk platform, aplikasi, atau laman web anda. Satu integrasi, jawapan dengan rujukan, dan tiada infrastruktur AI untuk diuruskan.",
       "viewDocs": "Lihat dokumentasi",
       "freeToStart": "Percuma untuk bermula",
@@ -85,7 +85,7 @@
       "sourcesEveryAnswer": "Rujukan pada setiap jawapan"
     },
     "trust": {
-      "eyebrow": "Dikuasakan oleh TanyaLah Ustaz",
+      "eyebrow": "Dikuasakan oleh Tanyalah Ustaz",
       "body": "Integrasi anda menggunakan pangkalan pengetahuan terkurasi dan kualiti jawapan yang sama seperti aplikasi kami, dibina untuk pasukan yang ingin menawarkan panduan Islam yang dipercayai dalam produk mereka sendiri.",
       "visitConsumer": "Lawati {consumerApp} ↗"
     },
@@ -102,7 +102,7 @@
       "items": [
         {
           "title": "Berasaskan pangkalan pengetahuan yang sama",
-          "body": "Jawapan diambil daripada perpustakaan terkurasi yang menguasakan TanyaLah Ustaz: artikel tentang fiqh, ibadah, aqidah, dan akhlak. Respons disokong ilmu, bukan tekaan generik."
+          "body": "Jawapan diambil daripada perpustakaan terkurasi yang menguasakan Tanyalah Ustaz: artikel tentang fiqh, ibadah, aqidah, dan akhlak. Respons disokong ilmu, bukan tekaan generik."
         },
         {
           "title": "Rujukan sumber pada setiap balasan",
@@ -216,7 +216,7 @@
         },
         {
           "q": "Daripada mana jawapan datang?",
-          "a": "Jawapan dijana daripada pangkalan pengetahuan TanyaLah Ustaz terkurasi yang sama dengan yang digunakan dalam aplikasi. Kami cari petikan paling relevan untuk setiap soalan dan menggunakannya untuk menjana respons berasaskan konteks dengan rujukan."
+          "a": "Jawapan dijana daripada pangkalan pengetahuan Tanyalah Ustaz terkurasi yang sama dengan yang digunakan dalam aplikasi. Kami cari petikan paling relevan untuk setiap soalan dan menggunakannya untuk menjana respons berasaskan konteks dengan rujukan."
         },
         {
           "q": "Adakah saya perlu menguruskan infrastruktur AI sendiri?",
@@ -237,7 +237,7 @@
       ]
     },
     "cta": {
-      "title": "Bawa TanyaLah Ustaz kepada pengguna anda",
+      "title": "Bawa Tanyalah Ustaz kepada pengguna anda",
       "subtitle": "Cipta akaun percuma, dapatkan kunci API anda, dan buat permintaan sembang pertama anda dalam beberapa minit.",
       "exploreDocs": "Terokai dokumentasi"
     }
@@ -298,8 +298,8 @@
     "backToSignIn": "Kembali ke log masuk"
   },
   "meta": {
-    "layoutTitle": "TanyaLah Ustaz Pembangun: API AI Islam",
-    "layoutDescription": "Platform pembangun dan API untuk membenamkan AI Islam TanyaLah Ustaz dalam produk anda. Jawapan berasaskan pengetahuan dengan rujukan sumber.",
+    "layoutTitle": "Tanyalah Ustaz Pembangun: API AI Islam",
+    "layoutDescription": "Platform pembangun dan API untuk membenamkan AI Islam Tanyalah Ustaz dalam produk anda. Jawapan berasaskan pengetahuan dengan rujukan sumber.",
     "ogDescription": "Tambah AI Islam berasaskan pengetahuan yang dipercayai ke produk anda dengan satu panggilan API. Jawapan berasaskan konteks dengan rujukan sumber."
   },
   "pages": {
@@ -378,7 +378,7 @@
     },
     "status": {
       "title": "Status Sistem",
-      "description": "Masa operasi semasa dan sejarah insiden untuk API TanyaLah Ustaz Pembangun."
+      "description": "Masa operasi semasa dan sejarah insiden untuk API Tanyalah Ustaz Pembangun."
     }
   },
   "onboarding": {
@@ -665,7 +665,7 @@
         {
           "method": "POST",
           "path": "/chat",
-          "description": "Titik akhir integrasi utama. Menghantar mesej pengguna, mengambil pengetahuan relevan daripada perpustakaan TanyaLah Ustaz, dan memulangkan balasan AI dengan sumber."
+          "description": "Titik akhir integrasi utama. Menghantar mesej pengguna, mengambil pengetahuan relevan daripada perpustakaan Tanyalah Ustaz, dan memulangkan balasan AI dengan sumber."
         },
         {
           "method": "GET",

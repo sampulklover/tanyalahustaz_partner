@@ -29,13 +29,13 @@ export async function generateMetadata(): Promise<Metadata> {
     description: t("meta.layoutDescription"),
     keywords: [
       "Islamic AI API",
-      "TanyaLah Ustaz",
+      "Tanyalah Ustaz",
       "fiqh API",
       "Islamic knowledge API",
       "Muslim app integration",
       "Islamic knowledge base",
     ],
-    authors: [{ name: "TanyaLah Ustaz" }],
+    authors: [{ name: "Tanyalah Ustaz" }],
     openGraph: {
       type: "website",
       url: appUrl,

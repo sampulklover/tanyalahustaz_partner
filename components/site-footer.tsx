@@ -53,7 +53,7 @@ export function SiteFooter() {
             <div className="flex items-center gap-2.5">
               <LogoMark className="h-9 w-9" />
               <span className="flex flex-col leading-none">
-                <span className="font-semibold tracking-tight">TanyaLah Ustaz</span>
+                <span className="font-semibold tracking-tight">Tanyalah Ustaz</span>
                 <span className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-brand-600 dark:text-brand-500">
                   {t("brand.developers")}
                 </span>

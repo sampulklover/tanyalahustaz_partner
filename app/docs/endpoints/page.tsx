@@ -80,7 +80,7 @@ const endpointExamples: Record<
   },
   "GET /openapi.json": {
     auth: false,
-    response: `{ "openapi": "3.1.0", "info": { "title": "TanyaLah Ustaz Developer API", "version": "1.0.0" }, ... }`,
+    response: `{ "openapi": "3.1.0", "info": { "title": "Tanyalah Ustaz Developer API", "version": "1.0.0" }, ... }`,
   },
 };
 
