@@ -23,16 +23,30 @@ function formatTime(iso: string) {
   });
 }
 
-export function RecentChatsPreview({ chats }: { chats: ChatPreview[] }) {
+export function RecentChatsPreview({
+  chats,
+  isTeamMember,
+}: {
+  chats: ChatPreview[];
+  isTeamMember: boolean;
+}) {
   const { t } = useI18n();
 
   if (chats.length === 0) {
     return (
       <p className="text-sm text-[color:var(--muted)]">
-        {t("recentChats.noRequestsYet")}{" "}
-        <Link href="/dashboard/playground" className="text-brand-600 hover:underline dark:text-brand-500">
-          {t("recentChats.tryItLive")}
-        </Link>
+        {t("recentChats.noRequestsYet")}
+        {isTeamMember && (
+          <>
+            {" "}
+            <Link
+              href="/dashboard/playground"
+              className="text-brand-600 hover:underline dark:text-brand-500"
+            >
+              {t("recentChats.tryItLive")}
+            </Link>
+          </>
+        )}
       </p>
     );
   }

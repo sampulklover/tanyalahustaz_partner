@@ -17,6 +17,8 @@ import type { KnowledgeSource } from "@/lib/types";
 
 type MessageStatus = "complete" | "streaming" | "cancelled" | "error";
 
+const CATEGORY_ORDER = ["all", "fiqh", "ibadah", "aqidah", "akhlak", "general"] as const;
+
 type PlaygroundMessage = {
   id: string;
   role: "user" | "assistant";
@@ -62,9 +64,11 @@ function ThinkingIndicator({ label }: { label: string }) {
 export function ChatPlayground() {
   const { t, messages: i18nMessages } = useI18n();
   const starterPrompts = i18nMessages.playground.starterPrompts;
+  const categoryLabels = i18nMessages.playground.categories as Record<string, string>;
 
   const [messages, setMessages] = useState<PlaygroundMessage[]>([]);
   const [input, setInput] = useState("");
+  const [category, setCategory] = useState("all");
   const [sessionId, setSessionId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -208,6 +212,7 @@ export function ChatPlayground() {
           body: JSON.stringify({
             message: text,
             session_id: sessionIdRef.current || undefined,
+            category: category === "all" ? undefined : category,
           }),
           signal: controller.signal,
         });
@@ -294,7 +299,7 @@ export function ChatPlayground() {
         inputRef.current?.focus();
       }
     },
-    [input, isRestoring, isStreaming, persistSessionId, scrollToBottom, t, updateMessage],
+    [category, input, isRestoring, isStreaming, persistSessionId, scrollToBottom, t, updateMessage],
   );
 
   function handleClear() {
@@ -326,20 +331,51 @@ export function ChatPlayground() {
           {t("playground.settings")}
         </p>
 
+        <div className="mt-3 space-y-1.5 lg:mt-4">
+          <label
+            htmlFor="playground-category"
+            className="block text-xs font-medium text-[color:var(--muted)]"
+          >
+            {t("playground.category")}
+          </label>
+          <select
+            id="playground-category"
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+            disabled={isStreaming || isRestoring}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 disabled:opacity-60"
+          >
+            {CATEGORY_ORDER.map((value) => (
+              <option key={value} value={value}>
+                {categoryLabels[value] ?? value}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-[color:var(--muted)]">
+            {t("playground.categoryHelp")}
+          </p>
+        </div>
+
         <div className="mt-3 space-y-2 lg:mt-4">
             <button
               type="button"
               onClick={handleClear}
               disabled={isStreaming || isRestoring || messages.length === 0}
-              className="w-full rounded-lg border border-border px-3 py-2 text-sm font-medium transition hover:bg-background-subtle disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium transition hover:bg-background-subtle disabled:opacity-50"
             >
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M12 5v14M5 12h14" />
+              </svg>
               {t("playground.clearConversation")}
             </button>
             {sessionId && (
               <Link
                 href={buildChatLogsPath("/dashboard/chat", { session: sessionId })}
-                className="flex w-full items-center justify-center rounded-lg border border-border px-3 py-2 text-sm font-medium transition hover:bg-background-subtle"
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium transition hover:bg-background-subtle"
               >
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
                 {t("playground.viewLogs")}
               </Link>
             )}

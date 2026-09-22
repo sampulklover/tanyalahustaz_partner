@@ -95,33 +95,45 @@ export default async function DashboardPage() {
         title={welcomeTitle}
         description={t("pages.overview.description")}
         actions={
-          <Link
-            href="/dashboard/playground"
-            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
-          >
-            {t("pages.overview.tryItLive")}
-          </Link>
+          context?.isTeamMember ? (
+            <Link
+              href="/dashboard/playground"
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
+            >
+              {t("pages.overview.tryItLive")}
+            </Link>
+          ) : undefined
         }
       />
 
       {isNewUser && (
         <div className="mb-8">
-          <OnboardingChecklist />
+          <OnboardingChecklist isTeamMember={context?.isTeamMember ?? false} />
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-3">
         <StatCard
           label={t("pages.overview.activeApiKeys")}
           value={activeKeys ?? 0}
           href="/dashboard/api-keys"
           linkLabel={t("pages.overview.manageKeys")}
+          icon={
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3" />
+            </svg>
+          }
         />
         <StatCard
           label={t("pages.overview.chatRequests")}
           value={chatCount ?? 0}
           href="/dashboard/chat"
           linkLabel={t("pages.overview.viewLogs")}
+          icon={
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+          }
         />
         <StatCard
           label={t("pages.overview.knowledgeArticles")}
@@ -132,18 +144,30 @@ export default async function DashboardPage() {
               ? t("pages.overview.manage")
               : t("pages.overview.apiDocs")
           }
-        />
-        <StatCard
-          label={t("pages.overview.apiVersion")}
-          value="v1"
-          href="/docs"
-          linkLabel={t("pages.overview.documentation")}
-          external
+          icon={
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v14H6.5A2.5 2.5 0 0 0 4 19.5V5.5ZM4 19.5A2.5 2.5 0 0 0 6.5 22H20" />
+            </svg>
+          }
         />
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <QuickStartSnippet baseUrl={baseUrl} />
+      <div className="mt-8">
+        <Panel
+          title={t("pages.overview.recentChatRequests")}
+          description={t("pages.overview.recentChatRequestsDescription")}
+          action={
+            <Link href="/dashboard/chat" className="text-sm text-brand-600 hover:underline dark:text-brand-500">
+              {t("pages.overview.viewAllLogs")}
+            </Link>
+          }
+        >
+          <RecentChatsPreview chats={chats} isTeamMember={context?.isTeamMember ?? false} />
+        </Panel>
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <QuickStartSnippet baseUrl={baseUrl} isTeamMember={context?.isTeamMember ?? false} />
 
         <Panel
           title={t("pages.overview.recentApiActivity")}
@@ -185,20 +209,6 @@ export default async function DashboardPage() {
               ))}
             </ul>
           )}
-        </Panel>
-      </div>
-
-      <div className="mt-6">
-        <Panel
-          title={t("pages.overview.recentChatRequests")}
-          description={t("pages.overview.recentChatRequestsDescription")}
-          action={
-            <Link href="/dashboard/chat" className="text-sm text-brand-600 hover:underline dark:text-brand-500">
-              {t("pages.overview.viewAllLogs")}
-            </Link>
-          }
-        >
-          <RecentChatsPreview chats={chats} />
         </Panel>
       </div>
     </DashboardShell>

@@ -1,4 +1,5 @@
 import { persistChatExchange, prepareChatContext } from "@/lib/chat";
+import { getDashboardContext } from "@/lib/dashboard";
 import {
   getActionTranslations,
   translateChatError,
@@ -26,6 +27,11 @@ export async function POST(request: Request) {
 
   if (!user) {
     return Response.json({ error: t("actionErrors.notSignedIn") }, { status: 401 });
+  }
+
+  const context = await getDashboardContext();
+  if (!context?.isTeamMember) {
+    return Response.json({ error: t("actionErrors.teamOnly") }, { status: 403 });
   }
 
   const rateLimit = await checkPlaygroundRateLimit(user.id);

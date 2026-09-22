@@ -63,9 +63,12 @@
   },
   "dashboard": {
     "overview": "Gambaran keseluruhan",
+    "usage": "Penggunaan",
     "apiKeys": "Kunci API",
+    "topUp": "Tambah nilai",
+    "billing": "Pengebilan",
     "playground": "Cuba secara langsung",
-    "logs": "Log",
+    "logs": "Log sembang",
     "knowledge": "Pengetahuan",
     "resources": "Sumber",
     "documentation": "Dokumentasi",
@@ -244,6 +247,8 @@
   },
   "common": {
     "copy": "Salin",
+    "adminBadge": "Admin",
+    "teamBadge": "Pasukan",
     "copied": "Disalin!",
     "copyId": "Salin ID",
     "cancel": "Batal",
@@ -331,6 +336,61 @@
       "title": "Kunci API",
       "description": "Cipta dan urus kunci yang digunakan untuk mengesahkan permintaan ke API. Kunci dipaparkan sekali semasa penciptaan. Simpan dengan selamat."
     },
+    "usage": {
+      "title": "Penggunaan",
+      "description": "Permintaan API merentasi kunci anda mengikut masa.",
+      "timezoneNote": "Semua masa dalam UTC dan data mungkin lambat beberapa minit.",
+      "totalRequests": "Jumlah permintaan",
+      "chatRequests": "Permintaan sembang",
+      "successful": "Berjaya",
+      "errors": "Ralat",
+      "avgPerDay": "Purata / hari",
+      "range": "Julat masa",
+      "apiKey": "Kunci API",
+      "allKeys": "Semua kunci",
+      "clearFilters": "Kosongkan penapis",
+      "last7Days": "7 hari lepas",
+      "last30Days": "30 hari lepas",
+      "last90Days": "90 hari lepas",
+      "chartTitle": "Permintaan",
+      "seriesAll": "Semua",
+      "seriesChat": "Sembang",
+      "empty": "Tiada permintaan dalam tempoh ini."
+    },
+    "topUp": {
+      "title": "Tambah nilai",
+      "description": "Tambah kredit ke akaun anda untuk penggunaan API.",
+      "amount": "Jumlah",
+      "custom": "Tersuai",
+      "customPlaceholder": "Masukkan jumlah dalam RM",
+      "total": "Jumlah keseluruhan",
+      "continue": "Teruskan ke pembayaran",
+      "redirecting": "Mengalihkan…",
+      "secureBy": "Pembayaran diproses dengan selamat oleh Stripe.",
+      "success": "Pembayaran diterima. Baki anda akan dikemas kini tidak lama lagi.",
+      "cancelled": "Pembayaran dibatalkan. Tiada caj dikenakan.",
+      "notConfigured": "Pembayaran belum dikonfigurasikan. Tambah STRIPE_SECRET_KEY untuk mengaktifkan tambah nilai."
+    },
+    "billing": {
+      "title": "Pengebilan",
+      "description": "Tambah nilai dan resit pembayaran anda.",
+      "totalToppedUp": "Jumlah ditambah nilai",
+      "payments": "Pembayaran",
+      "invoice": "Resit",
+      "status": "Status",
+      "amount": "Jumlah",
+      "method": "Kaedah pembayaran",
+      "created": "Dicipta",
+      "receipt": "Resit",
+      "download": "Muat turun",
+      "empty": "Tiada pembayaran lagi",
+      "emptyDescription": "Tambah nilai akaun anda untuk melihat resit di sini.",
+      "topUpCta": "Tambah nilai",
+      "statusPaid": "Dibayar",
+      "statusPending": "Menunggu",
+      "statusFailed": "Gagal",
+      "statusRefunded": "Dikembalikan"
+    },
     "playground": {
       "title": "Cuba secara langsung",
       "description": "Uji API sembang dengan pangkalan pengetahuan dan saluran yang sama seperti pengeluaran."
@@ -346,7 +406,8 @@
       "noMatchingLogsDescription": "Cuba istilah carian lain atau kosongkan penapis anda.",
       "clearFilters": "Kosongkan penapis",
       "noChatRequestsYet": "Tiada permintaan sembang lagi",
-      "noChatRequestsDescription": "Hantar mesej ujian atau integrasikan API dalam aplikasi anda."
+      "noChatRequestsDescription": "Hantar mesej ujian atau integrasikan API dalam aplikasi anda.",
+      "noChatRequestsDescriptionIntegrate": "Permintaan daripada aplikasi anda akan muncul di sini sebaik sahaja anda mengintegrasikan API."
     },
     "knowledge": {
       "title": "Pangkalan pengetahuan",
@@ -369,7 +430,7 @@
       },
       "import": {
         "title": "Import pukal",
-        "description": "Muat naik fail JSON, CSV, atau Markdown untuk menambah banyak artikel pengetahuan sekali gus. Artikel disahkan sebelum import."
+        "description": "Muat naik dokumen PDF, Word, atau teks dan AI akan mendraf setiap artikel untuk anda — atau import fail JSON, CSV, dan Markdown berstruktur. Artikel disahkan sebelum import."
       },
       "team": {
         "title": "Pasukan pengetahuan",
@@ -407,7 +468,8 @@
     "description": "Gantikan {apiKeyPlaceholder} dengan kunci daripada {apiKeysLink}.",
     "apiKeyPlaceholder": "YOUR_API_KEY",
     "apiKeysLink": "Kunci API",
-    "baseUrl": "URL asas: {url}/api/v1"
+    "baseUrl": "URL asas: {url}/api/v1",
+    "noCode": "Bukan pembangun? Uji jawapan tanpa menulis sebarang kod dalam"
   },
   "pagination": {
     "showing": "Memaparkan {from}–{to} daripada {total}",
@@ -426,6 +488,23 @@
       "keyNamePlaceholder": "Nama kunci",
       "creating": "Sedang mencipta…",
       "createKey": "Cipta kunci",
+      "createNew": "Cipta kunci API baharu",
+      "listTitle": "Kunci API anda",
+      "searchPlaceholder": "Cari mengikut nama atau kunci…",
+      "table": {
+        "name": "Nama",
+        "key": "Kunci",
+        "created": "Dicipta",
+        "lastUsed": "Terakhir digunakan",
+        "usage": "Penggunaan",
+        "never": "Tidak pernah",
+        "revoked": "Dibatal"
+      },
+      "requests": "{count} permintaan",
+      "keyCount": "{count} kunci",
+      "noMatches": "Tiada kunci sepadan dengan carian anda.",
+      "actions": "Tindakan",
+      "actionUsage": "Lihat penggunaan",
       "activeKeysTitle": "Kunci aktif",
       "activeKeysDescription": "{count} kunci tersedia untuk permintaan API",
       "noActiveKeysTitle": "Tiada kunci aktif",
@@ -435,26 +514,12 @@
       "revoke": "Batalkan",
       "revokedKeysTitle": "Kunci dibatalkan",
       "revokedKeysDescription": "Kunci ini tidak boleh digunakan lagi."
-    },
-    "verifier": {
-      "title": "Sahkan sambungan",
-      "description": "Tampal kunci untuk menguji {endpoint}. Kunci anda tidak disimpan. Untuk masa operasi sistem, lihat {statusLink}.",
-      "endpoint": "GET /api/v1/me",
-      "statusLink": "halaman status",
-      "placeholder": "tlh_live_…",
-      "testing": "Sedang menguji…",
-      "testConnection": "Uji sambungan",
-      "keyValid": "Kunci API sah",
-      "connectionFailed": "Sambungan gagal",
-      "httpStatus": "HTTP {status} · {latency}ms",
-      "authCheckTitle": "Semakan pengesahan",
-      "authCheckDescription": "Memerlukan kunci API yang sah",
-      "requestFailed": "Permintaan gagal"
     }
   },
   "playground": {
     "settings": "Tetapan",
     "category": "Kategori",
+    "categoryHelp": "Pilihan. Menyempitkan jawapan kepada satu topik.",
     "session": "Sesi",
     "viewLogs": "Lihat log",
     "clearConversation": "Sembang baharu",
@@ -482,6 +547,8 @@
       "all": "Semua kategori",
       "fiqh": "Fiqh",
       "ibadah": "Ibadah",
+      "aqidah": "Akidah",
+      "akhlak": "Akhlak",
       "general": "Umum"
     },
     "starterPrompts": [
@@ -517,10 +584,20 @@
   "knowledge": {
     "nav": {
       "articles": "Artikel",
+      "playground": "Cuba secara langsung",
       "team": "Pasukan",
       "roleLabel": "Peranan:"
     },
     "articleForm": {
+      "uploadTitle": "Muat naik dokumen",
+      "uploadDescription": "Tambah fail PDF, Word, atau teks dan AI akan mendraf medan di bawah. Semak dan edit sebelum menyimpan.",
+      "uploadCta": "Letakkan dokumen di sini atau klik untuk melayari",
+      "uploadHint": ".pdf, .docx, .txt (sehingga 4 MB)",
+      "uploading": "Membaca dokumen dan mendraf…",
+      "uploadApplied": "{name} ditambah. Semak medan sebelum menyimpan.",
+      "uploadFailed": "Tidak dapat membaca dokumen tersebut.",
+      "uploadUnsupported": "Jenis fail tidak disokong. Gunakan fail PDF, Word (.docx), atau teks.",
+      "uploadTooLarge": "Fail tersebut melebihi {size} MB.",
       "detailsTitle": "Butiran artikel",
       "detailsDescription": "Tajuk, slug, dan kategori digunakan dalam carian AI dan petikan sumber.",
       "titlePlaceholder": "cth. Jamak solat semasa musafir",
@@ -549,9 +626,17 @@
     },
     "bulkImport": {
       "uploadTitle": "Muat naik fail",
-      "uploadDescription": "Import banyak artikel sekali gus daripada JSON, CSV, atau Markdown dengan frontmatter. Fail Markdown boleh diletakkan secara pukal.",
+      "uploadDescription": "Import banyak artikel sekali gus. Letakkan dokumen PDF, Word, atau teks dan kami akan draf setiap artikel untuk anda semak — atau muat naik fail JSON, CSV, dan Markdown dengan data berstruktur.",
       "dropFiles": "Letakkan fail di sini atau klik untuk melayari",
-      "fileTypes": ".json, .csv, .md (sehingga 500 artikel setiap import)",
+      "fileTypes": ".pdf, .docx, .txt, .md, .json, .csv (sehingga 500 artikel setiap import)",
+      "documentHint": "Fail PDF, Word, dan teks dibaca secara automatik: AI mendraf tajuk, ringkasan, kategori, dan tag, dan anda boleh mengedit semuanya sebelum mengimport.",
+      "processingDocuments": "Membaca {count} dokumen dan mendraf artikel…",
+      "documentFailed": "Tidak dapat memproses dokumen yang dimuat naik.",
+      "tooManyDocuments": "Anda boleh memuat naik sehingga {count} dokumen sekali gus.",
+      "documentTooLarge": "Fail tersebut melebihi {size} MB secara keseluruhan. Muat naik fail yang lebih sedikit atau lebih kecil.",
+      "documentErrorsTitle": "Sesetengah fail tidak dapat dibaca",
+      "documentError": "{name}: {error}",
+      "documentWarning": "{name}: {warning}",
       "loaded": "Dimuatkan {fileName}: {valid} sah, {invalid} tidak sah",
       "markdownFiles": "{count} fail markdown",
       "optionsTitle": "Pilihan import",
@@ -572,7 +657,10 @@
       "rowSource": " ({source})",
       "moreErrors": "…dan {count} lagi ralat pengesahan",
       "previewTitle": "Pratonton",
-      "previewDescription": "Memaparkan {shown} daripada {total} artikel sah.",
+      "previewDescription": "Semak dan edit {shown} daripada {total} artikel sah. Klik Edit untuk mengubah mana-mana medan.",
+      "editRow": "Edit",
+      "doneEditing": "Selesai",
+      "published": "Diterbitkan",
       "importComplete": "Import selesai",
       "imported": "{count} artikel dicipta",
       "updated": "{count} artikel dikemas kini",
@@ -797,6 +885,10 @@
   "actionErrors": {
     "notLoggedIn": "Anda mesti log masuk.",
     "notSignedIn": "Anda mesti log masuk.",
+    "teamOnly": "Akses pasukan diperlukan.",
+    "paymentsNotConfigured": "Pembayaran belum dikonfigurasikan.",
+    "invalidAmount": "Masukkan jumlah tambah nilai yang sah.",
+    "paymentFailed": "Tidak dapat memulakan pembayaran. Sila cuba lagi.",
     "keyNameRequired": "Nama kunci diperlukan.",
     "verifyEmailBeforeSignIn": "Sila sahkan e-mel anda sebelum log masuk. Semak peti masuk untuk pautan pengesahan.",
     "inviteRequired": "Kod jemputan diperlukan untuk mencipta akaun.",

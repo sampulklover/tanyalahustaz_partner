@@ -20,6 +20,16 @@ export default async function KnowledgeImportPage() {
     <DashboardShell>
       <KnowledgeNav knowledge={knowledge} active="articles" />
 
+      <Link
+        href="/dashboard/knowledge"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-[color:var(--muted)] transition hover:text-foreground"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
+        {t("common.backToArticles")}
+      </Link>
+
       <PageHeader
         title={t("pages.knowledge.import.title")}
         description={t("pages.knowledge.import.description")}

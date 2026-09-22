@@ -63,9 +63,12 @@
   },
   "dashboard": {
     "overview": "Overview",
+    "usage": "Usage",
     "apiKeys": "API keys",
+    "topUp": "Top up",
+    "billing": "Billing",
     "playground": "Try it live",
-    "logs": "Logs",
+    "logs": "Chat logs",
     "knowledge": "Knowledge",
     "resources": "Resources",
     "documentation": "Documentation",
@@ -244,6 +247,8 @@
   },
   "common": {
     "copy": "Copy",
+    "adminBadge": "Admin",
+    "teamBadge": "Team",
     "copied": "Copied!",
     "copyId": "Copy ID",
     "cancel": "Cancel",
@@ -331,6 +336,61 @@
       "title": "API keys",
       "description": "Create and manage keys used to authenticate requests to the API. Keys are shown once at creation. Store them securely."
     },
+    "usage": {
+      "title": "Usage",
+      "description": "API requests across your keys over time.",
+      "timezoneNote": "All times are UTC and data may be delayed by a few minutes.",
+      "totalRequests": "Total requests",
+      "chatRequests": "Chat requests",
+      "successful": "Successful",
+      "errors": "Errors",
+      "avgPerDay": "Avg / day",
+      "range": "Time range",
+      "apiKey": "API key",
+      "allKeys": "All keys",
+      "clearFilters": "Clear filters",
+      "last7Days": "Last 7 days",
+      "last30Days": "Last 30 days",
+      "last90Days": "Last 90 days",
+      "chartTitle": "Requests",
+      "seriesAll": "All",
+      "seriesChat": "Chat",
+      "empty": "No requests in this period."
+    },
+    "topUp": {
+      "title": "Top up",
+      "description": "Add credit to your account for API usage.",
+      "amount": "Amount",
+      "custom": "Custom",
+      "customPlaceholder": "Enter an amount in RM",
+      "total": "Total",
+      "continue": "Continue to checkout",
+      "redirecting": "Redirecting…",
+      "secureBy": "Payments are processed securely by Stripe.",
+      "success": "Payment received. Your balance will update shortly.",
+      "cancelled": "Checkout cancelled. No charge was made.",
+      "notConfigured": "Payments are not configured yet. Add STRIPE_SECRET_KEY to enable top-ups."
+    },
+    "billing": {
+      "title": "Billing",
+      "description": "Your top-ups and payment receipts.",
+      "totalToppedUp": "Total topped up",
+      "payments": "Payments",
+      "invoice": "Receipt",
+      "status": "Status",
+      "amount": "Amount",
+      "method": "Payment method",
+      "created": "Created",
+      "receipt": "Receipt",
+      "download": "Download",
+      "empty": "No payments yet",
+      "emptyDescription": "Top up your account to see receipts here.",
+      "topUpCta": "Top up",
+      "statusPaid": "Paid",
+      "statusPending": "Pending",
+      "statusFailed": "Failed",
+      "statusRefunded": "Refunded"
+    },
     "playground": {
       "title": "Try it live",
       "description": "Test the chat API with the same knowledge base and pipeline as production."
@@ -346,7 +406,8 @@
       "noMatchingLogsDescription": "Try a different search term or clear your filters.",
       "clearFilters": "Clear filters",
       "noChatRequestsYet": "No chat requests yet",
-      "noChatRequestsDescription": "Send a test message or integrate the API in your application."
+      "noChatRequestsDescription": "Send a test message or integrate the API in your application.",
+      "noChatRequestsDescriptionIntegrate": "Requests from your application will appear here once you integrate the API."
     },
     "knowledge": {
       "title": "Knowledge base",
@@ -369,7 +430,7 @@
       },
       "import": {
         "title": "Bulk import",
-        "description": "Upload JSON, CSV, or Markdown files to add many knowledge articles at once. Articles are validated before import."
+        "description": "Upload PDF, Word, or text documents and AI drafts each article for you — or import structured JSON, CSV, and Markdown files. Articles are validated before import."
       },
       "team": {
         "title": "Knowledge team",
@@ -407,7 +468,8 @@
     "description": "Replace {apiKeyPlaceholder} with a key from {apiKeysLink}.",
     "apiKeyPlaceholder": "YOUR_API_KEY",
     "apiKeysLink": "API keys",
-    "baseUrl": "Base URL: {url}/api/v1"
+    "baseUrl": "Base URL: {url}/api/v1",
+    "noCode": "Not a developer? Test answers without writing any code in"
   },
   "pagination": {
     "showing": "Showing {from}–{to} of {total}",
@@ -426,6 +488,23 @@
       "keyNamePlaceholder": "Key name",
       "creating": "Creating…",
       "createKey": "Create key",
+      "createNew": "Create new API key",
+      "listTitle": "Your API keys",
+      "searchPlaceholder": "Search by name or key…",
+      "table": {
+        "name": "Name",
+        "key": "Key",
+        "created": "Created",
+        "lastUsed": "Last used",
+        "usage": "Usage",
+        "never": "Never",
+        "revoked": "Revoked"
+      },
+      "requests": "{count} request(s)",
+      "keyCount": "{count} key(s)",
+      "noMatches": "No keys match your search.",
+      "actions": "Actions",
+      "actionUsage": "View usage",
       "activeKeysTitle": "Active keys",
       "activeKeysDescription": "{count} key(s) available for API requests",
       "noActiveKeysTitle": "No active keys",
@@ -435,26 +514,12 @@
       "revoke": "Revoke",
       "revokedKeysTitle": "Revoked keys",
       "revokedKeysDescription": "These keys can no longer be used."
-    },
-    "verifier": {
-      "title": "Verify connection",
-      "description": "Paste a key to test {endpoint}. Your key is not stored. For system uptime, see {statusLink}.",
-      "endpoint": "GET /api/v1/me",
-      "statusLink": "status page",
-      "placeholder": "tlh_live_…",
-      "testing": "Testing…",
-      "testConnection": "Test connection",
-      "keyValid": "API key is valid",
-      "connectionFailed": "Connection failed",
-      "httpStatus": "HTTP {status} · {latency}ms",
-      "authCheckTitle": "Auth check",
-      "authCheckDescription": "Requires a valid API key",
-      "requestFailed": "Request failed"
     }
   },
   "playground": {
     "settings": "Settings",
     "category": "Category",
+    "categoryHelp": "Optional. Narrows answers to one topic.",
     "session": "Session",
     "viewLogs": "View logs",
     "clearConversation": "New chat",
@@ -482,6 +547,8 @@
       "all": "All categories",
       "fiqh": "Fiqh",
       "ibadah": "Ibadah",
+      "aqidah": "Aqidah",
+      "akhlak": "Akhlak",
       "general": "General"
     },
     "starterPrompts": [
@@ -517,10 +584,20 @@
   "knowledge": {
     "nav": {
       "articles": "Articles",
+      "playground": "Try it live",
       "team": "Team",
       "roleLabel": "Role:"
     },
     "articleForm": {
+      "uploadTitle": "Upload document",
+      "uploadDescription": "Add a PDF, Word, or text file and AI drafts the fields below. Review and edit before saving.",
+      "uploadCta": "Drop a document here or click to browse",
+      "uploadHint": ".pdf, .docx, .txt (up to 4 MB)",
+      "uploading": "Reading the document and drafting…",
+      "uploadApplied": "{name} added. Review the fields before saving.",
+      "uploadFailed": "Could not read that document.",
+      "uploadUnsupported": "Unsupported file type. Use a PDF, Word (.docx), or text file.",
+      "uploadTooLarge": "That file is larger than {size} MB.",
       "detailsTitle": "Article details",
       "detailsDescription": "Title, slug, and category are used in AI search and source citations.",
       "titlePlaceholder": "e.g. Combining prayers while traveling",
@@ -549,9 +626,17 @@
     },
     "bulkImport": {
       "uploadTitle": "Upload file",
-      "uploadDescription": "Import many articles at once from JSON, CSV, or Markdown with frontmatter. Markdown files can be dropped in bulk.",
+      "uploadDescription": "Import many articles at once. Drop PDF, Word, or text documents and we'll draft each article for you to review — or upload JSON, CSV, and Markdown files with structured data.",
       "dropFiles": "Drop files here or click to browse",
-      "fileTypes": ".json, .csv, .md (up to 500 articles per import)",
+      "fileTypes": ".pdf, .docx, .txt, .md, .json, .csv (up to 500 articles per import)",
+      "documentHint": "PDF, Word, and text files are read automatically: AI drafts the title, summary, category, and tags, and you can edit everything before importing.",
+      "processingDocuments": "Reading {count} document(s) and drafting articles…",
+      "documentFailed": "Could not process the uploaded documents.",
+      "tooManyDocuments": "You can upload up to {count} documents at once.",
+      "documentTooLarge": "Those files are larger than {size} MB in total. Upload fewer or smaller files.",
+      "documentErrorsTitle": "Some files could not be read",
+      "documentError": "{name}: {error}",
+      "documentWarning": "{name}: {warning}",
       "loaded": "Loaded {fileName}: {valid} valid, {invalid} invalid",
       "markdownFiles": "{count} markdown files",
       "optionsTitle": "Import options",
@@ -572,7 +657,10 @@
       "rowSource": " ({source})",
       "moreErrors": "…and {count} more validation errors",
       "previewTitle": "Preview",
-      "previewDescription": "Showing {shown} of {total} valid article(s).",
+      "previewDescription": "Review and edit {shown} of {total} valid article(s). Click Edit to adjust any field.",
+      "editRow": "Edit",
+      "doneEditing": "Done",
+      "published": "Published",
       "importComplete": "Import complete",
       "imported": "{count} article(s) created",
       "updated": "{count} article(s) updated",
@@ -797,6 +885,10 @@
   "actionErrors": {
     "notLoggedIn": "You must be logged in.",
     "notSignedIn": "You must be signed in.",
+    "teamOnly": "Team access required.",
+    "paymentsNotConfigured": "Payments are not configured yet.",
+    "invalidAmount": "Enter a valid top-up amount.",
+    "paymentFailed": "Could not start checkout. Please try again.",
     "keyNameRequired": "Key name is required.",
     "verifyEmailBeforeSignIn": "Please verify your email before signing in. Check your inbox for the confirmation link.",
     "inviteRequired": "An invite code is required to create an account.",
