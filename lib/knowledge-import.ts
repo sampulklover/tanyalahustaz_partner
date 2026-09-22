@@ -42,6 +42,15 @@ export type BulkImportResult = {
   embedQueued?: boolean;
 };
 
+/** Result of processing a single uploaded document (PDF/DOCX/TXT). */
+export type DocumentExtractResult = {
+  name: string;
+  row: KnowledgeImportRow | null;
+  error?: string;
+  warning?: string;
+  usedAi: boolean;
+};
+
 const REQUIRED_FIELDS = ["title", "summary", "content"] as const;
 
 function normalizeBoolean(value: unknown, fallback: boolean): boolean {
@@ -444,3 +453,21 @@ published: true
 
 When traveling beyond the defined distance, a Muslim may shorten (qasar) and combine (jamak) certain prayers. This article explains the conditions and rulings.
 `;
+
+export const DOCUMENT_EXTENSIONS = [".pdf", ".docx", ".txt"] as const;
+
+/** Shared upload limits. Kept client-safe so the UI can pre-check sizes. */
+export const MAX_DOCUMENT_FILES = 10;
+export const MAX_DOCUMENT_BYTES = 4 * 1024 * 1024;
+export const MAX_TOTAL_UPLOAD_BYTES = 4 * 1024 * 1024;
+
+/** File types that are read as documents and structured by AI. */
+export function isDocumentFilename(filename: string): boolean {
+  const lower = filename.toLowerCase();
+  return DOCUMENT_EXTENSIONS.some((extension) => lower.endsWith(extension));
+}
+
+/** Renumber rows so indices stay unique after merging multiple uploads. */
+export function reindexImportRows(rows: ParsedImportRow[]): ParsedImportRow[] {
+  return rows.map((row, index) => ({ ...row, index: index + 1 }));
+}

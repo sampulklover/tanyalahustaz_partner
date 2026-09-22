@@ -13,6 +13,7 @@ type NavItem = {
   label: string;
   exact?: boolean;
   icon: ReactNode;
+  badge?: string;
 };
 
 function NavLink({
@@ -31,12 +32,17 @@ function NavLink({
       aria-current={active ? "page" : undefined}
       className={
         active
-          ? "flex items-center gap-3 rounded-lg bg-brand-50 px-3 py-2 text-sm font-medium text-brand-700 dark:bg-brand-900/40 dark:text-brand-200"
+          ? "relative flex items-center gap-3 rounded-lg bg-brand-50 px-3 py-2 text-sm font-semibold text-brand-700 before:absolute before:inset-y-1.5 before:left-0 before:w-0.5 before:rounded-full before:bg-brand-600 dark:bg-brand-900/40 dark:text-brand-200 dark:before:bg-brand-400"
           : "flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-[color:var(--muted)] transition hover:bg-background-subtle hover:text-foreground"
       }
     >
       <span className={active ? "text-brand-600 dark:text-brand-400" : ""}>{item.icon}</span>
-      {item.label}
+      <span>{item.label}</span>
+      {item.badge && (
+        <span className="ml-auto rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
+          {item.badge}
+        </span>
+      )}
     </Link>
   );
 }
@@ -68,6 +74,18 @@ function SidebarContent({
       ),
     },
     {
+      href: "/dashboard/usage",
+      label: t("dashboard.usage"),
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="4" y1="20" x2="20" y2="20" />
+          <rect x="6" y="10" width="3" height="6" rx="0.5" />
+          <rect x="11" y="6" width="3" height="10" rx="0.5" />
+          <rect x="16" y="13" width="3" height="3" rx="0.5" />
+        </svg>
+      ),
+    },
+    {
       href: "/dashboard/api-keys",
       label: t("dashboard.apiKeys"),
       icon: (
@@ -77,11 +95,23 @@ function SidebarContent({
       ),
     },
     {
-      href: "/dashboard/playground",
-      label: t("dashboard.playground"),
+      href: "/dashboard/top-up",
+      label: t("dashboard.topUp"),
       icon: (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <polygon points="5 3 19 12 5 21 5 3" />
+          <rect x="2" y="5" width="20" height="14" rx="2" />
+          <line x1="2" y1="10" x2="22" y2="10" />
+        </svg>
+      ),
+    },
+    {
+      href: "/dashboard/billing",
+      label: t("dashboard.billing"),
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2z" />
+          <line x1="9" y1="7" x2="15" y2="7" />
+          <line x1="9" y1="11" x2="15" y2="11" />
         </svg>
       ),
     },
@@ -99,6 +129,7 @@ function SidebarContent({
   const knowledgeNav: NavItem = {
     href: "/dashboard/knowledge",
     label: t("dashboard.knowledge"),
+    badge: t("common.teamBadge"),
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v14H6.5A2.5 2.5 0 0 0 4 19.5V5.5ZM4 19.5A2.5 2.5 0 0 0 6.5 22H20" />
@@ -147,6 +178,30 @@ function SidebarContent({
             <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
           </svg>
           {t("dashboard.documentation")}
+          <svg
+            className="ml-auto h-3.5 w-3.5 opacity-40"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            aria-hidden
+          >
+            <path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+            <path d="M15 3h6v6" />
+            <path d="M10 14 21 3" />
+          </svg>
+        </Link>
+        <Link
+          href="/status"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={onNavigate}
+          className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-[color:var(--muted)] transition hover:bg-background-subtle hover:text-foreground"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+          </svg>
+          {t("common.systemStatusLink")}
           <svg
             className="ml-auto h-3.5 w-3.5 opacity-40"
             viewBox="0 0 24 24"

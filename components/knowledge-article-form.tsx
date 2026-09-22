@@ -7,6 +7,12 @@ import {
   updateKnowledgeArticle,
 } from "@/app/actions/knowledge-admin";
 import { slugify } from "@/lib/knowledge-form";
+import {
+  MAX_TOTAL_UPLOAD_BYTES,
+  isDocumentFilename,
+  type KnowledgeImportRow,
+} from "@/lib/knowledge-import";
+import { requestDocumentArticles } from "@/lib/knowledge-upload";
 import type { KnowledgeArticle } from "@/lib/types";
 import { useI18n } from "@/lib/i18n/client";
 
@@ -17,6 +23,12 @@ const inputClass =
 
 type FormState = { error?: string; success?: string };
 
+type UploadState = {
+  processing?: boolean;
+  error?: string;
+  notice?: string;
+};
+
 type KnowledgeArticleFormProps = {
   article?: KnowledgeArticle;
 };
@@ -24,8 +36,15 @@ type KnowledgeArticleFormProps = {
 export function KnowledgeArticleForm({ article }: KnowledgeArticleFormProps) {
   const { t } = useI18n();
   const isEdit = Boolean(article);
+
+  const [title, setTitle] = useState(article?.title ?? "");
   const [slug, setSlug] = useState(article?.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(isEdit);
+  const [category, setCategory] = useState(article?.category ?? "general");
+  const [summary, setSummary] = useState(article?.summary ?? "");
+  const [content, setContent] = useState(article?.content ?? "");
+  const [tags, setTags] = useState(article?.tags?.join(", ") ?? "");
+  const [uploadState, setUploadState] = useState<UploadState>({});
 
   const [state, formAction, isPending] = useActionState(
     async (_prev: FormState, formData: FormData) => {
@@ -38,13 +57,111 @@ export function KnowledgeArticleForm({ article }: KnowledgeArticleFormProps) {
   );
 
   function handleTitleChange(value: string) {
+    setTitle(value);
     if (!slugTouched) {
       setSlug(slugify(value));
     }
   }
 
+  function applyGeneratedRow(row: KnowledgeImportRow) {
+    setTitle(row.title);
+    setSlug(row.slug);
+    setSlugTouched(true);
+    setCategory(row.category);
+    setSummary(row.summary);
+    setContent(row.content);
+    setTags(row.tags.join(", "));
+  }
+
+  async function handleDocument(file: File) {
+    if (!isDocumentFilename(file.name)) {
+      setUploadState({ error: t("knowledge.articleForm.uploadUnsupported") });
+      return;
+    }
+
+    if (file.size > MAX_TOTAL_UPLOAD_BYTES) {
+      setUploadState({
+        error: t("knowledge.articleForm.uploadTooLarge", {
+          size: Math.round(MAX_TOTAL_UPLOAD_BYTES / 1024 / 1024),
+        }),
+      });
+      return;
+    }
+
+    setUploadState({ processing: true });
+
+    try {
+      const results = await requestDocumentArticles([file], true);
+      const result = results[0];
+
+      if (!result?.row) {
+        setUploadState({
+          error: result?.error ?? t("knowledge.articleForm.uploadFailed"),
+        });
+        return;
+      }
+
+      applyGeneratedRow(result.row);
+      setUploadState({
+        notice: t("knowledge.articleForm.uploadApplied", { name: file.name }),
+      });
+    } catch (error) {
+      setUploadState({
+        error:
+          error instanceof Error ? error.message : t("knowledge.articleForm.uploadFailed"),
+      });
+    }
+  }
+
   return (
     <form action={formAction} className="space-y-8">
+      <section className="rounded-xl border border-dashed border-border bg-background-subtle p-5">
+        <h2 className="text-sm font-semibold">{t("knowledge.articleForm.uploadTitle")}</h2>
+        <p className="mt-1 text-sm text-[color:var(--muted)]">
+          {t("knowledge.articleForm.uploadDescription")}
+        </p>
+
+        <label
+          htmlFor="article-document"
+          className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-background px-6 py-8 text-center transition hover:border-brand-400 hover:bg-brand-50/40 dark:hover:bg-brand-900/10"
+        >
+          <span className="text-sm font-medium">{t("knowledge.articleForm.uploadCta")}</span>
+          <span className="mt-1 text-xs text-[color:var(--muted)]">
+            {t("knowledge.articleForm.uploadHint")}
+          </span>
+          <input
+            id="article-document"
+            type="file"
+            accept=".pdf,.docx,.txt"
+            disabled={uploadState.processing}
+            className="sr-only"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) {
+                void handleDocument(file);
+              }
+              event.target.value = "";
+            }}
+          />
+        </label>
+
+        {uploadState.processing && (
+          <p className="mt-3 text-sm font-medium text-brand-700 dark:text-brand-300">
+            {t("knowledge.articleForm.uploading")}
+          </p>
+        )}
+        {uploadState.error && (
+          <p className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+            {uploadState.error}
+          </p>
+        )}
+        {uploadState.notice && (
+          <p className="mt-3 rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-sm text-brand-800 dark:border-brand-900 dark:bg-brand-900/20 dark:text-brand-200">
+            {uploadState.notice}
+          </p>
+        )}
+      </section>
+
       <section className="space-y-6">
         <div>
           <h2 className="text-sm font-semibold">{t("knowledge.articleForm.detailsTitle")}</h2>
@@ -62,8 +179,8 @@ export function KnowledgeArticleForm({ article }: KnowledgeArticleFormProps) {
               id="title"
               name="title"
               required
-              defaultValue={article?.title}
-              onChange={(e) => handleTitleChange(e.target.value)}
+              value={title}
+              onChange={(event) => handleTitleChange(event.target.value)}
               className={inputClass}
               placeholder={t("knowledge.articleForm.titlePlaceholder")}
             />
@@ -78,9 +195,9 @@ export function KnowledgeArticleForm({ article }: KnowledgeArticleFormProps) {
               name="slug"
               required
               value={slug}
-              onChange={(e) => {
+              onChange={(event) => {
                 setSlugTouched(true);
-                setSlug(e.target.value);
+                setSlug(event.target.value);
               }}
               className={`${inputClass} font-mono`}
               placeholder={t("knowledge.articleForm.slugPlaceholder")}
@@ -95,12 +212,13 @@ export function KnowledgeArticleForm({ article }: KnowledgeArticleFormProps) {
               id="category"
               name="category"
               list="knowledge-categories"
-              defaultValue={article?.category ?? "general"}
+              value={category}
+              onChange={(event) => setCategory(event.target.value)}
               className={inputClass}
             />
             <datalist id="knowledge-categories">
-              {CATEGORIES.map((category) => (
-                <option key={category} value={category} />
+              {CATEGORIES.map((option) => (
+                <option key={option} value={option} />
               ))}
             </datalist>
           </div>
@@ -114,7 +232,8 @@ export function KnowledgeArticleForm({ article }: KnowledgeArticleFormProps) {
               name="summary"
               required
               rows={2}
-              defaultValue={article?.summary}
+              value={summary}
+              onChange={(event) => setSummary(event.target.value)}
               className={inputClass}
               placeholder={t("knowledge.articleForm.summaryPlaceholder")}
             />
@@ -139,7 +258,8 @@ export function KnowledgeArticleForm({ article }: KnowledgeArticleFormProps) {
             name="content"
             required
             rows={14}
-            defaultValue={article?.content}
+            value={content}
+            onChange={(event) => setContent(event.target.value)}
             className={`${inputClass} font-mono text-[13px] leading-relaxed`}
             placeholder={t("knowledge.articleForm.contentPlaceholder")}
           />
@@ -152,7 +272,8 @@ export function KnowledgeArticleForm({ article }: KnowledgeArticleFormProps) {
           <input
             id="tags"
             name="tags"
-            defaultValue={article?.tags?.join(", ") ?? ""}
+            value={tags}
+            onChange={(event) => setTags(event.target.value)}
             placeholder={t("knowledge.articleForm.tagsPlaceholder")}
             className={inputClass}
           />

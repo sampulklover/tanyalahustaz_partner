@@ -12,7 +12,7 @@ export function getOpenRouterModel() {
   return process.env.OPENROUTER_MODEL ?? "google/gemini-2.0-flash-001";
 }
 
-function getOpenRouterApiKey() {
+export function getOpenRouterApiKey() {
   const apiKey = process.env.OPENROUTER_API_KEY;
 
   if (!apiKey) {
@@ -22,7 +22,7 @@ function getOpenRouterApiKey() {
   return apiKey;
 }
 
-function buildOpenRouterHeaders(apiKey: string) {
+export function buildOpenRouterHeaders(apiKey: string) {
   return {
     Authorization: `Bearer ${apiKey}`,
     "Content-Type": "application/json",
@@ -31,7 +31,7 @@ function buildOpenRouterHeaders(apiKey: string) {
   };
 }
 
-function mapOpenRouterError(status: number, errorBody: string) {
+export function mapOpenRouterError(status: number, errorBody: string) {
   if (status === 401 || errorBody.toLowerCase().includes("invalid api key")) {
     throw new Error(
       "OpenRouter rejected the API key. Check OPENROUTER_API_KEY in .env.local (openrouter.ai → Keys).",
@@ -204,4 +204,78 @@ export async function streamChatReply({
 
 export function createSessionId(sessionId?: string) {
   return sessionId?.trim() || randomUUID();
+}
+
+/**
+ * Ask the configured model for a JSON object and parse it.
+ *
+ * Used for server-side structuring tasks (e.g. turning an uploaded document
+ * into a knowledge-base article). Falls back to extracting the first JSON
+ * object from the reply when the model wraps it in prose or code fences.
+ */
+export async function generateJsonResponse({
+  system,
+  user,
+  temperature = 0.2,
+  maxTokens,
+}: {
+  system: string;
+  user: string;
+  temperature?: number;
+  maxTokens?: number;
+}): Promise<{ data: unknown; model: string }> {
+  const apiKey = getOpenRouterApiKey();
+  const model = getOpenRouterModel();
+
+  const response = await fetch(OPENROUTER_URL, {
+    method: "POST",
+    headers: buildOpenRouterHeaders(apiKey),
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: user },
+      ],
+      temperature,
+      max_tokens: maxTokens,
+      response_format: { type: "json_object" },
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    mapOpenRouterError(response.status, errorBody);
+  }
+
+  const payload = (await response.json()) as {
+    choices?: Array<{ message?: { content?: string } }>;
+  };
+  const content = payload.choices?.[0]?.message?.content?.trim();
+
+  if (!content) {
+    throw new Error("OpenRouter returned an empty response.");
+  }
+
+  return { data: parseJsonFromText(content), model };
+}
+
+function parseJsonFromText(text: string): unknown {
+  const cleaned = text
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/i, "")
+    .trim();
+
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    // Fall back to the first {...} block in the reply.
+  }
+
+  const start = cleaned.indexOf("{");
+  const end = cleaned.lastIndexOf("}");
+  if (start !== -1 && end > start) {
+    return JSON.parse(cleaned.slice(start, end + 1));
+  }
+
+  throw new Error("Model response did not contain valid JSON.");
 }

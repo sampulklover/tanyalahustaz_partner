@@ -3,11 +3,24 @@
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n/client";
 
-const stepHrefs = ["/dashboard/api-keys", "/dashboard/playground", "/docs/endpoints"];
+const stepMeta = [
+  { href: "/dashboard/api-keys", adminOnly: false },
+  { href: "/dashboard/playground", adminOnly: true },
+  { href: "/docs/endpoints", adminOnly: false },
+];
 
-export function OnboardingChecklist() {
+export function OnboardingChecklist({ isTeamMember }: { isTeamMember: boolean }) {
   const { t, messages } = useI18n();
-  const steps = messages.onboarding.steps;
+
+  const steps = messages.onboarding.steps
+    .map((step, index) => ({
+      title: step.title,
+      body: step.body,
+      cta: step.cta,
+      href: stepMeta[index]?.href ?? "/dashboard",
+      adminOnly: stepMeta[index]?.adminOnly ?? false,
+    }))
+    .filter((step) => isTeamMember || !step.adminOnly);
 
   return (
     <section className="rounded-xl border border-brand-200 bg-brand-50 p-6 dark:border-brand-900 dark:bg-brand-900/20">
@@ -18,14 +31,14 @@ export function OnboardingChecklist() {
         {t("onboarding.subtitle")}
       </p>
       <ol className="mt-6 space-y-4">
-        {steps.map((step, i) => (
+        {steps.map((step, index) => (
           <li
             key={step.title}
             className="flex flex-col gap-3 rounded-lg border border-brand-200/80 bg-card p-4 sm:flex-row sm:items-center sm:justify-between dark:border-brand-900/60"
           >
             <div className="flex gap-4">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-600 text-sm font-bold text-white">
-                {i + 1}
+                {index + 1}
               </span>
               <div>
                 <p className="font-medium">{step.title}</p>
@@ -33,7 +46,7 @@ export function OnboardingChecklist() {
               </div>
             </div>
             <Link
-              href={stepHrefs[i]}
+              href={step.href}
               className="shrink-0 rounded-lg bg-brand-600 px-4 py-2 text-center text-sm font-semibold text-white transition hover:bg-brand-700 sm:ml-4"
             >
               {step.cta}

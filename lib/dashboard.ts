@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 export type DashboardContext = {
   userId: string;
   email: string;
+  isTeamMember: boolean;
   knowledge: KnowledgePermissions;
 };
 
@@ -23,11 +24,13 @@ export async function getDashboardContext(): Promise<DashboardContext | null> {
   ]);
 
   const role = (membership?.role as KnowledgeTeamRole | undefined) ?? null;
+  const knowledge = permissionsForRole(role);
 
   return {
     userId: user.id,
     email: user.email ?? profile?.email ?? "",
-    knowledge: permissionsForRole(role),
+    isTeamMember: knowledge.canViewKnowledge,
+    knowledge,
   };
 }
 

@@ -1,9 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { CopyButton } from "@/components/copy-button";
 import { useI18n } from "@/lib/i18n/client";
 
-export function QuickStartSnippet({ baseUrl }: { baseUrl: string }) {
+export function QuickStartSnippet({ baseUrl, isTeamMember }: { baseUrl: string; isTeamMember: boolean }) {
   const { t } = useI18n();
   const apiKeyPlaceholder = t("quickStart.apiKeyPlaceholder");
   const chatSnippet = `curl -X POST ${baseUrl}/api/v1/chat \\
@@ -38,6 +39,31 @@ export function QuickStartSnippet({ baseUrl }: { baseUrl: string }) {
       <p className="mt-3 font-mono text-xs text-[color:var(--muted)]">
         {t("quickStart.baseUrl", { url: baseUrl })}
       </p>
+      {isTeamMember && (
+        <p className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-border pt-3 text-sm text-[color:var(--muted)]">
+          <svg
+            className="h-4 w-4 shrink-0 text-brand-600 dark:text-brand-400"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4" />
+            <path d="M12 8h.01" />
+          </svg>
+          {t("quickStart.noCode")}{" "}
+          <Link
+            href="/dashboard/playground"
+            className="font-medium text-brand-600 hover:underline dark:text-brand-500"
+          >
+            {t("playground.title")}
+          </Link>
+        </p>
+      )}
     </section>
   );
 }
