@@ -61,6 +61,34 @@ export type KnowledgeArticle = {
   published: boolean;
   created_at: string;
   updated_at: string;
+  /** Set when the article is a read-only mirror of an external source (e.g. "gcs"). */
+  source_provider?: string | null;
+  /** Bucket object path for mirrored articles. */
+  source_path?: string | null;
+  source_etag?: string | null;
+  source_synced_at?: string | null;
+  /** Source file size in bytes (mirrored articles only). */
+  source_size?: number | null;
+};
+
+export type KnowledgeSyncFailure = { path: string; error: string };
+
+export type KnowledgeSyncRun = {
+  id: string;
+  provider: string;
+  status: "running" | "completed" | "failed";
+  files_seen: number;
+  created_count: number;
+  updated_count: number;
+  removed_count: number;
+  skipped_count: number;
+  deferred_count: number;
+  failed: KnowledgeSyncFailure[];
+  error: string | null;
+  embed_job_id: string | null;
+  created_by: string | null;
+  started_at: string;
+  finished_at: string | null;
 };
 
 export type KnowledgeSource = {

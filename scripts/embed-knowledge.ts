@@ -4,10 +4,18 @@ import { embedAllKnowledgeArticles } from "../lib/embed-knowledge";
 config({ path: ".env.local" });
 config({ path: ".env" });
 
-async function main() {
-  console.log("Embedding published knowledge articles...");
+const limitArg = process.argv.find((arg) => arg.startsWith("--limit="));
+const parsedLimit = limitArg ? Number(limitArg.split("=")[1]) : undefined;
+const limit = Number.isFinite(parsedLimit) ? parsedLimit : undefined;
 
-  const result = await embedAllKnowledgeArticles();
+async function main() {
+  console.log(
+    limit
+      ? `Embedding up to ${limit} published article(s)...`
+      : "Embedding all published knowledge articles...",
+  );
+
+  const result = await embedAllKnowledgeArticles({ limit });
 
   console.log(
     `Done. Processed ${result.articlesProcessed} article(s), wrote ${result.chunksWritten} chunk embedding(s).`,

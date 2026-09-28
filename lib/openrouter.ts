@@ -1,4 +1,6 @@
 import { randomUUID } from "crypto";
+import { composeSystemPrompt } from "@/lib/ai-prompt";
+import { getSystemPrompt } from "@/lib/ai-settings";
 import type { ChatHistoryMessage } from "@/lib/chat-history";
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
@@ -45,22 +47,16 @@ export function buildChatMessages({
   userMessage,
   knowledgeContext,
   history = [],
+  systemPrompt,
 }: {
   userMessage: string;
   knowledgeContext: string;
   history?: ChatHistoryMessage[];
+  systemPrompt?: string;
 }): ChatMessage[] {
   const systemMessage: ChatMessage = {
     role: "system",
-    content: `You are the Tanyalah Ustaz AI assistant for partner websites.
-Answer in clear, respectful language suitable for Muslim users seeking Islamic guidance.
-Use the KNOWLEDGE CONTEXT below as your primary source. If the context does not cover the question, say you are unsure and recommend consulting a qualified local scholar.
-Do not invent fatwas or cite sources not in the context.
-Keep answers concise and practical for website visitors.
-When the user refers to earlier messages in this conversation, use the chat history together with the knowledge context.
-
-KNOWLEDGE CONTEXT:
-${knowledgeContext}`,
+    content: composeSystemPrompt(systemPrompt ?? "", knowledgeContext),
   };
 
   return [
@@ -80,14 +76,22 @@ export async function generateChatReply({
   userMessage,
   knowledgeContext,
   history = [],
+  systemPrompt,
 }: {
   userMessage: string;
   knowledgeContext: string;
   history?: ChatHistoryMessage[];
+  systemPrompt?: string;
 }) {
   const apiKey = getOpenRouterApiKey();
   const model = getOpenRouterModel();
-  const messages = buildChatMessages({ userMessage, knowledgeContext, history });
+  const resolvedPrompt = systemPrompt ?? (await getSystemPrompt());
+  const messages = buildChatMessages({
+    userMessage,
+    knowledgeContext,
+    history,
+    systemPrompt: resolvedPrompt,
+  });
 
   const response = await fetch(OPENROUTER_URL, {
     method: "POST",
@@ -122,15 +126,23 @@ export async function streamChatReply({
   knowledgeContext,
   history = [],
   signal,
+  systemPrompt,
 }: {
   userMessage: string;
   knowledgeContext: string;
   history?: ChatHistoryMessage[];
   signal?: AbortSignal;
+  systemPrompt?: string;
 }) {
   const apiKey = getOpenRouterApiKey();
   const model = getOpenRouterModel();
-  const messages = buildChatMessages({ userMessage, knowledgeContext, history });
+  const resolvedPrompt = systemPrompt ?? (await getSystemPrompt());
+  const messages = buildChatMessages({
+    userMessage,
+    knowledgeContext,
+    history,
+    systemPrompt: resolvedPrompt,
+  });
 
   const response = await fetch(OPENROUTER_URL, {
     method: "POST",

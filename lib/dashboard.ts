@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { permissionsForRole, type KnowledgePermissions, type KnowledgeTeamRole } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 
@@ -8,7 +9,12 @@ export type DashboardContext = {
   knowledge: KnowledgePermissions;
 };
 
-export async function getDashboardContext(): Promise<DashboardContext | null> {
+/**
+ * Reads the session and profile once per request. Wrapped in React `cache` so
+ * the dashboard layout, section layouts, and the page share a single lookup
+ * instead of hitting Supabase Auth and the database several times.
+ */
+export const getDashboardContext = cache(async (): Promise<DashboardContext | null> => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -32,7 +38,7 @@ export async function getDashboardContext(): Promise<DashboardContext | null> {
     isTeamMember: knowledge.canViewKnowledge,
     knowledge,
   };
-}
+});
 
 export async function requireKnowledgeTeamMember(): Promise<DashboardContext | null> {
   const context = await getDashboardContext();

@@ -282,8 +282,6 @@
     "unknown": "Tidak diketahui",
     "apiReferenceLink": "Rujukan API",
     "systemStatusLink": "Status sistem",
-    "backToArticles": "Kembali ke artikel",
-    "singleArticle": "Artikel tunggal",
     "role": "Peranan"
   },
   "errors": {
@@ -318,7 +316,7 @@
       "manageKeys": "Urus kunci",
       "chatRequests": "Permintaan sembang",
       "viewLogs": "Lihat log",
-      "knowledgeArticles": "Artikel pengetahuan",
+      "knowledgeArticles": "Knowledge files",
       "manage": "Urus",
       "apiDocs": "Dokumentasi API",
       "apiVersion": "Versi API",
@@ -410,31 +408,21 @@
       "noChatRequestsDescriptionIntegrate": "Permintaan daripada aplikasi anda akan muncul di sini sebaik sahaja anda mengintegrasikan API."
     },
     "knowledge": {
-      "title": "Pangkalan pengetahuan",
-      "description": "Kandungan Islam terkurasi yang menguasakan respons API. Artikel diterbitkan dibenamkan untuk carian semantik.",
-      "newArticle": "Artikel baharu",
-      "bulkImport": "Import pukal",
-      "articleCreated": "Artikel dicipta",
-      "articleCreatedEmbedded": "Artikel dicipta dan dibenamkan ({count} petikan).",
-      "articleDeleted": "Artikel dipadam.",
-      "bulkImportCompleted": "Import pukal selesai.",
-      "noArticlesYet": "Tiada artikel lagi.",
-      "noArticlesYetCreate": "Tiada artikel lagi. Cipta yang pertama.",
-      "new": {
-        "title": "Artikel baharu",
-        "description": "Tambah kandungan terkurasi untuk AI rujuk semasa menjawab permintaan sembang API."
+      "sources": {
+        "title": "Sumber pengetahuan",
+        "description": "Cermin dokumen daripada Google Cloud Storage ke dalam pangkalan pengetahuan. Google Cloud ialah sumber utama; fail yang disegerakkan di sini hanya boleh dibaca."
+      },
+      "prompt": {
+        "title": "Prompt AI",
+        "description": "Sesuaikan arahan yang membentuk setiap jawapan. Pengetahuan yang diperoleh dan peraturan tiada bahan sentiasa diterapkan.",
+        "testLink": "Uji di taman permainan"
       },
       "edit": {
-        "editTitle": "Sunting artikel",
-        "viewTitle": "Lihat artikel"
-      },
-      "import": {
-        "title": "Import pukal",
-        "description": "Muat naik dokumen PDF, Word, atau teks dan AI akan mendraf setiap artikel untuk anda — atau import fail JSON, CSV, dan Markdown berstruktur. Artikel disahkan sebelum import."
+        "viewTitle": "Lihat fail"
       },
       "team": {
         "title": "Pasukan pengetahuan",
-        "description": "Tetapkan peranan supaya rakan sekerja boleh membantu mengurus artikel. Semua orang memerlukan akaun pembangun sebelum anda boleh menambah mereka."
+        "description": "Tetapkan peranan supaya rakan sekerja boleh membantu mengurus sumber dan fail pengetahuan. Semua orang memerlukan akaun pembangun sebelum anda boleh menambah mereka."
       }
     },
     "status": {
@@ -583,37 +571,110 @@
   },
   "knowledge": {
     "nav": {
-      "articles": "Artikel",
+      "sources": "Sumber",
+      "prompt": "Prompt",
       "playground": "Cuba secara langsung",
       "team": "Pasukan",
       "roleLabel": "Peranan:"
     },
-    "articleForm": {
-      "uploadTitle": "Muat naik dokumen",
-      "uploadDescription": "Tambah fail PDF, Word, atau teks dan AI akan mendraf medan di bawah. Semak dan edit sebelum menyimpan.",
-      "uploadCta": "Letakkan dokumen di sini atau klik untuk melayari",
-      "uploadHint": ".pdf, .docx, .txt (sehingga 4 MB)",
-      "uploading": "Membaca dokumen dan mendraf…",
-      "uploadApplied": "{name} ditambah. Semak medan sebelum menyimpan.",
-      "uploadFailed": "Tidak dapat membaca dokumen tersebut.",
-      "uploadUnsupported": "Jenis fail tidak disokong. Gunakan fail PDF, Word (.docx), atau teks.",
-      "uploadTooLarge": "Fail tersebut melebihi {size} MB.",
-      "detailsTitle": "Butiran artikel",
-      "detailsDescription": "Tajuk, slug, dan kategori digunakan dalam carian AI dan petikan sumber.",
-      "titlePlaceholder": "cth. Jamak solat semasa musafir",
-      "slugPlaceholder": "jamak-solat-musafir",
-      "summaryPlaceholder": "Penerangan ringkas digunakan dalam pratonton carian",
-      "contentTitle": "Kandungan",
-      "contentDescription": "Badan utama menguasakan jawapan AI. Artikel diterbitkan dibenamkan semula secara automatik untuk carian.",
-      "articleContent": "Kandungan artikel",
-      "contentPlaceholder": "Tulis kandungan artikel penuh di sini…",
-      "tagsPlaceholder": "solat, fiqh, musafir",
-      "tagsHelp": "Dipisahkan dengan koma",
-      "publishedLabel": "Diterbitkan",
-      "publishedDescription": "Kelihatan kepada AI untuk pengambilan dan petikan sumber",
-      "saving": "Sedang menyimpan…",
-      "saveChanges": "Simpan perubahan",
-      "createArticle": "Cipta artikel"
+    "library": {
+      "backToLibrary": "Kembali ke sumber",
+      "title": "Fail pengetahuan",
+      "description": "Semua yang boleh digunakan oleh AI. Kandungan dimiliki oleh Google Cloud dan disegerakkan dari Sumber.",
+      "searchPlaceholder": "Cari mengikut tajuk, nama fail, atau kategori…",
+      "colSource": "Sumber",
+      "sourceSynced": "Google Cloud",
+      "sourceManual": "Manual",
+      "noMatches": "Tiada fail sepadan dengan carian anda.",
+      "showing": "Menunjukkan {shown} daripada {total}",
+      "noFiles": "Belum ada fail. Pilih sumber di atas dan segerakkan."
+    },
+    "prompt": {
+      "statusLabel": "Prompt semasa",
+      "statusCustom": "Disesuaikan",
+      "statusDefault": "Lalai terbina",
+      "updatedLabel": "Kemas kini terakhir",
+      "placeholderLabel": "Placeholder pengetahuan",
+      "editorTitle": "Arahan anda",
+      "editorHint": "Arahan ini menentukan cara jawapan ditulis. Biarkan kosong untuk menggunakan lalai terbina. Bahan rujukan yang diperoleh sentiasa ditambahkan, dan peraturan tiada bahan sentiasa dikuatkuasakan.",
+      "save": "Simpan prompt",
+      "reset": "Set semula kepada lalai",
+      "useDefault": "Muatkan lalai ke dalam editor",
+      "emptyHint": "Biarkan kosong untuk menggunakan lalai.",
+      "composedTitle": "Cara prompt digabungkan",
+      "composedHint": "Pratonton dengan contoh soalan. Gunakan {placeholder} untuk mengawal di mana bahan rujukan dimasukkan; jika tidak ia ditambah di hujung.",
+      "defaultTitle": "Prompt lalai terbina",
+      "defaultHint": "Dipaparkan sebagai rujukan. Blok pengetahuan dan peraturan tiada bahan ditambah secara automatik."
+    },
+    "sources": {
+      "badge": "Disegerakkan",
+      "connectionTitle": "Sambungan sumber",
+      "configured": "Bersambung",
+      "notConfigured": "Belum dikonfigurasi",
+      "notConfiguredHelp": "Tetapkan GCS_BUCKET_NAME dan GCS_SERVICE_ACCOUNT_JSON dalam persekitaran pelayan untuk menyambung bucket Google Cloud Storage anda.",
+      "selectTitle": "Pilih apa yang hendak disegerakkan",
+      "lastRun": "Jalan terakhir: {status} · {time}",
+      "embedProcess": "Proses baris gilir",
+      "embedProcessing": "Memproses…",
+      "embedPending": "{count} menunggu",
+      "embedUpToDate": "Semua telah dibenamkan",
+      "embedDone": "{chunks} petikan diproses.",
+      "embedPartial": "{chunks} petikan diproses · {count} masih menunggu.",
+      "embedFailed": "Tidak dapat memproses baris gilir pembenaman.",
+      "syncNow": "Segerak sekarang",
+      "syncing": "Menyegerak…",
+      "syncFailed": "Penyegerakan gagal.",
+      "syncComplete": "Penyegerakan selesai",
+      "filesSeen": "{count} fail ditemui dalam bucket",
+      "resultSummary": "{created} dicipta · {updated} dikemas kini · {removed} dialih keluar · {skipped} tidak berubah · {deferred} ditangguhkan",
+      "failedCount": "{count} ralat fail",
+      "moreErrors": "…dan {count} ralat lagi",
+      "embedQueued": "Pembenaman dibariskkan untuk fail yang dikemas kini.",
+      "historyTitle": "Sejarah penyegerakan",
+      "noRuns": "Belum ada penyegerakan.",
+      "startedAt": "Dimulakan",
+      "colResult": "Hasil",
+      "colErrors": "Ralat",
+      "statusRunning": "Berjalan",
+      "statusCompleted": "Selesai",
+      "statusFailed": "Gagal",
+      "readOnlyNote": "Fail ini dicermin daripada Google Cloud dan hanya boleh dibaca. Edit di sistem sumber, kemudian segerak semula.",
+      "picker": {
+        "selectedTitle": "Sumber dipilih",
+        "selectedEmpty": "Belum ada pilihan. Tandakan folder atau fail di bawah untuk memilih apa yang dicermin.",
+        "selectedSummary": "{folders} folder, {files} fail",
+        "clearAll": "Kosongkan semua",
+        "browseTitle": "Layari bucket",
+        "browseHint": "Tandakan folder untuk mencermin semua kandungannya, atau tandakan fail untuk mencermin dokumen itu sahaja.",
+        "filterPlaceholder": "Tapis mengikut nama…",
+        "filterCount": "Menunjukkan {shown} daripada {total}",
+        "noMatches": "Tiada apa-apa sepadan dengan “{query}”.",
+        "searchAllPlaceholder": "Cari dalam semua folder…",
+        "searchAllNote": "Imbas seluruh bucket — mungkin mengambil beberapa saat.",
+        "searchResults": "{total} padanan dalam semua folder",
+        "searchTruncated": "Menunjukkan {shown} padanan pertama. Perhalusi carian anda untuk mengecilkannya.",
+        "up": "Naik",
+        "root": "Akar bucket",
+        "kindFolder": "Folder",
+        "kindFile": "Fail",
+        "add": "Tambah",
+        "remove": "Buang",
+        "loading": "Memuatkan…",
+        "loadError": "Tidak dapat membaca bucket.",
+        "emptyFolder": "Folder ini kosong.",
+        "notConfigured": "Sambungkan Google Cloud Storage untuk melayari fail.",
+        "truncated": "Menunjukkan 1,000 entri pertama. Buka folder untuk mengecilkan lagi.",
+        "selectFirst": "Pilih sekurang-kurangnya satu folder atau fail untuk membolehkan penyegerakan."
+      },
+      "selectedSub": "dipilih untuk segerak",
+      "noSelection": "Belum ada pilihan",
+      "filesSub": "fail dalam pustaka",
+      "embeddingsPending": "{count} menunggu",
+      "embeddingsReady": "Terkini",
+      "embeddingsEmpty": "Belum boleh dicari",
+      "chunksSub": "{count} petikan carian",
+      "tabFiles": "Fail",
+      "tabSync": "Segerak"
     },
     "viewer": {
       "slug": "Slug",
@@ -623,55 +684,6 @@
       "summary": "Ringkasan",
       "content": "Kandungan",
       "tags": "Tag"
-    },
-    "bulkImport": {
-      "uploadTitle": "Muat naik fail",
-      "uploadDescription": "Import banyak artikel sekali gus. Letakkan dokumen PDF, Word, atau teks dan kami akan draf setiap artikel untuk anda semak — atau muat naik fail JSON, CSV, dan Markdown dengan data berstruktur.",
-      "dropFiles": "Letakkan fail di sini atau klik untuk melayari",
-      "fileTypes": ".pdf, .docx, .txt, .md, .json, .csv (sehingga 500 artikel setiap import)",
-      "documentHint": "Fail PDF, Word, dan teks dibaca secara automatik: AI mendraf tajuk, ringkasan, kategori, dan tag, dan anda boleh mengedit semuanya sebelum mengimport.",
-      "processingDocuments": "Membaca {count} dokumen dan mendraf artikel…",
-      "documentFailed": "Tidak dapat memproses dokumen yang dimuat naik.",
-      "tooManyDocuments": "Anda boleh memuat naik sehingga {count} dokumen sekali gus.",
-      "documentTooLarge": "Fail tersebut melebihi {size} MB secara keseluruhan. Muat naik fail yang lebih sedikit atau lebih kecil.",
-      "documentErrorsTitle": "Sesetengah fail tidak dapat dibaca",
-      "documentError": "{name}: {error}",
-      "documentWarning": "{name}: {warning}",
-      "loaded": "Dimuatkan {fileName}: {valid} sah, {invalid} tidak sah",
-      "markdownFiles": "{count} fail markdown",
-      "optionsTitle": "Pilihan import",
-      "duplicateSlugs": "Slug pendua",
-      "skipExisting": "Langkau artikel sedia ada",
-      "updateExisting": "Kemas kini artikel sedia ada",
-      "publishByDefault": "Terbitkan secara lalai",
-      "publishByDefaultHelp": "Digunakan apabila baris tidak menetapkan diterbitkan",
-      "embedAfterImport": "Benamkan selepas import",
-      "embedAfterImportHelp": "Jana petikan vektor untuk artikel diterbitkan (disyorkan)",
-      "templatesTitle": "Templat",
-      "templatesDescription": "Muat turun fail permulaan dan gantikan dengan kandungan anda.",
-      "jsonTemplate": "Templat JSON",
-      "csvTemplate": "Templat CSV",
-      "markdownTemplate": "Templat Markdown",
-      "validationErrors": "Ralat pengesahan ({count})",
-      "rowError": "Baris {index}{source}: {error}",
-      "rowSource": " ({source})",
-      "moreErrors": "…dan {count} lagi ralat pengesahan",
-      "previewTitle": "Pratonton",
-      "previewDescription": "Semak dan edit {shown} daripada {total} artikel sah. Klik Edit untuk mengubah mana-mana medan.",
-      "editRow": "Edit",
-      "doneEditing": "Selesai",
-      "published": "Diterbitkan",
-      "importComplete": "Import selesai",
-      "imported": "{count} artikel dicipta",
-      "updated": "{count} artikel dikemas kini",
-      "skipped": "{count} pendua dilangkau",
-      "embedded": "{count} artikel dibenamkan ({chunks} petikan)",
-      "embedQueued": "Pembenaman disusun untuk pemprosesan latar belakang",
-      "embeddingJob": "Kerja pembenaman: {status}",
-      "embeddingProgress": "{processed} / {total} artikel diproses · {chunks} petikan ditulis",
-      "importFailed": "Baris {index} ({title}): {error}",
-      "importing": "Sedang mengimport…",
-      "importCount": "Import {count} artikel"
     },
     "teamManager": {
       "inviteTitle": "Jemput ahli pasukan",
@@ -690,8 +702,7 @@
     "reembed": {
       "reembedding": "Sedang membenamkan semula…",
       "reembedAll": "Benamkan semula semua diterbitkan"
-    },
-    "deleteConfirm": "Padam artikel ini dan pembenamannya? Tindakan ini tidak boleh dibatalkan."
+    }
   },
   "docs": {
     "overview": {
@@ -875,11 +886,11 @@
     },
     "editor": {
       "label": "Editor",
-      "description": "Cipta, sunting, terbitkan, dan padam artikel"
+      "description": "Pilih sumber, jalankan penyegerakan, dan urus fail pengetahuan"
     },
     "viewer": {
       "label": "Pemapar",
-      "description": "Lihat draf dan artikel diterbitkan (baca sahaja)"
+      "description": "Lihat fail pengetahuan (baca sahaja)"
     }
   },
   "actionErrors": {
@@ -899,14 +910,7 @@
     "rateLimitMinute": "Had kadar melebihi: {limit} permintaan seminit.",
     "rateLimitDay": "Kuota harian melebihi: {limit} permintaan sehari.",
     "editorAccessRequired": "Akses editor diperlukan.",
-    "titleRequired": "Tajuk diperlukan (min 3 aksara).",
-    "slugRequired": "Slug diperlukan (min 3 aksara).",
-    "summaryRequired": "Ringkasan diperlukan (min 10 aksara).",
-    "contentRequired": "Kandungan diperlukan (min 20 aksara).",
-    "noValidArticles": "Tiada artikel sah untuk diimport.",
-    "importMaxExceeded": "Maksimum 500 artikel setiap import. Pisahkan fail anda dan cuba lagi.",
     "reembedFailed": "Pembenaman semula gagal.",
-    "embedJobNotFound": "Kerja pembenaman tidak ditemui.",
     "adminAssignOnly": "Hanya pentadbir pengetahuan boleh menetapkan peranan.",
     "emailRequired": "E-mel diperlukan.",
     "invalidRole": "Pilih peranan yang sah.",

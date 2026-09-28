@@ -1,0 +1,444 @@
+import Link from "next/link";
+import {
+  clearSourceSelections,
+  toggleSourceSelection,
+} from "@/app/actions/knowledge-sources";
+import { formatBytes } from "@/lib/format-bytes";
+import { getTranslations } from "@/lib/i18n/server";
+
+export type SourceSelection = { path: string; kind: "file" | "folder" };
+export type SourceFolder = { name: string; path: string };
+export type SourceFile = { name: string; path: string; size: number };
+
+function parentPath(prefix: string | null) {
+  if (!prefix) return null;
+  const parts = prefix.split("/");
+  parts.pop();
+  return parts.length ? parts.join("/") : null;
+}
+
+function SearchIcon({ className = "left-3" }: { className?: string }) {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      aria-hidden
+      className={`pointer-events-none absolute top-1/2 -translate-y-1/2 text-[color:var(--muted)] ${className}`}
+    >
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3-3" />
+    </svg>
+  );
+}
+
+function FolderIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden className="shrink-0 text-[color:var(--muted)]">
+      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    </svg>
+  );
+}
+
+function FileIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden className="shrink-0 text-[color:var(--muted)]">
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+      <path d="M14 3v5h5" />
+    </svg>
+  );
+}
+
+function ChevronRight() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0 text-[color:var(--muted)]">
+      <path d="M9 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+export async function KnowledgeSourcePicker({
+  configured,
+  selections,
+  prefix,
+  folders,
+  files,
+  filter,
+  totalCount,
+  truncated,
+  error,
+  search,
+  searchResults,
+  searchTotal,
+  searchTruncated,
+  view = "sync",
+}: {
+  configured: boolean;
+  selections: SourceSelection[];
+  prefix: string | null;
+  folders: SourceFolder[];
+  files: SourceFile[];
+  filter: string;
+  totalCount: number;
+  truncated: boolean;
+  error?: string | null;
+  search: string;
+  searchResults: SourceFile[];
+  searchTotal: number;
+  searchTruncated: boolean;
+  /** Which sub-tab is showing, so navigation links keep you in Sync. */
+  view?: "sync" | "files";
+}) {
+  const t = await getTranslations();
+
+  function browseHref(path: string | null) {
+    const params = new URLSearchParams();
+    if (view === "sync") params.set("view", "sync");
+    if (path) params.set("browse", path);
+    const query = params.toString();
+    return query ? `/dashboard/knowledge/sources?${query}` : "/dashboard/knowledge/sources";
+  }
+  const selectedPaths = new Set(selections.map((entry) => entry.path));
+  const selectedFolders = selections.filter((entry) => entry.kind === "folder").length;
+  const selectedFiles = selections.filter((entry) => entry.kind === "file").length;
+  const breadcrumbs = prefix ? prefix.split("/") : [];
+  const up = parentPath(prefix);
+  const searching = search.trim().length >= 2;
+  const rowBase = "flex items-center gap-3 px-3 py-2.5 transition hover:bg-background-subtle";
+  const selectedRowBase = "bg-brand-50 dark:bg-brand-900/20";
+
+  function SelectToggle({
+    path,
+    kind,
+    selected,
+  }: {
+    path: string;
+    kind: "file" | "folder";
+    selected: boolean;
+  }) {
+    return (
+      <form action={toggleSourceSelection} className="shrink-0">
+        <input type="hidden" name="path" value={path} />
+        <input type="hidden" name="kind" value={kind} />
+        <input type="hidden" name="selected" value={selected ? "false" : "true"} />
+        <button
+          type="submit"
+          aria-pressed={selected}
+          aria-label={selected ? t("knowledge.sources.picker.remove") : t("knowledge.sources.picker.add")}
+          title={selected ? t("knowledge.sources.picker.remove") : t("knowledge.sources.picker.add")}
+          className={
+            selected
+              ? "flex h-5 w-5 items-center justify-center rounded-md border border-brand-600 bg-brand-600 text-[11px] font-bold text-white transition active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
+              : "flex h-5 w-5 items-center justify-center rounded-md border border-border text-[11px] font-bold text-transparent transition hover:border-brand-500 hover:bg-background-subtle hover:text-[color:var(--muted)] active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
+          }
+        >
+          ✓
+        </button>
+      </form>
+    );
+  }
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-5">
+      <div className="lg:col-span-3">
+        <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+          <div className="border-b border-border px-5 py-4">
+            <h3 className="font-semibold">{t("knowledge.sources.picker.browseTitle")}</h3>
+            <p className="mt-1 text-xs leading-relaxed text-[color:var(--muted)]">
+              {t("knowledge.sources.picker.browseHint")}
+            </p>
+
+            {configured && (
+              <form method="get" className="mt-3 flex items-center gap-2">
+                {view === "sync" && <input type="hidden" name="view" value="sync" />}
+                <div className="relative flex-1">
+                  <SearchIcon />
+                  <input
+                    type="search"
+                    name="search"
+                    defaultValue={search}
+                    placeholder={t("knowledge.sources.picker.searchAllPlaceholder")}
+                    className="w-full rounded-lg border border-border bg-background-subtle py-2 pl-9 pr-3 text-sm outline-none transition focus:border-brand-500 focus:bg-card"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="rounded-lg border border-border px-3.5 py-2 text-sm font-medium transition hover:bg-background-subtle active:scale-[0.98]"
+                >
+                  {t("common.search")}
+                </button>
+                {searching && (
+                  <Link
+                    href={browseHref(null)}
+                    className="text-sm text-[color:var(--muted)] transition hover:text-foreground"
+                  >
+                    {t("common.clear")}
+                  </Link>
+                )}
+              </form>
+            )}
+          </div>
+
+          {!configured ? (
+            <p className="px-5 py-8 text-sm text-[color:var(--muted)]">
+              {t("knowledge.sources.picker.notConfigured")}
+            </p>
+          ) : searching ? (
+            <div>
+              <p className="border-b border-border bg-background-subtle px-5 py-2 text-xs tabular-nums text-[color:var(--muted)]">
+                {t("knowledge.sources.picker.searchResults", { total: searchTotal })}
+              </p>
+              {searchResults.length === 0 ? (
+                <p className="px-5 py-10 text-center text-sm text-[color:var(--muted)]">
+                  {t("knowledge.sources.picker.noMatches", { query: search })}
+                </p>
+              ) : (
+                <ul className="max-h-[30rem] divide-y divide-border overflow-y-auto">
+                  {searchResults.map((file) => {
+                    const selected = selectedPaths.has(file.path);
+                    return (
+                      <li
+                        key={file.path}
+                        className={`flex items-center gap-3 px-3 py-2.5 transition hover:bg-background-subtle ${
+                          selected ? selectedRowBase : ""
+                        }`}
+                      >
+                        <SelectToggle path={file.path} kind="file" selected={selected} />
+                        <div className="flex min-w-0 flex-1 items-center gap-2">
+                          <FileIcon />
+                          <span className="truncate font-mono text-xs" title={file.path}>
+                            {file.path}
+                          </span>
+                        </div>
+                        <span className="shrink-0 rounded-full bg-background-subtle px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[color:var(--muted)]">
+                          {formatBytes(file.size)}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+              {searchTruncated && (
+                <p className="border-t border-border px-5 py-3 text-xs text-[color:var(--muted)]">
+                  {t("knowledge.sources.picker.searchTruncated", { shown: searchResults.length })}
+                </p>
+              )}
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-2 border-b border-border bg-background-subtle px-3 py-2 text-xs">
+                <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
+                  {prefix && (
+                    <Link
+                      href={browseHref(up)}
+                      className="mr-1 inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 font-medium text-[color:var(--muted)] transition hover:bg-card hover:text-foreground"
+                    >
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                        <path d="M15 18l-6-6 6-6" />
+                      </svg>
+                      {t("knowledge.sources.picker.up")}
+                    </Link>
+                  )}
+                  <Link
+                    href={browseHref(null)}
+                    className={
+                      prefix
+                        ? "shrink-0 rounded-md px-2 py-1 font-medium text-brand-600 transition hover:bg-card dark:text-brand-500"
+                        : "shrink-0 rounded-md px-2 py-1 font-semibold text-foreground"
+                    }
+                  >
+                    {t("knowledge.sources.picker.root")}
+                  </Link>
+                  {breadcrumbs.map((crumb, index) => {
+                    const crumbPath = breadcrumbs.slice(0, index + 1).join("/");
+                    const isLast = index === breadcrumbs.length - 1;
+                    return (
+                      <span key={crumbPath} className="flex shrink-0 items-center gap-1">
+                        <span className="text-[color:var(--muted)]">/</span>
+                        {isLast ? (
+                          <span className="max-w-[14rem] truncate px-2 py-1 font-semibold text-foreground">
+                            {crumb}
+                          </span>
+                        ) : (
+                          <Link
+                            href={browseHref(crumbPath)}
+                            className="max-w-[14rem] truncate rounded-md px-2 py-1 font-medium text-brand-600 transition hover:bg-card dark:text-brand-500"
+                          >
+                            {crumb}
+                          </Link>
+                        )}
+                      </span>
+                    );
+                  })}
+                </div>
+
+                <form method="get" className="relative shrink-0">
+                  {view === "sync" && <input type="hidden" name="view" value="sync" />}
+                  {prefix && <input type="hidden" name="browse" value={prefix} />}
+                  <SearchIcon className="left-2" />
+                  <input
+                    type="search"
+                    name="filter"
+                    defaultValue={filter}
+                    placeholder={t("knowledge.sources.picker.filterPlaceholder")}
+                    className="w-40 rounded-md border border-border bg-card py-1 pl-7 pr-2 text-xs outline-none transition focus:border-brand-500 sm:w-48"
+                  />
+                </form>
+                {filter && (
+                  <Link
+                    href={browseHref(prefix)}
+                    aria-label={t("common.clear")}
+                    className="shrink-0 rounded-md px-1.5 py-1 text-xs text-[color:var(--muted)] transition hover:bg-card hover:text-foreground"
+                  >
+                    ✕
+                  </Link>
+                )}
+              </div>
+
+              {filter && !error && (
+                <p className="border-b border-border px-5 py-2 text-xs tabular-nums text-[color:var(--muted)]">
+                  {t("knowledge.sources.picker.filterCount", {
+                    shown: folders.length + files.length,
+                    total: totalCount,
+                  })}
+                </p>
+              )}
+
+              {error ? (
+                <p className="px-5 py-8 text-sm text-red-600 dark:text-red-400">{error}</p>
+              ) : folders.length === 0 && files.length === 0 ? (
+                <p className="px-5 py-10 text-center text-sm text-[color:var(--muted)]">
+                  {filter
+                    ? t("knowledge.sources.picker.noMatches", { query: filter })
+                    : t("knowledge.sources.picker.emptyFolder")}
+                </p>
+              ) : (
+                <ul className="max-h-[30rem] divide-y divide-border overflow-y-auto">
+                  {folders.map((folder) => {
+                    const selected = selectedPaths.has(folder.path);
+                    return (
+                      <li
+                        key={folder.path}
+                        className={`${rowBase} ${selected ? selectedRowBase : ""}`}
+                      >
+                        <SelectToggle path={folder.path} kind="folder" selected={selected} />
+                        <Link
+                          href={browseHref(folder.path)}
+                          className="group flex min-w-0 flex-1 items-center gap-2"
+                        >
+                          <FolderIcon />
+                          <span className="truncate text-sm font-medium group-hover:underline">
+                            {folder.name}
+                          </span>
+                          <span className="ml-auto text-[color:var(--muted)] opacity-0 transition group-hover:opacity-100">
+                            <ChevronRight />
+                          </span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                  {files.map((file) => {
+                    const selected = selectedPaths.has(file.path);
+                    return (
+                      <li key={file.path} className={`${rowBase} ${selected ? selectedRowBase : ""}`}>
+                        <SelectToggle path={file.path} kind="file" selected={selected} />
+                        <div className="flex min-w-0 flex-1 items-center gap-2">
+                          <FileIcon />
+                          <span className="truncate text-sm">{file.name}</span>
+                        </div>
+                        <span className="shrink-0 rounded-full bg-background-subtle px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[color:var(--muted)]">
+                          {formatBytes(file.size)}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+
+              {truncated && !error && (
+                <p className="border-t border-border px-5 py-3 text-xs text-[color:var(--muted)]">
+                  {t("knowledge.sources.picker.truncated")}
+                </p>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+
+      <aside className="lg:col-span-2">
+        <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm lg:sticky lg:top-6">
+          <div className="flex items-center justify-between gap-2 border-b border-border px-5 py-4">
+            <h3 className="flex items-center gap-2 font-semibold">
+              {t("knowledge.sources.picker.selectedTitle")}
+              <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-semibold tabular-nums text-brand-700 dark:bg-brand-900/40 dark:text-brand-300">
+                {selections.length}
+              </span>
+            </h3>
+            {selections.length > 0 && (
+              <form action={clearSourceSelections}>
+                <button
+                  type="submit"
+                  className="rounded-md px-2 py-1 text-xs font-medium text-[color:var(--muted)] transition hover:bg-background-subtle hover:text-foreground"
+                >
+                  {t("knowledge.sources.picker.clearAll")}
+                </button>
+              </form>
+            )}
+          </div>
+
+          {selections.length === 0 ? (
+            <div className="flex flex-col items-center px-6 py-12 text-center">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-background-subtle text-[color:var(--muted)]">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden>
+                  <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                </svg>
+              </span>
+              <p className="mt-3 max-w-[15rem] text-sm text-[color:var(--muted)]">
+                {t("knowledge.sources.picker.selectedEmpty")}
+              </p>
+            </div>
+          ) : (
+            <>
+              <p className="border-b border-border px-5 py-2 text-xs text-[color:var(--muted)]">
+                {t("knowledge.sources.picker.selectedSummary", {
+                  folders: selectedFolders,
+                  files: selectedFiles,
+                })}
+              </p>
+              <ul className="max-h-[30rem] divide-y divide-border overflow-y-auto">
+                {selections.map((entry) => (
+                  <li key={entry.path} className="flex items-start gap-2 px-4 py-2.5">
+                    <span className="mt-0.5 shrink-0 rounded bg-background-subtle px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[color:var(--muted)]">
+                      {entry.kind === "folder"
+                        ? t("knowledge.sources.picker.kindFolder")
+                        : t("knowledge.sources.picker.kindFile")}
+                    </span>
+                    <span className="min-w-0 flex-1 break-all font-mono text-xs leading-relaxed">
+                      {entry.path}
+                    </span>
+                    <form action={toggleSourceSelection} className="shrink-0">
+                      <input type="hidden" name="path" value={entry.path} />
+                      <input type="hidden" name="kind" value={entry.kind} />
+                      <input type="hidden" name="selected" value="false" />
+                      <button
+                        type="submit"
+                        aria-label={t("knowledge.sources.picker.remove")}
+                        className="rounded-md px-1.5 py-0.5 text-xs font-medium text-red-600 transition hover:bg-red-50 active:scale-95 dark:text-red-400 dark:hover:bg-red-950/40"
+                      >
+                        ✕
+                      </button>
+                    </form>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      </aside>
+    </div>
+  );
+}

@@ -282,8 +282,6 @@
     "unknown": "Unknown",
     "apiReferenceLink": "API reference",
     "systemStatusLink": "System status",
-    "backToArticles": "Back to articles",
-    "singleArticle": "Single article",
     "role": "Role"
   },
   "errors": {
@@ -318,7 +316,7 @@
       "manageKeys": "Manage keys",
       "chatRequests": "Chat requests",
       "viewLogs": "View logs",
-      "knowledgeArticles": "Knowledge articles",
+      "knowledgeArticles": "Knowledge files",
       "manage": "Manage",
       "apiDocs": "API docs",
       "apiVersion": "API version",
@@ -410,31 +408,21 @@
       "noChatRequestsDescriptionIntegrate": "Requests from your application will appear here once you integrate the API."
     },
     "knowledge": {
-      "title": "Knowledge base",
-      "description": "Curated Islamic content that powers API responses. Published articles are embedded for semantic search.",
-      "newArticle": "New article",
-      "bulkImport": "Bulk import",
-      "articleCreated": "Article created",
-      "articleCreatedEmbedded": "Article created and embedded ({count} chunk(s)).",
-      "articleDeleted": "Article deleted.",
-      "bulkImportCompleted": "Bulk import completed.",
-      "noArticlesYet": "No articles yet.",
-      "noArticlesYetCreate": "No articles yet. Create your first one.",
-      "new": {
-        "title": "New article",
-        "description": "Add curated content for the AI to reference when answering API chat requests."
+      "sources": {
+        "title": "Knowledge sources",
+        "description": "Mirror documents from Google Cloud Storage into the knowledge base. Google Cloud is the source of truth; files synced here are read-only."
+      },
+      "prompt": {
+        "title": "AI prompt",
+        "description": "Tune the instructions that shape every answer. The retrieved knowledge and the no-material guard are always applied.",
+        "testLink": "Test in playground"
       },
       "edit": {
-        "editTitle": "Edit article",
-        "viewTitle": "View article"
-      },
-      "import": {
-        "title": "Bulk import",
-        "description": "Upload PDF, Word, or text documents and AI drafts each article for you — or import structured JSON, CSV, and Markdown files. Articles are validated before import."
+        "viewTitle": "View file"
       },
       "team": {
         "title": "Knowledge team",
-        "description": "Assign roles so colleagues can help manage articles. Everyone needs a developer account before you can add them."
+        "description": "Assign roles so colleagues can help manage sources and the knowledge files. Everyone needs a developer account before you can add them."
       }
     },
     "status": {
@@ -583,37 +571,110 @@
   },
   "knowledge": {
     "nav": {
-      "articles": "Articles",
+      "sources": "Sources",
+      "prompt": "Prompt",
       "playground": "Try it live",
       "team": "Team",
       "roleLabel": "Role:"
     },
-    "articleForm": {
-      "uploadTitle": "Upload document",
-      "uploadDescription": "Add a PDF, Word, or text file and AI drafts the fields below. Review and edit before saving.",
-      "uploadCta": "Drop a document here or click to browse",
-      "uploadHint": ".pdf, .docx, .txt (up to 4 MB)",
-      "uploading": "Reading the document and drafting…",
-      "uploadApplied": "{name} added. Review the fields before saving.",
-      "uploadFailed": "Could not read that document.",
-      "uploadUnsupported": "Unsupported file type. Use a PDF, Word (.docx), or text file.",
-      "uploadTooLarge": "That file is larger than {size} MB.",
-      "detailsTitle": "Article details",
-      "detailsDescription": "Title, slug, and category are used in AI search and source citations.",
-      "titlePlaceholder": "e.g. Combining prayers while traveling",
-      "slugPlaceholder": "combining-prayers-travel",
-      "summaryPlaceholder": "Short description used in search previews",
-      "contentTitle": "Content",
-      "contentDescription": "The main body powers AI answers. Published articles are automatically re-embedded for search.",
-      "articleContent": "Article content",
-      "contentPlaceholder": "Write the full article content here…",
-      "tagsPlaceholder": "solat, fiqh, travel",
-      "tagsHelp": "Comma-separated",
-      "publishedLabel": "Published",
-      "publishedDescription": "Visible to the AI for retrieval and source citations",
-      "saving": "Saving…",
-      "saveChanges": "Save changes",
-      "createArticle": "Create article"
+    "library": {
+      "backToLibrary": "Back to sources",
+      "title": "Knowledge files",
+      "description": "Everything the AI can draw on. Content is owned by Google Cloud and synced from Sources.",
+      "searchPlaceholder": "Search by title, file name, or category…",
+      "colSource": "Source",
+      "sourceSynced": "Google Cloud",
+      "sourceManual": "Manual",
+      "noMatches": "No files match your search.",
+      "showing": "Showing {shown} of {total}",
+      "noFiles": "No files yet. Select sources above and sync."
+    },
+    "prompt": {
+      "statusLabel": "Current prompt",
+      "statusCustom": "Customised",
+      "statusDefault": "Built-in default",
+      "updatedLabel": "Last updated",
+      "placeholderLabel": "Knowledge placeholder",
+      "editorTitle": "Your instructions",
+      "editorHint": "These instructions shape how answers are written. Leave empty to use the built-in default. The retrieved reference material is always appended, and the no-material rule is always enforced.",
+      "save": "Save prompt",
+      "reset": "Reset to default",
+      "useDefault": "Load the default into the editor",
+      "emptyHint": "Leave empty to use the default.",
+      "composedTitle": "How the prompt is composed",
+      "composedHint": "Preview with an example question. Use {placeholder} to control where the reference material is inserted; otherwise it is appended at the end.",
+      "defaultTitle": "Built-in default prompt",
+      "defaultHint": "Shown for reference. The knowledge block and the no-material guard are added automatically."
+    },
+    "sources": {
+      "badge": "Synced",
+      "connectionTitle": "Source connection",
+      "configured": "Connected",
+      "notConfigured": "Not configured",
+      "notConfiguredHelp": "Set GCS_BUCKET_NAME and GCS_SERVICE_ACCOUNT_JSON in the server environment to connect your Google Cloud Storage bucket.",
+      "selectTitle": "Choose what to sync",
+      "lastRun": "Last run: {status} · {time}",
+      "embedProcess": "Process queue",
+      "embedProcessing": "Processing…",
+      "embedPending": "{count} pending",
+      "embedUpToDate": "All embedded",
+      "embedDone": "Processed {chunks} chunk(s).",
+      "embedPartial": "Processed {chunks} chunk(s) · {count} still pending.",
+      "embedFailed": "Could not process the embedding queue.",
+      "syncNow": "Sync now",
+      "syncing": "Syncing…",
+      "syncFailed": "Sync failed.",
+      "syncComplete": "Sync complete",
+      "filesSeen": "{count} file(s) found in the bucket",
+      "resultSummary": "{created} created · {updated} updated · {removed} removed · {skipped} unchanged · {deferred} deferred",
+      "failedCount": "{count} file error(s)",
+      "moreErrors": "…and {count} more error(s)",
+      "embedQueued": "Embeddings queued for the updated files.",
+      "historyTitle": "Sync history",
+      "noRuns": "No syncs yet.",
+      "startedAt": "Started",
+      "colResult": "Result",
+      "colErrors": "Errors",
+      "statusRunning": "Running",
+      "statusCompleted": "Completed",
+      "statusFailed": "Failed",
+      "readOnlyNote": "This file is mirrored from Google Cloud and is read-only. Edit it in the source system, then sync again.",
+      "picker": {
+        "selectedTitle": "Selected sources",
+        "selectedEmpty": "Nothing selected yet. Tick folders or files below to choose what to mirror.",
+        "selectedSummary": "{folders} folder(s), {files} file(s)",
+        "clearAll": "Clear all",
+        "browseTitle": "Browse bucket",
+        "browseHint": "Tick a folder to mirror everything inside it, or tick a file to mirror just that document.",
+        "filterPlaceholder": "Filter by name…",
+        "filterCount": "Showing {shown} of {total}",
+        "noMatches": "Nothing matches “{query}”.",
+        "searchAllPlaceholder": "Search all folders…",
+        "searchAllNote": "Scans the whole bucket — may take a few seconds.",
+        "searchResults": "{total} match(es) across all folders",
+        "searchTruncated": "Showing the first {shown} matches. Refine your search to narrow it down.",
+        "up": "Up",
+        "root": "Bucket root",
+        "kindFolder": "Folder",
+        "kindFile": "File",
+        "add": "Add",
+        "remove": "Remove",
+        "loading": "Loading…",
+        "loadError": "Could not read the bucket.",
+        "emptyFolder": "This folder is empty.",
+        "notConfigured": "Connect Google Cloud Storage to browse files.",
+        "truncated": "Showing the first 1,000 entries. Open a folder to narrow it down.",
+        "selectFirst": "Select at least one folder or file to enable syncing."
+      },
+      "selectedSub": "selected for sync",
+      "noSelection": "Nothing selected yet",
+      "filesSub": "files in the library",
+      "embeddingsPending": "{count} pending",
+      "embeddingsReady": "Up to date",
+      "embeddingsEmpty": "Not searchable yet",
+      "chunksSub": "{count} search chunks",
+      "tabFiles": "Files",
+      "tabSync": "Sync"
     },
     "viewer": {
       "slug": "Slug",
@@ -623,55 +684,6 @@
       "summary": "Summary",
       "content": "Content",
       "tags": "Tags"
-    },
-    "bulkImport": {
-      "uploadTitle": "Upload file",
-      "uploadDescription": "Import many articles at once. Drop PDF, Word, or text documents and we'll draft each article for you to review — or upload JSON, CSV, and Markdown files with structured data.",
-      "dropFiles": "Drop files here or click to browse",
-      "fileTypes": ".pdf, .docx, .txt, .md, .json, .csv (up to 500 articles per import)",
-      "documentHint": "PDF, Word, and text files are read automatically: AI drafts the title, summary, category, and tags, and you can edit everything before importing.",
-      "processingDocuments": "Reading {count} document(s) and drafting articles…",
-      "documentFailed": "Could not process the uploaded documents.",
-      "tooManyDocuments": "You can upload up to {count} documents at once.",
-      "documentTooLarge": "Those files are larger than {size} MB in total. Upload fewer or smaller files.",
-      "documentErrorsTitle": "Some files could not be read",
-      "documentError": "{name}: {error}",
-      "documentWarning": "{name}: {warning}",
-      "loaded": "Loaded {fileName}: {valid} valid, {invalid} invalid",
-      "markdownFiles": "{count} markdown files",
-      "optionsTitle": "Import options",
-      "duplicateSlugs": "Duplicate slugs",
-      "skipExisting": "Skip existing articles",
-      "updateExisting": "Update existing articles",
-      "publishByDefault": "Publish by default",
-      "publishByDefaultHelp": "Used when a row does not specify published",
-      "embedAfterImport": "Embed after import",
-      "embedAfterImportHelp": "Generate vector chunks for published articles (recommended)",
-      "templatesTitle": "Templates",
-      "templatesDescription": "Download a starter file and replace with your content.",
-      "jsonTemplate": "JSON template",
-      "csvTemplate": "CSV template",
-      "markdownTemplate": "Markdown template",
-      "validationErrors": "Validation errors ({count})",
-      "rowError": "Row {index}{source}: {error}",
-      "rowSource": " ({source})",
-      "moreErrors": "…and {count} more validation errors",
-      "previewTitle": "Preview",
-      "previewDescription": "Review and edit {shown} of {total} valid article(s). Click Edit to adjust any field.",
-      "editRow": "Edit",
-      "doneEditing": "Done",
-      "published": "Published",
-      "importComplete": "Import complete",
-      "imported": "{count} article(s) created",
-      "updated": "{count} article(s) updated",
-      "skipped": "{count} duplicate(s) skipped",
-      "embedded": "{count} article(s) embedded ({chunks} chunk(s))",
-      "embedQueued": "Embedding queued for background processing",
-      "embeddingJob": "Embedding job: {status}",
-      "embeddingProgress": "{processed} / {total} articles processed · {chunks} chunk(s) written",
-      "importFailed": "Row {index} ({title}): {error}",
-      "importing": "Importing…",
-      "importCount": "Import {count} article(s)"
     },
     "teamManager": {
       "inviteTitle": "Invite team member",
@@ -690,8 +702,7 @@
     "reembed": {
       "reembedding": "Re-embedding…",
       "reembedAll": "Re-embed all published"
-    },
-    "deleteConfirm": "Delete this article and its embeddings? This cannot be undone."
+    }
   },
   "docs": {
     "overview": {
@@ -875,11 +886,11 @@
     },
     "editor": {
       "label": "Editor",
-      "description": "Create, edit, publish, and delete articles"
+      "description": "Select sources, run syncs, and manage the knowledge files"
     },
     "viewer": {
       "label": "Viewer",
-      "description": "View drafts and published articles (read-only)"
+      "description": "View the knowledge files (read-only)"
     }
   },
   "actionErrors": {
@@ -899,14 +910,7 @@
     "rateLimitMinute": "Rate limit exceeded: {limit} requests per minute.",
     "rateLimitDay": "Daily quota exceeded: {limit} requests per day.",
     "editorAccessRequired": "Editor access required.",
-    "titleRequired": "Title is required (min 3 characters).",
-    "slugRequired": "Slug is required (min 3 characters).",
-    "summaryRequired": "Summary is required (min 10 characters).",
-    "contentRequired": "Content is required (min 20 characters).",
-    "noValidArticles": "No valid articles to import.",
-    "importMaxExceeded": "Maximum 500 articles per import. Split your file and try again.",
     "reembedFailed": "Re-embed failed.",
-    "embedJobNotFound": "Embedding job not found.",
     "adminAssignOnly": "Only knowledge admins can assign roles.",
     "emailRequired": "Email is required.",
     "invalidRole": "Choose a valid role.",

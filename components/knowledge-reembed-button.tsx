@@ -7,8 +7,8 @@ import { useI18n } from "@/lib/i18n/client";
 export function KnowledgeReembedButton() {
   const { t } = useI18n();
   const [state, action, isPending] = useActionState(
-    async (_prev: { error?: string; success?: string }) => reembedAllKnowledge(),
-    {},
+    async () => reembedAllKnowledge(),
+    {} as { error?: string; success?: string },
   );
 
   return (
