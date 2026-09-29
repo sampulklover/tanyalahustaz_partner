@@ -1,13 +1,19 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ChatMarkdown } from "@/components/chat-markdown";
 import { CopyButton } from "@/components/copy-button";
 import { DEVELOPER_PORTAL_NAME } from "@/lib/brand";
 import { readStoredDemoKey, writeStoredDemoKey } from "@/lib/demo-storage";
 import { useI18n } from "@/lib/i18n/client";
 import type { ChatResponse, KnowledgeSource } from "@/lib/types";
+
+// Only needed once an answer arrives, so keep it out of the demo page's first paint.
+const ChatMarkdown = dynamic(
+  () => import("@/components/chat-markdown").then((mod) => mod.ChatMarkdown),
+  { ssr: false },
+);
 
 const CATEGORY_ORDER = ["all", "fiqh", "ibadah", "aqidah", "akhlak", "general"] as const;
 const MAX_CHARS = 4000;

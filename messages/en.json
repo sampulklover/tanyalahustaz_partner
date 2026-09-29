@@ -610,6 +610,7 @@
     "session": "Session ID",
     "newSession": "New session",
     "reset": "Reset demo",
+    "backToDashboard": "Back to dashboard",
     "siteName": "Demo Partner Site",
     "siteTagline": "An example third-party website",
     "statusConnected": "Key connected",
