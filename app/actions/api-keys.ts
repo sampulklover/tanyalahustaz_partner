@@ -51,24 +51,30 @@ export async function createApiKey(formData: FormData) {
   };
 }
 
-export async function revokeApiKey(formData: FormData): Promise<void> {
+export async function revokeApiKey(formData: FormData): Promise<{ error?: string; success?: string }> {
+  const t = await getActionTranslations();
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return;
+    return { error: t("actionErrors.notLoggedIn") };
   }
 
   const keyId = String(formData.get("key_id") ?? "");
 
-  await supabase
+  const { error } = await supabase
     .from("api_keys")
     .update({ revoked_at: new Date().toISOString() })
     .eq("id", keyId)
     .eq("user_id", user.id)
     .is("revoked_at", null);
 
+  if (error) {
+    return { error: error.message };
+  }
+
   revalidatePath("/dashboard/api-keys");
+  return { success: t("apiKeys.manager.revokedToast") };
 }

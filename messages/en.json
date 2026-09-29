@@ -73,7 +73,7 @@
     "resources": "Resources",
     "documentation": "Documentation",
     "signOut": "Sign out",
-    "prompt": "AI prompt"
+    "prompt": "Custom instructions"
   },
   "home": {
     "meta": {
@@ -268,6 +268,7 @@
     "adminBadge": "Admin",
     "teamBadge": "Team",
     "copied": "Copied!",
+    "copyFailed": "Could not copy. Please copy manually.",
     "copyId": "Copy ID",
     "cancel": "Cancel",
     "save": "Save",
@@ -301,7 +302,12 @@
     "apiReferenceLink": "API reference",
     "systemStatusLink": "System status",
     "role": "Role",
-    "finishNow": "Finish now"
+    "finishNow": "Finish now",
+    "saving": "Saving…",
+    "saved": "Saved"
+  },
+  "toast": {
+    "dismiss": "Dismiss notification"
   },
   "errors": {
     "somethingWentWrong": "Something went wrong",
@@ -344,10 +350,7 @@
       "recentApiActivityDescription": "Last 8 requests across your keys",
       "noApiCallsYet": "No API calls yet",
       "noApiCallsDescription": "Create an API key and send your first request, or try it live.",
-      "createApiKey": "Create API key",
-      "recentChatRequests": "Recent chat requests",
-      "recentChatRequestsDescription": "Last 3 requests. View full logs for details.",
-      "viewAllLogs": "View all logs"
+      "createApiKey": "Create API key"
     },
     "apiKeys": {
       "title": "API keys",
@@ -384,6 +387,7 @@
       "continue": "Continue to checkout",
       "redirecting": "Redirecting…",
       "balance": "Current balance",
+      "afterTopUp": "After top-up",
       "secureBy": "Payments are processed securely by ToyyibPay.",
       "success": "Payment received. Your balance will update shortly.",
       "pending": "Payment is being processed. Your balance updates once ToyyibPay confirms it.",
@@ -397,24 +401,45 @@
       "balanceHint": "Reduced as the API is used. Top up to add more.",
       "totalToppedUp": "Total topped up",
       "payments": "Payments",
-      "invoice": "Receipt",
+      "invoice": "Invoice",
       "status": "Status",
       "amount": "Amount",
       "method": "Payment method",
       "created": "Created",
       "receipt": "Receipt",
       "download": "Download",
+      "view": "View",
+      "print": "Print",
+      "receiptTitle": "Receipt",
+      "receiptFor": "Receipt for {id}",
+      "receiptNumber": "Receipt number",
+      "billedTo": "Billed to",
+      "date": "Date",
+      "reference": "Reference",
+      "backToBilling": "Back to billing",
       "empty": "No payments yet",
       "emptyDescription": "Top up your account to see receipts here.",
       "topUpCta": "Top up",
       "statusPaid": "Paid",
       "statusPending": "Pending",
       "statusFailed": "Failed",
-      "statusRefunded": "Refunded"
+      "statusRefunded": "Refunded",
+      "type": "Type",
+      "activity": "Credit activity",
+      "activityDescription": "Top-ups and API usage charges on your account.",
+      "activityEmpty": "No credit activity yet.",
+      "reasonTopup": "Top up",
+      "reasonUsage": "API usage",
+      "reasonRefund": "Refund",
+      "reasonAdjustment": "Adjustment"
     },
     "playground": {
       "title": "Try it live",
       "description": "Test the chat API with the same knowledge base and pipeline as production."
+    },
+    "demo": {
+      "title": "Demo site",
+      "description": "See how an external website chats with your API key. This mock site calls the real /api/v1/chat endpoint."
     },
     "chatLogs": {
       "title": "Chat logs",
@@ -490,10 +515,6 @@
     "showing": "Showing {from}–{to} of {total}",
     "page": "Page {page} of {totalPages}"
   },
-  "recentChats": {
-    "noRequestsYet": "No requests yet.",
-    "tryItLive": "Try it live"
-  },
   "apiKeys": {
     "manager": {
       "copyNowTitle": "Copy your API key now",
@@ -527,6 +548,9 @@
       "created": "Created {date}",
       "lastUsed": "Last used {date}",
       "revoke": "Revoke",
+      "createdToast": "API key created.",
+      "revokedToast": "API key revoked.",
+      "revokeFailed": "Could not revoke the key. Please try again.",
       "revokedKeysTitle": "Revoked keys",
       "revokedKeysDescription": "These keys can no longer be used."
     }
@@ -570,6 +594,47 @@
       "Can a traveler combine Dhuhr and Asr?",
       "What is the intention (niat) in prayer?",
       "What is sedekah and when is it encouraged?"
+    ]
+  },
+  "demo": {
+    "keyTitle": "Partner API key",
+    "keyHelp": "Paste a key from your account. It is sent to the API exactly like an external site would send it.",
+    "keyPlaceholder": "tlh_live_…",
+    "showKey": "Show",
+    "hideKey": "Hide",
+    "rememberKey": "Remember in this tab",
+    "keyMissing": "Enter an API key to start chatting.",
+    "keyHint": "Keys start with tlh_live_. Create one under API keys.",
+    "createKey": "Create an API key",
+    "category": "Category",
+    "session": "Session ID",
+    "newSession": "New session",
+    "reset": "Reset demo",
+    "siteName": "Demo Partner Site",
+    "siteTagline": "An example third-party website",
+    "statusConnected": "Key connected",
+    "statusMissing": "No key",
+    "poweredBy": "Powered by {portal}",
+    "unlockTitle": "Connect your key to start",
+    "unlockDescription": "This mock website behaves like a partner integrating your API. Nothing is sent until you enter a key.",
+    "emptyTitle": "Chat as an external site",
+    "emptyDescription": "Every message here goes to the real API using the key you entered above.",
+    "placeholder": "Ask a question…",
+    "send": "Send",
+    "sending": "Sending…",
+    "assistant": "Assistant",
+    "sources": "Sources",
+    "inspector": "Request inspector",
+    "inspectorEmpty": "Send a message to inspect the live request and response.",
+    "request": "Request",
+    "response": "Response",
+    "requestId": "Request ID",
+    "latency": "Latency",
+    "clearInspector": "Clear",
+    "errorGeneric": "Something went wrong. Check the inspector for details.",
+    "starterPrompts": [
+      "Can a traveler combine Dhuhr and Asr?",
+      "What is the intention (niat) in prayer?"
     ]
   },
   "chatLogs": {
@@ -627,6 +692,8 @@
       "editorHint": "These instructions shape how answers are written. Leave empty to use the built-in default. The retrieved reference material is always appended, and the no-material rule is always enforced.",
       "save": "Save prompt",
       "reset": "Reset to default",
+      "saved": "Prompt saved.",
+      "resetDone": "Prompt reset to the built-in default.",
       "useDefault": "Load the default into the editor",
       "emptyHint": "Leave empty to use the default.",
       "composedTitle": "How the prompt is composed",
@@ -642,6 +709,8 @@
       "editorHint": "Partner charge = AI cost × (1 + markup). The minimum allowed markup is {min}% and cannot be lowered below it.",
       "inputLabel": "Markup percentage",
       "save": "Save markup",
+      "saved": "Pricing updated.",
+      "invalidMarkup": "Markup must be at least {min}%.",
       "updatedLabel": "Last updated",
       "exampleTitle": "Worked example",
       "exampleHint": "Based on a US$0.01 AI cost at the current conversion rate.",
@@ -724,7 +793,9 @@
       "previewNone": "No changes",
       "selectAll": "Select all ({count})",
       "selecting": "Selecting…",
-      "selectAllFailed": "Could not select everything."
+      "selectAllFailed": "Could not select everything.",
+      "selectionFailed": "Could not update the selection. Please try again.",
+      "syncStarted": "Sync started — progress shows in the activity panel."
     },
     "viewer": {
       "slug": "Slug",
@@ -747,7 +818,11 @@
       "member": "Member",
       "added": "Added",
       "removing": "Removing…",
-      "remove": "Remove"
+      "remove": "Remove",
+      "assigned": "Team member added.",
+      "roleUpdated": "Role updated.",
+      "removed": "Team member removed.",
+      "saveFailed": "Could not save the change. Please try again."
     },
     "reembed": {
       "reembedding": "Re-embedding…",
@@ -960,7 +1035,9 @@
     "rateLimitMinute": "Rate limit exceeded: {limit} requests per minute.",
     "rateLimitDay": "Daily quota exceeded: {limit} requests per day.",
     "editorAccessRequired": "Editor access required.",
+    "adminAccessRequired": "Admin access required.",
     "reembedFailed": "Re-embed failed.",
+    "reembedSuccess": "Re-embedded {articles} article(s) and {chunks} chunk(s).",
     "adminAssignOnly": "Only knowledge admins can assign roles.",
     "emailRequired": "Email is required.",
     "invalidRole": "Choose a valid role.",
@@ -981,23 +1058,28 @@
     "okStatus": "200 OK"
   },
   "partnerPrompt": {
-    "title": "AI prompt",
-    "description": "Add your own instructions to shape how the API answers for your account. They sit on top of the shared prompt and the safety rules, which always apply.",
+    "title": "Custom instructions",
+    "description": "Set how the AI answers for your app. These instructions apply to every request made with your API keys.",
     "statusLabel": "Status",
     "statusCustom": "Using your instructions",
     "statusDefault": "Using the shared prompt",
     "updatedLabel": "Shared prompt updated",
     "placeholderLabel": "Knowledge placeholder",
     "editorTitle": "Your instructions",
-    "editorHint": "Extra guidance appended to the shared prompt for every request made with your API keys. Leave empty to use the shared prompt only.",
-    "placeholder": "e.g. Always answer in Bahasa Melayu, keep replies under 200 words, and mention our app name '…'.",
-    "save": "Save instructions",
-    "reset": "Remove my instructions",
+    "editorHint": "Write anything specific to your app or audience — tone, language, or rules to follow. Leave empty to use the default.",
+    "tryDemo": "Test in demo site",
+    "sharedNote": "The shared prompt is maintained by Tanyalah Ustaz and always applies. You only need to add guidance specific to your account.",
+    "placeholder": "e.g. Always answer in Bahasa Melayu, keep replies short, and mention our app name '…'.",
+    "save": "Save",
+    "reset": "Clear",
+    "saved": "Custom instructions saved.",
+    "resetDone": "Custom instructions cleared.",
     "emptyHint": "Leave empty to use the shared prompt only.",
     "composedTitle": "Preview of the composed prompt",
-    "composedHint": "What the model receives: the shared prompt plus your instructions and the retrieved knowledge.",
+    "composedHint": "For advanced users: the full prompt sent to the model, including the shared prompt, your instructions, and the retrieved knowledge.",
     "globalTitle": "Shared prompt (set by Tanyalah Ustaz)",
-    "globalHint": "Managed by the knowledge admins and applied to every partner."
+    "globalHint": "Managed by the knowledge admins and applied to every partner.",
+    "activeBadge": "In use"
   },
   "theme": {
     "label": "Theme",

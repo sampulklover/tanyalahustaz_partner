@@ -171,17 +171,52 @@ pre {
   animation: tlh-typing-dot 1.2s ease-in-out infinite;
 }
 
+@keyframes tlh-toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.toast-enter {
+  animation: tlh-toast-enter 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
   .animate-fade-up,
-  .chat-message-enter {
+  .chat-message-enter,
+  .toast-enter {
     animation: none;
   }
   .chat-stream-cursor,
   .chat-typing-dot {
     animation: none;
     opacity: 1;
+  }
+}
+
+/* Print only the open receipt modal. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .receipt-printable,
+  .receipt-printable * {
+    visibility: visible;
+  }
+  .receipt-printable {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    max-width: none;
+    border: 0;
+    box-shadow: none;
   }
 }

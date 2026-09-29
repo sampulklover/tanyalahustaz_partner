@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toggleSourceSelection } from "@/app/actions/knowledge-sources";
+import { useToast } from "@/components/toast";
 import { useI18n } from "@/lib/i18n/client";
 import { emitSourceSelection, onSourceSelection } from "@/lib/selection-events";
 
@@ -22,6 +23,7 @@ export function KnowledgeSourceToggle({
   variant?: "checkbox" | "remove";
 }) {
   const { t } = useI18n();
+  const { error: toastError } = useToast();
   const router = useRouter();
 
   // Optimistic override: shows instantly, then falls back to the server value
@@ -64,6 +66,7 @@ export function KnowledgeSourceToggle({
       } catch {
         setOverride(null);
         emitSourceSelection({ type: "set", path, kind, selected: !next });
+        toastError(t("knowledge.sources.selectionFailed"));
       }
     });
   }

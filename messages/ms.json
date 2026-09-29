@@ -73,7 +73,7 @@
     "resources": "Sumber",
     "documentation": "Dokumentasi",
     "signOut": "Log keluar",
-    "prompt": "Prompt AI"
+    "prompt": "Arahan tersuai"
   },
   "home": {
     "meta": {
@@ -268,6 +268,7 @@
     "adminBadge": "Admin",
     "teamBadge": "Pasukan",
     "copied": "Disalin!",
+    "copyFailed": "Tidak dapat menyalin. Sila salin secara manual.",
     "copyId": "Salin ID",
     "cancel": "Batal",
     "save": "Simpan",
@@ -301,7 +302,12 @@
     "apiReferenceLink": "Rujukan API",
     "systemStatusLink": "Status sistem",
     "role": "Peranan",
-    "finishNow": "Selesaikan sekarang"
+    "finishNow": "Selesaikan sekarang",
+    "saving": "Menyimpan…",
+    "saved": "Disimpan"
+  },
+  "toast": {
+    "dismiss": "Tutup pemberitahuan"
   },
   "errors": {
     "somethingWentWrong": "Ada sesuatu yang tidak kena",
@@ -344,10 +350,7 @@
       "recentApiActivityDescription": "8 permintaan terakhir merentasi kunci anda",
       "noApiCallsYet": "Tiada panggilan API lagi",
       "noApiCallsDescription": "Cipta kunci API dan hantar permintaan pertama anda, atau cuba secara langsung.",
-      "createApiKey": "Cipta kunci API",
-      "recentChatRequests": "Permintaan sembang terkini",
-      "recentChatRequestsDescription": "3 permintaan terakhir. Lihat log penuh untuk butiran.",
-      "viewAllLogs": "Lihat semua log"
+      "createApiKey": "Cipta kunci API"
     },
     "apiKeys": {
       "title": "Kunci API",
@@ -384,6 +387,7 @@
       "continue": "Teruskan ke pembayaran",
       "redirecting": "Mengalihkan…",
       "balance": "Baki semasa",
+      "afterTopUp": "Selepas tambah nilai",
       "secureBy": "Pembayaran diproses dengan selamat oleh ToyyibPay.",
       "success": "Pembayaran diterima. Baki anda akan dikemas kini tidak lama lagi.",
       "pending": "Pembayaran sedang diproses. Baki anda dikemas kini sebaik sahaja ToyyibPay mengesahkannya.",
@@ -397,24 +401,45 @@
       "balanceHint": "Berkurang apabila API digunakan. Tambah nilai untuk menambah.",
       "totalToppedUp": "Jumlah ditambah nilai",
       "payments": "Pembayaran",
-      "invoice": "Resit",
+      "invoice": "Invois",
       "status": "Status",
       "amount": "Jumlah",
       "method": "Kaedah pembayaran",
       "created": "Dicipta",
       "receipt": "Resit",
       "download": "Muat turun",
+      "view": "Lihat",
+      "print": "Cetak",
+      "receiptTitle": "Resit",
+      "receiptFor": "Resit untuk {id}",
+      "receiptNumber": "Nombor resit",
+      "billedTo": "Dibilkan kepada",
+      "date": "Tarikh",
+      "reference": "Rujukan",
+      "backToBilling": "Kembali ke pengebilan",
       "empty": "Tiada pembayaran lagi",
       "emptyDescription": "Tambah nilai akaun anda untuk melihat resit di sini.",
       "topUpCta": "Tambah nilai",
       "statusPaid": "Dibayar",
       "statusPending": "Menunggu",
       "statusFailed": "Gagal",
-      "statusRefunded": "Dikembalikan"
+      "statusRefunded": "Dikembalikan",
+      "type": "Jenis",
+      "activity": "Aktiviti kredit",
+      "activityDescription": "Tambah nilai dan caj penggunaan API pada akaun anda.",
+      "activityEmpty": "Tiada aktiviti kredit lagi.",
+      "reasonTopup": "Tambah nilai",
+      "reasonUsage": "Penggunaan API",
+      "reasonRefund": "Bayaran balik",
+      "reasonAdjustment": "Pelarasan"
     },
     "playground": {
       "title": "Cuba secara langsung",
       "description": "Uji API sembang dengan pangkalan pengetahuan dan saluran yang sama seperti pengeluaran."
+    },
+    "demo": {
+      "title": "Laman demo",
+      "description": "Lihat bagaimana laman web luar bersembang dengan kunci API anda. Laman olok-olok ini memanggil titik akhir /api/v1/chat sebenar."
     },
     "chatLogs": {
       "title": "Log sembang",
@@ -490,10 +515,6 @@
     "showing": "Memaparkan {from}–{to} daripada {total}",
     "page": "Halaman {page} daripada {totalPages}"
   },
-  "recentChats": {
-    "noRequestsYet": "Tiada permintaan lagi.",
-    "tryItLive": "Cuba secara langsung"
-  },
   "apiKeys": {
     "manager": {
       "copyNowTitle": "Salin kunci API anda sekarang",
@@ -527,6 +548,9 @@
       "created": "Dicipta {date}",
       "lastUsed": "Terakhir digunakan {date}",
       "revoke": "Batalkan",
+      "createdToast": "Kunci API dicipta.",
+      "revokedToast": "Kunci API dibatalkan.",
+      "revokeFailed": "Tidak dapat membatalkan kunci. Sila cuba lagi.",
       "revokedKeysTitle": "Kunci dibatalkan",
       "revokedKeysDescription": "Kunci ini tidak boleh digunakan lagi."
     }
@@ -570,6 +594,47 @@
       "Bolehkah musafir jamak Zohor dan Asar?",
       "Apakah niat dalam solat?",
       "Apakah sedekah dan bilakah ia digalakkan?"
+    ]
+  },
+  "demo": {
+    "keyTitle": "Kunci API rakan kongsi",
+    "keyHelp": "Tampal kunci daripada akaun anda. Ia dihantar ke API sama seperti laman web luar menghantarnya.",
+    "keyPlaceholder": "tlh_live_…",
+    "showKey": "Tunjuk",
+    "hideKey": "Sembunyi",
+    "rememberKey": "Ingat dalam tab ini",
+    "keyMissing": "Masukkan kunci API untuk mula bersembang.",
+    "keyHint": "Kunci bermula dengan tlh_live_. Cipta satu di Kunci API.",
+    "createKey": "Cipta kunci API",
+    "category": "Kategori",
+    "session": "ID sesi",
+    "newSession": "Sesi baharu",
+    "reset": "Set semula demo",
+    "siteName": "Laman Rakan Demo",
+    "siteTagline": "Contoh laman web pihak ketiga",
+    "statusConnected": "Kunci disambung",
+    "statusMissing": "Tiada kunci",
+    "poweredBy": "Dikuasakan oleh {portal}",
+    "unlockTitle": "Sambungkan kunci anda untuk mula",
+    "unlockDescription": "Laman olok-olok ini berkelakuan seperti rakan kongsi yang menyepadukan API anda. Tiada apa-apa dihantar sehingga anda memasukkan kunci.",
+    "emptyTitle": "Bersembang sebagai laman luar",
+    "emptyDescription": "Setiap mesej di sini pergi ke API sebenar menggunakan kunci yang anda masukkan di atas.",
+    "placeholder": "Tanya soalan…",
+    "send": "Hantar",
+    "sending": "Menghantar…",
+    "assistant": "Pembantu",
+    "sources": "Sumber",
+    "inspector": "Pemeriksa permintaan",
+    "inspectorEmpty": "Hantar mesej untuk memeriksa permintaan dan respons secara langsung.",
+    "request": "Permintaan",
+    "response": "Respons",
+    "requestId": "ID permintaan",
+    "latency": "Kependaman",
+    "clearInspector": "Kosongkan",
+    "errorGeneric": "Sesuatu tidak kena. Semak pemeriksa untuk butiran.",
+    "starterPrompts": [
+      "Bolehkah musafir jamak Zohor dan Asar?",
+      "Apakah niat dalam solat?"
     ]
   },
   "chatLogs": {
@@ -627,6 +692,8 @@
       "editorHint": "Arahan ini menentukan cara jawapan ditulis. Biarkan kosong untuk menggunakan lalai terbina. Bahan rujukan yang diperoleh sentiasa ditambahkan, dan peraturan tiada bahan sentiasa dikuatkuasakan.",
       "save": "Simpan prompt",
       "reset": "Set semula kepada lalai",
+      "saved": "Prompt disimpan.",
+      "resetDone": "Prompt ditetapkan semula kepada lalai terbina.",
       "useDefault": "Muatkan lalai ke dalam editor",
       "emptyHint": "Biarkan kosong untuk menggunakan lalai.",
       "composedTitle": "Cara prompt digabungkan",
@@ -642,6 +709,8 @@
       "editorHint": "Caj rakan kongsi = kos AI × (1 + markup). Markup minimum yang dibenarkan ialah {min}% dan tidak boleh diturunkan di bawahnya.",
       "inputLabel": "Peratus markup",
       "save": "Simpan markup",
+      "saved": "Harga dikemas kini.",
+      "invalidMarkup": "Markup mesti sekurang-kurangnya {min}%.",
       "updatedLabel": "Kemas kini terakhir",
       "exampleTitle": "Contoh pengiraan",
       "exampleHint": "Berdasarkan kos AI US$0.01 pada kadar penukaran semasa.",
@@ -724,7 +793,9 @@
       "previewNone": "Tiada perubahan",
       "selectAll": "Pilih semua ({count})",
       "selecting": "Memilih…",
-      "selectAllFailed": "Tidak dapat memilih semuanya."
+      "selectAllFailed": "Tidak dapat memilih semuanya.",
+      "selectionFailed": "Tidak dapat mengemas kini pilihan. Sila cuba lagi.",
+      "syncStarted": "Segerak bermula — kemajuan dipaparkan dalam panel aktiviti."
     },
     "viewer": {
       "slug": "Slug",
@@ -747,7 +818,11 @@
       "member": "Ahli",
       "added": "Ditambah",
       "removing": "Sedang membuang…",
-      "remove": "Buang"
+      "remove": "Buang",
+      "assigned": "Ahli pasukan ditambah.",
+      "roleUpdated": "Peranan dikemas kini.",
+      "removed": "Ahli pasukan dibuang.",
+      "saveFailed": "Tidak dapat menyimpan perubahan. Sila cuba lagi."
     },
     "reembed": {
       "reembedding": "Sedang membenamkan semula…",
@@ -960,7 +1035,9 @@
     "rateLimitMinute": "Had kadar melebihi: {limit} permintaan seminit.",
     "rateLimitDay": "Kuota harian melebihi: {limit} permintaan sehari.",
     "editorAccessRequired": "Akses editor diperlukan.",
+    "adminAccessRequired": "Akses admin diperlukan.",
     "reembedFailed": "Pembenaman semula gagal.",
+    "reembedSuccess": "Pembenaman semula {articles} artikel dan {chunks} petikan selesai.",
     "adminAssignOnly": "Hanya pentadbir pengetahuan boleh menetapkan peranan.",
     "emailRequired": "E-mel diperlukan.",
     "invalidRole": "Pilih peranan yang sah.",
@@ -981,23 +1058,28 @@
     "okStatus": "200 OK"
   },
   "partnerPrompt": {
-    "title": "Prompt AI",
-    "description": "Tambah arahan anda sendiri untuk membentuk cara API menjawab bagi akaun anda. Ia diletakkan di atas prompt dikongsi dan peraturan keselamatan yang sentiasa terpakai.",
+    "title": "Arahan tersuai",
+    "description": "Tetapkan cara AI menjawab untuk apl anda. Arahan ini terpakai untuk setiap permintaan menggunakan kekunci API anda.",
     "statusLabel": "Status",
     "statusCustom": "Menggunakan arahan anda",
     "statusDefault": "Menggunakan prompt dikongsi",
     "updatedLabel": "Prompt dikongsi dikemas kini",
     "placeholderLabel": "Placeholder pengetahuan",
     "editorTitle": "Arahan anda",
-    "editorHint": "Panduan tambahan yang ditambah pada prompt dikongsi untuk setiap permintaan menggunakan kekunci API anda. Biarkan kosong untuk guna prompt dikongsi sahaja.",
-    "placeholder": "cth. Sentiasa jawab dalam Bahasa Melayu, hadkan jawapan bawah 200 patah perkataan, dan sebut nama aplikasi kami '…'.",
-    "save": "Simpan arahan",
-    "reset": "Buang arahan saya",
+    "editorHint": "Tulis apa-apa yang khusus untuk apl atau audiens anda — nada, bahasa, atau peraturan. Biarkan kosong untuk guna tetapan lalai.",
+    "tryDemo": "Uji di laman demo",
+    "sharedNote": "Prompt dikongsi diuruskan oleh Tanyalah Ustaz dan sentiasa terpakai. Anda hanya perlu tambah panduan khusus untuk akaun anda.",
+    "placeholder": "cth. Sentiasa jawab dalam Bahasa Melayu, ringkaskan jawapan, dan sebut nama aplikasi kami '…'.",
+    "save": "Simpan",
+    "reset": "Kosongkan",
+    "saved": "Arahan khusus disimpan.",
+    "resetDone": "Arahan khusus dikosongkan.",
     "emptyHint": "Biarkan kosong untuk guna prompt dikongsi sahaja.",
     "composedTitle": "Pratonton prompt yang digabungkan",
-    "composedHint": "Apa yang model terima: prompt dikongsi serta arahan anda dan pengetahuan yang diambil.",
+    "composedHint": "Untuk pengguna lanjutan: prompt penuh yang dihantar kepada model, termasuk prompt dikongsi, arahan anda, dan pengetahuan yang diambil.",
     "globalTitle": "Prompt dikongsi (ditetapkan oleh Tanyalah Ustaz)",
-    "globalHint": "Diuruskan oleh admin pengetahuan dan digunakan untuk semua rakan kongsi."
+    "globalHint": "Diuruskan oleh admin pengetahuan dan digunakan untuk semua rakan kongsi.",
+    "activeBadge": "Sedang digunakan"
   },
   "theme": {
     "label": "Tema",

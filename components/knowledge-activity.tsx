@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Spinner } from "@/components/spinner";
 import { useI18n } from "@/lib/i18n/client";
 import { onSyncStarted } from "@/lib/activity-events";
 
@@ -257,8 +258,9 @@ export function KnowledgeActivity({
                   type="button"
                   onClick={() => void finishEmbedding()}
                   disabled={embedBusy}
-                  className="mt-3 rounded-lg border border-border px-3 py-1.5 font-medium transition hover:bg-background-subtle active:scale-[0.98] disabled:opacity-60"
+                  className="mt-3 inline-flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 font-medium transition hover:bg-background-subtle active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
                 >
+                  {embedBusy && <Spinner className="h-3.5 w-3.5" />}
                   {embedBusy ? t("knowledge.sources.embedProcessing") : t("common.finishNow")}
                 </button>
               )}

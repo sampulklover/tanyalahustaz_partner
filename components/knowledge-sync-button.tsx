@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n/client";
+import { useToast } from "@/components/toast";
 import { emitSyncStarted } from "@/lib/activity-events";
 
 /**
@@ -24,6 +25,7 @@ export function KnowledgeSyncButton({
   fullWidth?: boolean;
 }) {
   const { t } = useI18n();
+  const { info: toastInfo, error: toastError } = useToast();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,8 +56,12 @@ export function KnowledgeSyncButton({
       }
 
       emitSyncStarted(payload.runId);
+      toastInfo(t("knowledge.sources.syncStarted"));
     } catch (syncError) {
-      setError(syncError instanceof Error ? syncError.message : t("knowledge.sources.syncFailed"));
+      const message =
+        syncError instanceof Error ? syncError.message : t("knowledge.sources.syncFailed");
+      setError(message);
+      toastError(message);
     } finally {
       setIsPending(false);
     }

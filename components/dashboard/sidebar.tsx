@@ -6,6 +6,7 @@ import { useState, type ReactNode } from "react";
 import { signOut } from "@/app/actions/auth";
 import { Logo, LogoMark } from "@/components/brand";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { SubmitButton } from "@/components/submit-button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useI18n } from "@/lib/i18n/client";
 
@@ -242,12 +243,9 @@ function SidebarContent({
           {email}
         </p>
         <form action={signOut} className="mt-2">
-          <button
-            type="submit"
-            className="w-full rounded-lg px-3 py-2 text-left text-sm text-[color:var(--muted)] transition hover:bg-background-subtle hover:text-foreground"
-          >
+          <SubmitButton className="inline-flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-[color:var(--muted)] transition hover:bg-background-subtle hover:text-foreground disabled:opacity-60">
             {t("dashboard.signOut")}
-          </button>
+          </SubmitButton>
         </form>
       </div>
     </div>

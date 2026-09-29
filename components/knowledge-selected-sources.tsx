@@ -7,6 +7,7 @@ import {
   toggleSourceSelection,
 } from "@/app/actions/knowledge-sources";
 import { KnowledgeSyncButton } from "@/components/knowledge-sync-button";
+import { useToast } from "@/components/toast";
 import { useI18n } from "@/lib/i18n/client";
 import {
   emitSourceSelection,
@@ -34,6 +35,7 @@ export function KnowledgeSelectedSources({
   configured?: boolean;
 }) {
   const { t } = useI18n();
+  const { error: toastError } = useToast();
   const router = useRouter();
   const [, startTransition] = useTransition();
 
@@ -120,6 +122,8 @@ export function KnowledgeSelectedSources({
     startTransition(async () => {
       try {
         await clearSourceSelections();
+      } catch {
+        toastError(t("knowledge.sources.selectionFailed"));
       } finally {
         router.refresh();
       }
@@ -141,6 +145,8 @@ export function KnowledgeSelectedSources({
     startTransition(async () => {
       try {
         await toggleSourceSelection(formData);
+      } catch {
+        toastError(t("knowledge.sources.selectionFailed"));
       } finally {
         router.refresh();
       }

@@ -1,7 +1,6 @@
 import { TopUpForm } from "@/components/top-up-form";
 import { DashboardPage as DashboardShell } from "@/components/dashboard/page";
 import { PageHeader } from "@/components/dashboard/page-header";
-import { formatMyr } from "@/lib/billing";
 import { getCreditBalanceCents } from "@/lib/credit";
 import { isToyyibPayConfigured } from "@/lib/toyyibpay";
 import { createClient } from "@/lib/supabase/server";
@@ -53,17 +52,8 @@ export default async function TopUpPage({ searchParams }: PageProps) {
           </p>
         )}
 
-        <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-          <p className="text-sm font-medium text-[color:var(--muted)]">
-            {t("pages.topUp.balance")}
-          </p>
-          <p className="mt-2 text-4xl font-bold tracking-tight">
-            {formatMyr(balanceCents, { decimals: true })}
-          </p>
-        </div>
-
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-          <TopUpForm configured={configured} />
+          <TopUpForm configured={configured} balanceCents={balanceCents} />
         </div>
       </div>
     </DashboardShell>

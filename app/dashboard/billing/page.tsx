@@ -2,6 +2,7 @@ import Link from "next/link";
 import { DashboardPage as DashboardShell } from "@/components/dashboard/page";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { LowBalanceAlerts } from "@/components/low-balance-alerts";
+import { ReceiptModal } from "@/components/receipt-modal";
 import { formatMyr } from "@/lib/billing";
 import { getCreditBalanceCents } from "@/lib/credit";
 import { getLowBalanceSettings } from "@/lib/credit-alerts";
@@ -22,8 +23,34 @@ type BillingRow = {
   status: string;
   payment_method: string | null;
   receipt_url: string | null;
+  provider_bill_code: string | null;
+  provider_payment_id: string | null;
+  created_at: string;
+  paid_at: string | null;
+};
+
+type LedgerRow = {
+  id: string;
+  delta_cents: number;
+  reason: string;
+  reference: string | null;
   created_at: string;
 };
+
+function reasonLabel(t: Translator, reason: string) {
+  switch (reason) {
+    case "topup":
+      return t("pages.billing.reasonTopup");
+    case "usage":
+      return t("pages.billing.reasonUsage");
+    case "refund":
+      return t("pages.billing.reasonRefund");
+    case "adjustment":
+      return t("pages.billing.reasonAdjustment");
+    default:
+      return reason;
+  }
+}
 
 function statusStyle(status: string) {
   switch (status) {
@@ -62,11 +89,32 @@ export default async function BillingPage() {
 
   const { data } = await supabase
     .from("billing_transactions")
-    .select("id, amount_cents, currency, status, payment_method, receipt_url, created_at")
+    .select(
+      "id, amount_cents, currency, status, payment_method, receipt_url, provider_bill_code, provider_payment_id, created_at, paid_at",
+    )
     .eq("user_id", user!.id)
     .order("created_at", { ascending: false });
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("email, company_name")
+    .eq("id", user!.id)
+    .maybeSingle();
+
+  const billedTo =
+    profile?.company_name?.trim() || profile?.email || user!.email || "—";
+
   const rows = (data ?? []) as BillingRow[];
+
+  const { data: ledgerData } = await supabase
+    .from("credit_ledger")
+    .select("id, delta_cents, reason, reference, created_at")
+    .eq("user_id", user!.id)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  const ledger = (ledgerData ?? []) as LedgerRow[];
+
   const totalPaidCents = rows
     .filter((row) => row.status === "paid")
     .reduce((sum, row) => sum + (row.amount_cents ?? 0), 0);
@@ -173,6 +221,8 @@ export default async function BillingPage() {
                         >
                           {t("pages.billing.download")}
                         </a>
+                      ) : row.status === "paid" ? (
+                        <ReceiptModal receipt={row} billedTo={billedTo} />
                       ) : (
                         <span className="text-[color:var(--muted)]">—</span>
                       )}
@@ -184,6 +234,52 @@ export default async function BillingPage() {
           </div>
         )}
       </div>
+
+      <section className="mt-6 overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="border-b border-border px-5 py-4">
+          <h2 className="font-semibold">{t("pages.billing.activity")}</h2>
+          <p className="mt-1 text-xs text-[color:var(--muted)]">
+            {t("pages.billing.activityDescription")}
+          </p>
+        </div>
+        {ledger.length === 0 ? (
+          <p className="px-5 py-10 text-center text-sm text-[color:var(--muted)]">
+            {t("pages.billing.activityEmpty")}
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="text-xs uppercase tracking-wide text-[color:var(--muted)]">
+                <tr className="border-b border-border">
+                  <th className="px-5 py-3 font-medium">{t("pages.billing.created")}</th>
+                  <th className="px-5 py-3 font-medium">{t("pages.billing.type")}</th>
+                  <th className="px-5 py-3 font-medium">{t("pages.billing.amount")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ledger.map((entry) => (
+                  <tr key={entry.id} className="border-b border-border last:border-0">
+                    <td className="px-5 py-3.5 text-xs text-[color:var(--muted)]">
+                      {new Date(entry.created_at).toLocaleString()}
+                    </td>
+                    <td className="px-5 py-3.5">{reasonLabel(t, entry.reason)}</td>
+                    <td
+                      className={`px-5 py-3.5 font-medium ${
+                        entry.delta_cents >= 0
+                          ? "text-brand-600 dark:text-brand-500"
+                          : "text-[color:var(--muted)]"
+                      }`}
+                    >
+                      {entry.delta_cents >= 0 ? "+" : "−"}
+                      {formatMyr(Math.abs(entry.delta_cents), { decimals: true })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </DashboardShell>
   );
 }

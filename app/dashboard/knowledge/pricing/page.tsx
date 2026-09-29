@@ -1,4 +1,6 @@
 import { updateBillingMarkup } from "@/app/actions/billing-settings";
+import { ActionForm } from "@/components/action-form";
+import { SubmitButton } from "@/components/submit-button";
 import { KnowledgeNav } from "@/components/knowledge-nav";
 import { DashboardPage as DashboardShell } from "@/components/dashboard/page";
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -71,7 +73,11 @@ export default async function KnowledgePricingPage() {
           </p>
         </div>
 
-        <form action={updateBillingMarkup} className="space-y-4 p-5">
+        <ActionForm
+          action={updateBillingMarkup}
+          className="space-y-4 p-5"
+          successMessage={t("knowledge.pricing.saved")}
+        >
           <div className="flex flex-wrap items-end gap-3">
             <label className="block">
               <span className="text-sm font-medium">{t("knowledge.pricing.inputLabel")}</span>
@@ -89,19 +95,19 @@ export default async function KnowledgePricingPage() {
                 <span className="text-sm font-semibold">%</span>
               </div>
             </label>
-            <button
-              type="submit"
-              className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
+            <SubmitButton
+              pendingLabel={t("common.saving")}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {t("knowledge.pricing.save")}
-            </button>
+            </SubmitButton>
           </div>
           {settings.updatedAt && (
             <p className="text-xs text-[color:var(--muted)]">
               {t("knowledge.pricing.updatedLabel")}: {new Date(settings.updatedAt).toLocaleString()}
             </p>
           )}
-        </form>
+        </ActionForm>
       </section>
 
       <section className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
