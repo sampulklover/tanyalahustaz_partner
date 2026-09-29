@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { logError } from "@/lib/logger";
-import { confirmToyyibPayBill } from "@/lib/toyyibpay-payments";
+import { confirmToyyibPayBill, markToyyibPayBillCancelled } from "@/lib/toyyibpay-payments";
 import { isToyyibPayConfigured } from "@/lib/toyyibpay";
 
 export const runtime = "nodejs";
@@ -22,6 +22,7 @@ export async function GET(request: Request) {
       const result = await confirmToyyibPayBill(billCode);
       if (result.outcome === "paid") outcome = "success";
       else if (result.outcome === "failed") outcome = "cancelled";
+      else if (outcome === "cancelled") await markToyyibPayBillCancelled(billCode);
     } catch (error) {
       logError("ToyyibPay return verification failed", error, { billCode });
     }

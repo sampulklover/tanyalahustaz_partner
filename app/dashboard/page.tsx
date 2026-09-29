@@ -6,9 +6,8 @@ import { Panel } from "@/components/dashboard/panel";
 import { OnboardingChecklist } from "@/components/dashboard/onboarding";
 import { QuickStartSnippet } from "@/components/dashboard/quick-start";
 import { EmptyState } from "@/components/dashboard/empty-state";
-import { RecentChatsPreview } from "@/components/dashboard/recent-chats-preview";
 import { createClient } from "@/lib/supabase/server";
-import type { ApiUsageEntry, PartnerChatLog } from "@/lib/types";
+import type { ApiUsageEntry } from "@/lib/types";
 import { getDashboardContext } from "@/lib/dashboard";
 import { getTranslations } from "@/lib/i18n/server";
 
@@ -48,7 +47,6 @@ export default async function DashboardPage() {
     { count: chatCount },
     { count: knowledgeCount },
     { data: recentUsage },
-    { data: recentChats },
   ] = await Promise.all([
     supabase.from("profiles").select("company_name, created_at").eq("id", user!.id).single(),
     supabase
@@ -69,19 +67,9 @@ export default async function DashboardPage() {
       .select("id, endpoint, method, status_code, created_at, api_key_id")
       .order("created_at", { ascending: false })
       .limit(8),
-    supabase
-      .from("partner_chat_logs")
-      .select("id, user_message, created_at")
-      .eq("partner_id", user!.id)
-      .order("created_at", { ascending: false })
-      .limit(3),
   ]);
 
   const usage = (recentUsage ?? []) as ApiUsageEntry[];
-  const chats = (recentChats ?? []) as Pick<
-    PartnerChatLog,
-    "id" | "user_message" | "created_at"
-  >[];
 
   const isNewUser = (activeKeys ?? 0) === 0;
 
@@ -150,20 +138,6 @@ export default async function DashboardPage() {
             </svg>
           }
         />
-      </div>
-
-      <div className="mt-8">
-        <Panel
-          title={t("pages.overview.recentChatRequests")}
-          description={t("pages.overview.recentChatRequestsDescription")}
-          action={
-            <Link href="/dashboard/chat" className="text-sm text-brand-600 hover:underline dark:text-brand-500">
-              {t("pages.overview.viewAllLogs")}
-            </Link>
-          }
-        >
-          <RecentChatsPreview chats={chats} isTeamMember={context?.isTeamMember ?? false} />
-        </Panel>
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">

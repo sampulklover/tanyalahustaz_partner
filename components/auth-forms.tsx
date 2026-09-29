@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { signIn, signUp } from "@/app/actions/auth";
+import { Spinner } from "@/components/spinner";
 import { useI18n } from "@/lib/i18n/client";
 
 type AuthState = { error?: string };
@@ -11,7 +12,7 @@ const inputClass =
   "w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30";
 
 const buttonClass =
-  "w-full rounded-lg bg-brand-600 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-600 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60";
 
 function ErrorNote({ error }: { error?: string }) {
   if (!error) return null;
@@ -70,6 +71,7 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
       </div>
       <ErrorNote error={state.error} />
       <button type="submit" disabled={isPending} className={buttonClass}>
+        {isPending && <Spinner className="h-4 w-4" />}
         {isPending ? t("auth.signingIn") : t("brand.signIn")}
       </button>
       <p className="text-center text-sm text-[color:var(--muted)]">
@@ -158,6 +160,7 @@ export function SignupForm({ inviteRequired = false }: { inviteRequired?: boolea
       </div>
       <ErrorNote error={state.error} />
       <button type="submit" disabled={isPending} className={buttonClass}>
+        {isPending && <Spinner className="h-4 w-4" />}
         {isPending ? t("auth.creatingAccount") : t("auth.createAccount")}
       </button>
       <p className="text-center text-sm text-[color:var(--muted)]">

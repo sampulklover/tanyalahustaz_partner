@@ -6,6 +6,7 @@ import { I18nProvider } from "@/lib/i18n/client";
 import { getLocale, getMessages, getTranslations } from "@/lib/i18n/server";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ToastProvider } from "@/components/toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -77,7 +78,9 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <I18nProvider locale={locale} messages={messages}>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ToastProvider>
+            <ThemeProvider>{children}</ThemeProvider>
+          </ToastProvider>
         </I18nProvider>
       </body>
     </html>

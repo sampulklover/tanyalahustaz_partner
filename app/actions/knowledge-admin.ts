@@ -19,7 +19,10 @@ export async function reembedAllKnowledge(): Promise<ActionResult> {
     const result = await embedAllKnowledgeArticles();
     revalidatePath("/dashboard/knowledge/sources");
     return {
-      success: `Re-embedded ${result.articlesProcessed} article(s), ${result.chunksWritten} chunk(s).`,
+      success: t("actionErrors.reembedSuccess", {
+        articles: result.articlesProcessed,
+        chunks: result.chunksWritten,
+      }),
     };
   } catch (error) {
     return {

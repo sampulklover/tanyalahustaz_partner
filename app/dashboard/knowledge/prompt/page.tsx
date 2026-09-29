@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { resetSystemPrompt, updateSystemPrompt } from "@/app/actions/knowledge-prompt";
+import { ActionButton } from "@/components/action-button";
+import { ActionForm } from "@/components/action-form";
+import { SubmitButton } from "@/components/submit-button";
 import { KnowledgeNav } from "@/components/knowledge-nav";
 import { DashboardPage as DashboardShell } from "@/components/dashboard/page";
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -97,18 +100,22 @@ export default async function KnowledgePromptPage({
             </p>
           </div>
           {settings.isCustom && !usingTemplate && (
-            <form action={resetSystemPrompt}>
-              <button
-                type="submit"
-                className="rounded-lg border border-border px-3.5 py-2 text-xs font-medium transition hover:bg-background-subtle active:scale-[0.98]"
-              >
-                {t("knowledge.prompt.reset")}
-              </button>
-            </form>
+            <ActionButton
+              action={resetSystemPrompt}
+              pendingLabel={t("common.saving")}
+              successMessage={t("knowledge.prompt.resetDone")}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-border px-3.5 py-2 text-xs font-medium transition hover:bg-background-subtle active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {t("knowledge.prompt.reset")}
+            </ActionButton>
           )}
         </div>
 
-        <form action={updateSystemPrompt} className="space-y-4 p-5">
+        <ActionForm
+          action={updateSystemPrompt}
+          className="space-y-4 p-5"
+          successMessage={t("knowledge.prompt.saved")}
+        >
           <textarea
             name="systemPrompt"
             defaultValue={editorValue}
@@ -120,12 +127,12 @@ export default async function KnowledgePromptPage({
           />
           <div className="flex flex-wrap items-center gap-3">
             {canEdit && (
-              <button
-                type="submit"
-                className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
+              <SubmitButton
+                pendingLabel={t("common.saving")}
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {t("knowledge.prompt.save")}
-              </button>
+              </SubmitButton>
             )}
             <Link
               href="/dashboard/knowledge/prompt?template=default"
@@ -137,7 +144,7 @@ export default async function KnowledgePromptPage({
               {t("knowledge.prompt.emptyHint")}
             </span>
           </div>
-        </form>
+        </ActionForm>
       </section>
 
       <section className="mb-8 overflow-hidden rounded-xl border border-border bg-card shadow-sm">

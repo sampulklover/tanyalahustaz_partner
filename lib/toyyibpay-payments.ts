@@ -55,6 +55,19 @@ export async function startToyyibPayTopUp({
 }
 
 /**
+ * Mark a bill as failed when the payer cancels before paying.
+ * Never downgrades a row that is already paid.
+ */
+export async function markToyyibPayBillCancelled(billCode: string): Promise<void> {
+  const admin = createAdminClient();
+  await admin
+    .from("billing_transactions")
+    .update({ status: "failed" })
+    .eq("provider_bill_code", billCode)
+    .eq("status", "pending");
+}
+
+/**
  * Confirm a bill's real status with ToyyibPay and, when successful, credit the
  * account. The callback payload is unsigned, so this API check is the source of
  * truth. Safe to call repeatedly (top-up crediting is idempotent).

@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { Spinner } from "@/components/spinner";
 import { buildChatLogsPath } from "@/lib/chat-logs";
 import { useI18n } from "@/lib/i18n/client";
 
@@ -15,14 +16,17 @@ export function ChatLogsFilters({
   const { t } = useI18n();
   const router = useRouter();
   const [query, setQuery] = useState(q ?? "");
+  const [isPending, startTransition] = useTransition();
 
   function applyFilters(next: { q?: string; session?: string }) {
-    router.push(
-      buildChatLogsPath("/dashboard/chat", {
-        q: next.q,
-        session: next.session,
-      }),
-    );
+    startTransition(() => {
+      router.push(
+        buildChatLogsPath("/dashboard/chat", {
+          q: next.q,
+          session: next.session,
+        }),
+      );
+    });
   }
 
   function handleSubmit(event: React.FormEvent) {
@@ -58,8 +62,10 @@ export function ChatLogsFilters({
         <div className="flex shrink-0 gap-2">
           <button
             type="submit"
-            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
+            disabled={isPending}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
+            {isPending && <Spinner className="h-4 w-4" />}
             {t("chatLogs.filters.search")}
           </button>
           {(q || session) && (

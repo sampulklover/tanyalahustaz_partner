@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { createTopUpCheckout } from "@/app/actions/billing";
+import { Spinner } from "@/components/spinner";
 import {
   formatMyr,
   MAX_TOPUP_CENTS,
@@ -14,7 +15,13 @@ type TopUpState = { error?: string };
 
 const presets: number[] = [...TOPUP_PRESETS_MYR];
 
-export function TopUpForm({ configured }: { configured: boolean }) {
+export function TopUpForm({
+  configured,
+  balanceCents,
+}: {
+  configured: boolean;
+  balanceCents: number;
+}) {
   const { t } = useI18n();
   const [amountCents, setAmountCents] = useState<number>(presets[2] ?? 5000);
   const [customOpen, setCustomOpen] = useState(false);
@@ -97,6 +104,19 @@ export function TopUpForm({ configured }: { configured: boolean }) {
         <p className="mt-1 text-4xl font-bold tracking-tight">
           {formatMyr(amountCents, { decimals: true })}
         </p>
+        <p className="mt-3 text-sm text-[color:var(--muted)]">
+          {t("pages.topUp.balance")}{" "}
+          <span className="font-medium text-foreground">
+            {formatMyr(balanceCents, { decimals: true })}
+          </span>
+          <span className="mx-1.5" aria-hidden>
+            →
+          </span>
+          {t("pages.topUp.afterTopUp")}{" "}
+          <span className="font-semibold text-brand-600 dark:text-brand-500">
+            {formatMyr(balanceCents + (validAmount ? amountCents : 0), { decimals: true })}
+          </span>
+        </p>
       </div>
 
       {state.error && (
@@ -108,8 +128,9 @@ export function TopUpForm({ configured }: { configured: boolean }) {
       <button
         type="submit"
         disabled={!configured || !validAmount || isPending}
-        className="inline-flex w-full items-center justify-center rounded-lg bg-brand-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-50 sm:w-auto sm:min-w-64"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-64"
       >
+        {isPending && <Spinner className="h-4 w-4" />}
         {isPending ? t("pages.topUp.redirecting") : t("pages.topUp.continue")}
       </button>
 

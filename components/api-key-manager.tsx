@@ -5,6 +5,8 @@ import { createApiKey } from "@/app/actions/api-keys";
 import type { ApiKey } from "@/lib/types";
 import { ApiKeyActions } from "@/components/api-key-actions";
 import { CopyButton } from "@/components/copy-button";
+import { Spinner } from "@/components/spinner";
+import { useToast } from "@/components/toast";
 import { useI18n } from "@/lib/i18n/client";
 
 const inputClass =
@@ -43,6 +45,7 @@ export function ApiKeyManager({
   now: number;
 }) {
   const { t, locale } = useI18n();
+  const { success: toastSuccess, error: toastError } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newKeySecret, setNewKeySecret] = useState<string | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
@@ -92,10 +95,12 @@ export function ApiKeyManager({
       const result = await createApiKey(formData);
       if (result.error) {
         setCreateError(result.error);
+        toastError(result.error);
         return;
       }
       if (result.key) {
         setNewKeySecret(result.key.secret);
+        toastSuccess(t("apiKeys.manager.createdToast"));
       }
     });
   }
@@ -292,6 +297,7 @@ export function ApiKeyManager({
                     {t("common.cancel")}
                   </button>
                   <button type="submit" disabled={isCreating} className={primaryButtonClass}>
+                    {isCreating && <Spinner className="h-4 w-4" />}
                     {isCreating ? t("apiKeys.manager.creating") : t("apiKeys.manager.createKey")}
                   </button>
                 </div>

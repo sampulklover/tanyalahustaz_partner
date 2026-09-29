@@ -6,6 +6,8 @@ import {
   updateLowBalanceAlert,
   type BillingAlertState,
 } from "@/app/actions/billing-alerts";
+import { ActionToast } from "@/components/action-toast";
+import { SubmitButton } from "@/components/submit-button";
 import { formatMyr } from "@/lib/billing";
 import { useI18n } from "@/lib/i18n/client";
 
@@ -19,11 +21,11 @@ const initialState: BillingAlertState = {};
 export function LowBalanceAlerts({ thresholdCents, emailConfigured }: LowBalanceAlertsProps) {
   const { t } = useI18n();
 
-  const [saveState, saveAction, saving] = useActionState<BillingAlertState, FormData>(
+  const [saveState, saveAction] = useActionState<BillingAlertState, FormData>(
     async (prev, formData) => (await updateLowBalanceAlert(prev, formData)) ?? {},
     initialState,
   );
-  const [testState, testAction, testing] = useActionState<BillingAlertState, FormData>(
+  const [testState, testAction] = useActionState<BillingAlertState, FormData>(
     async () => (await sendLowBalanceTest()) ?? {},
     initialState,
   );
@@ -46,11 +48,18 @@ export function LowBalanceAlerts({ thresholdCents, emailConfigured }: LowBalance
     return null;
   }
 
-  const feedback = message(saveState) ?? message(testState);
-  const isError = Boolean(saveState.error ?? testState.error);
-
   return (
     <section className="mt-6 overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+      <ActionToast
+        state={saveState}
+        successMessage={message(saveState) ?? undefined}
+        errorMessage={message(saveState) ?? undefined}
+      />
+      <ActionToast
+        state={testState}
+        successMessage={message(testState) ?? undefined}
+        errorMessage={message(testState) ?? undefined}
+      />
       <div className="border-b border-border px-5 py-4">
         <h2 className="font-semibold">{t("billingAlerts.title")}</h2>
         <p className="mt-1 text-xs leading-relaxed text-[color:var(--muted)]">
@@ -77,22 +86,21 @@ export function LowBalanceAlerts({ thresholdCents, emailConfigured }: LowBalance
                 />
               </div>
             </label>
-            <button
-              type="submit"
-              disabled={saving}
-              className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 active:scale-[0.98] disabled:opacity-60"
+            <SubmitButton
+              pendingLabel={t("billingAlerts.saving")}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {saving ? t("billingAlerts.saving") : t("billingAlerts.save")}
-            </button>
+              {t("billingAlerts.save")}
+            </SubmitButton>
           </form>
           <form action={testAction}>
-            <button
-              type="submit"
-              disabled={testing || !emailConfigured}
-              className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium transition hover:bg-background-subtle active:scale-[0.98] disabled:opacity-60"
+            <SubmitButton
+              disabled={!emailConfigured}
+              pendingLabel={t("billingAlerts.testSending")}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-medium transition hover:bg-background-subtle active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {testing ? t("billingAlerts.testSending") : t("billingAlerts.testButton")}
-            </button>
+              {t("billingAlerts.testButton")}
+            </SubmitButton>
           </form>
         </div>
 
@@ -105,18 +113,6 @@ export function LowBalanceAlerts({ thresholdCents, emailConfigured }: LowBalance
         {!emailConfigured && (
           <p className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
             {t("billingAlerts.notConfigured")}
-          </p>
-        )}
-
-        {feedback && (
-          <p
-            className={`rounded-lg border px-3 py-2 text-sm ${
-              isError
-                ? "border-red-200 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300"
-                : "border-brand-200 bg-brand-50 text-brand-800 dark:border-brand-900 dark:bg-brand-900/20 dark:text-brand-200"
-            }`}
-          >
-            {feedback}
           </p>
         )}
       </div>

@@ -6,6 +6,9 @@ import {
   removeKnowledgeTeamMember,
   updateKnowledgeTeamMemberRole,
 } from "@/app/actions/knowledge-team";
+import { ActionToast } from "@/components/action-toast";
+import { Spinner } from "@/components/spinner";
+import { SubmitButton } from "@/components/submit-button";
 import { KNOWLEDGE_TEAM_ROLES, type KnowledgeTeamRole } from "@/lib/roles";
 import {
   translateKnowledgeRole,
@@ -26,13 +29,18 @@ const inputClass =
 
 export function KnowledgeTeamManager({ members, currentUserId }: KnowledgeTeamManagerProps) {
   const { t } = useI18n();
-  const [assignState, assignAction, isAssigning] = useActionState(
+  const [assignState, assignAction] = useActionState(
     async (_prev: FormState, formData: FormData) => assignKnowledgeTeamMember(formData),
     {},
   );
 
   return (
     <div className="space-y-10">
+      <ActionToast
+        state={assignState}
+        successMessage={t("knowledge.teamManager.assigned")}
+        showError={false}
+      />
       <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
         <h2 className="text-lg font-semibold">{t("knowledge.teamManager.inviteTitle")}</h2>
         <p className="mt-1 text-sm text-[color:var(--muted)]">
@@ -54,23 +62,17 @@ export function KnowledgeTeamManager({ members, currentUserId }: KnowledgeTeamMa
               </option>
             ))}
           </select>
-          <button
-            type="submit"
-            disabled={isAssigning}
-            className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-60"
+          <SubmitButton
+            pendingLabel={t("knowledge.teamManager.assigning")}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isAssigning ? t("knowledge.teamManager.assigning") : t("knowledge.teamManager.assignRole")}
-          </button>
+            {t("knowledge.teamManager.assignRole")}
+          </SubmitButton>
         </form>
 
         {assignState.error && (
           <p className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
             {assignState.error}
-          </p>
-        )}
-        {assignState.success && (
-          <p className="mt-4 rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-sm text-brand-800 dark:border-brand-900 dark:bg-brand-900/20 dark:text-brand-200">
-            {assignState.success}
           </p>
         )}
 
@@ -174,13 +176,14 @@ function RoleSelect({
 
   return (
     <div>
+      <ActionToast state={state} successMessage={t("knowledge.teamManager.roleUpdated")} />
       <form action={action} className="flex items-center gap-2">
         <select
           name="role"
           defaultValue={currentRole}
           onChange={(event) => event.currentTarget.form?.requestSubmit()}
           disabled={isPending}
-          className="rounded-lg border border-border bg-background px-2 py-1.5 text-sm outline-none focus:border-brand-500"
+          className="rounded-lg border border-border bg-background px-2 py-1.5 text-sm outline-none focus:border-brand-500 disabled:opacity-60"
         >
           {KNOWLEDGE_TEAM_ROLES.map((role) => (
             <option key={role} value={role}>
@@ -188,29 +191,28 @@ function RoleSelect({
             </option>
           ))}
         </select>
+        {isPending && <Spinner className="h-3.5 w-3.5 text-[color:var(--muted)]" />}
       </form>
-      {state.error && <p className="mt-1 text-xs text-red-600">{state.error}</p>}
-      {state.success && <p className="mt-1 text-xs text-brand-600 dark:text-brand-500">{state.success}</p>}
     </div>
   );
 }
 
 function RemoveMemberButton({ userId }: { userId: string }) {
   const { t } = useI18n();
-  const [state, action, isPending] = useActionState(async () => removeKnowledgeTeamMember(userId), {});
+  const [state, action] = useActionState(async () => removeKnowledgeTeamMember(userId), {});
 
   return (
     <div>
+      <ActionToast state={state} successMessage={t("knowledge.teamManager.removed")} />
       <form action={action}>
-        <button
-          type="submit"
-          disabled={isPending}
-          className="text-sm text-red-600 hover:underline disabled:opacity-60"
+        <SubmitButton
+          pendingLabel={t("knowledge.teamManager.removing")}
+          showSpinner={false}
+          className="text-sm text-red-600 transition hover:underline disabled:cursor-not-allowed disabled:opacity-60 dark:text-red-400"
         >
-          {isPending ? t("knowledge.teamManager.removing") : t("knowledge.teamManager.remove")}
-        </button>
+          {t("knowledge.teamManager.remove")}
+        </SubmitButton>
       </form>
-      {state.error && <p className="mt-1 text-xs text-red-600">{state.error}</p>}
     </div>
   );
 }
