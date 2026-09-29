@@ -520,7 +520,7 @@
       "copyNowTitle": "Salin kunci API anda sekarang",
       "copyNowDescription": "Ini adalah satu-satunya kali kunci penuh akan dipaparkan. Simpan di lokasi yang selamat.",
       "createNewKeyTitle": "Cipta kunci baharu",
-      "createNewKeyDescription": "Namakan kunci mengikut persekitaran, cth. \"Pengeluaran\" atau \"Pementasan\".",
+      "createNewKeyDescription": "Namakan kunci mengikut persekitaran, cth. \"Produksi\" atau \"Pra-produksi\".",
       "keyNamePlaceholder": "Nama kunci",
       "creating": "Sedang mencipta…",
       "createKey": "Cipta kunci",
