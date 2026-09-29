@@ -1,8 +1,7 @@
 import Link from "next/link";
-import {
-  clearSourceSelections,
-  toggleSourceSelection,
-} from "@/app/actions/knowledge-sources";
+import { KnowledgeSelectAll } from "@/components/knowledge-select-all";
+import { KnowledgeSelectedSources } from "@/components/knowledge-selected-sources";
+import { KnowledgeSourceToggle } from "@/components/knowledge-source-toggle";
 import { formatBytes } from "@/lib/format-bytes";
 import { getTranslations } from "@/lib/i18n/server";
 
@@ -75,7 +74,9 @@ export async function KnowledgeSourcePicker({
   searchResults,
   searchTotal,
   searchTruncated,
+  syncedPaths = [],
   view = "sync",
+  canEdit = true,
 }: {
   configured: boolean;
   selections: SourceSelection[];
@@ -90,10 +91,24 @@ export async function KnowledgeSourcePicker({
   searchResults: SourceFile[];
   searchTotal: number;
   searchTruncated: boolean;
+  /** Source paths already mirrored, so the UI can flag what is synced. */
+  syncedPaths?: string[];
   /** Which sub-tab is showing, so navigation links keep you in Sync. */
   view?: "sync" | "files";
+  canEdit?: boolean;
 }) {
   const t = await getTranslations();
+  const syncedSet = new Set(syncedPaths);
+
+  /** How many already-synced files live under this folder. */
+  function syncedCountFor(folderPath: string) {
+    const prefix = `${folderPath}/`;
+    let count = 0;
+    for (const path of syncedPaths) {
+      if (path.startsWith(prefix)) count += 1;
+    }
+    return count;
+  }
 
   function browseHref(path: string | null) {
     const params = new URLSearchParams();
@@ -103,50 +118,17 @@ export async function KnowledgeSourcePicker({
     return query ? `/dashboard/knowledge/sources?${query}` : "/dashboard/knowledge/sources";
   }
   const selectedPaths = new Set(selections.map((entry) => entry.path));
-  const selectedFolders = selections.filter((entry) => entry.kind === "folder").length;
-  const selectedFiles = selections.filter((entry) => entry.kind === "file").length;
   const breadcrumbs = prefix ? prefix.split("/") : [];
   const up = parentPath(prefix);
   const searching = search.trim().length >= 2;
   const rowBase = "flex items-center gap-3 px-3 py-2.5 transition hover:bg-background-subtle";
   const selectedRowBase = "bg-brand-50 dark:bg-brand-900/20";
 
-  function SelectToggle({
-    path,
-    kind,
-    selected,
-  }: {
-    path: string;
-    kind: "file" | "folder";
-    selected: boolean;
-  }) {
-    return (
-      <form action={toggleSourceSelection} className="shrink-0">
-        <input type="hidden" name="path" value={path} />
-        <input type="hidden" name="kind" value={kind} />
-        <input type="hidden" name="selected" value={selected ? "false" : "true"} />
-        <button
-          type="submit"
-          aria-pressed={selected}
-          aria-label={selected ? t("knowledge.sources.picker.remove") : t("knowledge.sources.picker.add")}
-          title={selected ? t("knowledge.sources.picker.remove") : t("knowledge.sources.picker.add")}
-          className={
-            selected
-              ? "flex h-5 w-5 items-center justify-center rounded-md border border-brand-600 bg-brand-600 text-[11px] font-bold text-white transition active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
-              : "flex h-5 w-5 items-center justify-center rounded-md border border-border text-[11px] font-bold text-transparent transition hover:border-brand-500 hover:bg-background-subtle hover:text-[color:var(--muted)] active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
-          }
-        >
-          ✓
-        </button>
-      </form>
-    );
-  }
-
   return (
     <div className="grid gap-6 lg:grid-cols-5">
       <div className="lg:col-span-3">
-        <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-          <div className="border-b border-border px-5 py-4">
+        <div className="flex max-h-[min(26rem,calc(100dvh_-_30rem))] min-h-[12rem] flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+          <div className="shrink-0 border-b border-border px-5 py-4">
             <h3 className="font-semibold">{t("knowledge.sources.picker.browseTitle")}</h3>
             <p className="mt-1 text-xs leading-relaxed text-[color:var(--muted)]">
               {t("knowledge.sources.picker.browseHint")}
@@ -184,20 +166,20 @@ export async function KnowledgeSourcePicker({
           </div>
 
           {!configured ? (
-            <p className="px-5 py-8 text-sm text-[color:var(--muted)]">
+            <p className="flex flex-1 items-center justify-center px-5 text-center text-sm text-[color:var(--muted)]">
               {t("knowledge.sources.picker.notConfigured")}
             </p>
           ) : searching ? (
-            <div>
-              <p className="border-b border-border bg-background-subtle px-5 py-2 text-xs tabular-nums text-[color:var(--muted)]">
+            <div className="flex min-h-0 flex-1 flex-col">
+              <p className="shrink-0 border-b border-border bg-background-subtle px-5 py-2 text-xs tabular-nums text-[color:var(--muted)]">
                 {t("knowledge.sources.picker.searchResults", { total: searchTotal })}
               </p>
               {searchResults.length === 0 ? (
-                <p className="px-5 py-10 text-center text-sm text-[color:var(--muted)]">
+                <p className="flex flex-1 items-center justify-center px-5 text-center text-sm text-[color:var(--muted)]">
                   {t("knowledge.sources.picker.noMatches", { query: search })}
                 </p>
               ) : (
-                <ul className="max-h-[30rem] divide-y divide-border overflow-y-auto">
+                <ul className="min-h-0 flex-1 divide-y divide-border overflow-y-auto pb-1">
                   {searchResults.map((file) => {
                     const selected = selectedPaths.has(file.path);
                     return (
@@ -207,13 +189,18 @@ export async function KnowledgeSourcePicker({
                           selected ? selectedRowBase : ""
                         }`}
                       >
-                        <SelectToggle path={file.path} kind="file" selected={selected} />
+                        <KnowledgeSourceToggle path={file.path} kind="file" selected={selected} />
                         <div className="flex min-w-0 flex-1 items-center gap-2">
                           <FileIcon />
                           <span className="truncate font-mono text-xs" title={file.path}>
                             {file.path}
                           </span>
                         </div>
+                        {syncedSet.has(file.path) && (
+                          <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                            {t("knowledge.sources.picker.syncedBadge")}
+                          </span>
+                        )}
                         <span className="shrink-0 rounded-full bg-background-subtle px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[color:var(--muted)]">
                           {formatBytes(file.size)}
                         </span>
@@ -230,7 +217,7 @@ export async function KnowledgeSourcePicker({
             </div>
           ) : (
             <>
-              <div className="flex items-center gap-2 border-b border-border bg-background-subtle px-3 py-2 text-xs">
+              <div className="flex shrink-0 items-center gap-2 border-b border-border bg-background-subtle px-3 py-2 text-xs">
                 <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
                   {prefix && (
                     <Link
@@ -299,6 +286,15 @@ export async function KnowledgeSourcePicker({
                 )}
               </div>
 
+              <div className="flex shrink-0 items-center justify-end border-b border-border px-3 py-1.5">
+                <KnowledgeSelectAll
+                  items={[
+                    ...folders.map((folder) => ({ path: folder.path, kind: "folder" as const })),
+                    ...files.map((file) => ({ path: file.path, kind: "file" as const })),
+                  ]}
+                />
+              </div>
+
               {filter && !error && (
                 <p className="border-b border-border px-5 py-2 text-xs tabular-nums text-[color:var(--muted)]">
                   {t("knowledge.sources.picker.filterCount", {
@@ -309,15 +305,15 @@ export async function KnowledgeSourcePicker({
               )}
 
               {error ? (
-                <p className="px-5 py-8 text-sm text-red-600 dark:text-red-400">{error}</p>
+                <p className="flex flex-1 items-center justify-center px-5 text-center text-sm text-red-600 dark:text-red-400">{error}</p>
               ) : folders.length === 0 && files.length === 0 ? (
-                <p className="px-5 py-10 text-center text-sm text-[color:var(--muted)]">
+                <p className="flex flex-1 items-center justify-center px-5 text-center text-sm text-[color:var(--muted)]">
                   {filter
                     ? t("knowledge.sources.picker.noMatches", { query: filter })
                     : t("knowledge.sources.picker.emptyFolder")}
                 </p>
               ) : (
-                <ul className="max-h-[30rem] divide-y divide-border overflow-y-auto">
+                <ul className="min-h-0 flex-1 divide-y divide-border overflow-y-auto pb-1">
                   {folders.map((folder) => {
                     const selected = selectedPaths.has(folder.path);
                     return (
@@ -325,7 +321,7 @@ export async function KnowledgeSourcePicker({
                         key={folder.path}
                         className={`${rowBase} ${selected ? selectedRowBase : ""}`}
                       >
-                        <SelectToggle path={folder.path} kind="folder" selected={selected} />
+                        <KnowledgeSourceToggle path={folder.path} kind="folder" selected={selected} />
                         <Link
                           href={browseHref(folder.path)}
                           className="group flex min-w-0 flex-1 items-center gap-2"
@@ -334,8 +330,18 @@ export async function KnowledgeSourcePicker({
                           <span className="truncate text-sm font-medium group-hover:underline">
                             {folder.name}
                           </span>
-                          <span className="ml-auto text-[color:var(--muted)] opacity-0 transition group-hover:opacity-100">
-                            <ChevronRight />
+                          <span className="ml-auto flex shrink-0 items-center gap-2">
+                            {(() => {
+                              const synced = syncedCountFor(folder.path);
+                              return synced > 0 ? (
+                                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                                  {t("knowledge.sources.picker.syncedCountBadge", { count: synced })}
+                                </span>
+                              ) : null;
+                            })()}
+                            <span className="text-[color:var(--muted)] opacity-0 transition group-hover:opacity-100">
+                              <ChevronRight />
+                            </span>
                           </span>
                         </Link>
                       </li>
@@ -345,11 +351,16 @@ export async function KnowledgeSourcePicker({
                     const selected = selectedPaths.has(file.path);
                     return (
                       <li key={file.path} className={`${rowBase} ${selected ? selectedRowBase : ""}`}>
-                        <SelectToggle path={file.path} kind="file" selected={selected} />
+                        <KnowledgeSourceToggle path={file.path} kind="file" selected={selected} />
                         <div className="flex min-w-0 flex-1 items-center gap-2">
                           <FileIcon />
                           <span className="truncate text-sm">{file.name}</span>
                         </div>
+                        {syncedSet.has(file.path) && (
+                          <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                            {t("knowledge.sources.picker.syncedBadge")}
+                          </span>
+                        )}
                         <span className="shrink-0 rounded-full bg-background-subtle px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[color:var(--muted)]">
                           {formatBytes(file.size)}
                         </span>
@@ -369,75 +380,12 @@ export async function KnowledgeSourcePicker({
         </div>
       </div>
 
-      <aside className="lg:col-span-2">
-        <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm lg:sticky lg:top-6">
-          <div className="flex items-center justify-between gap-2 border-b border-border px-5 py-4">
-            <h3 className="flex items-center gap-2 font-semibold">
-              {t("knowledge.sources.picker.selectedTitle")}
-              <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-semibold tabular-nums text-brand-700 dark:bg-brand-900/40 dark:text-brand-300">
-                {selections.length}
-              </span>
-            </h3>
-            {selections.length > 0 && (
-              <form action={clearSourceSelections}>
-                <button
-                  type="submit"
-                  className="rounded-md px-2 py-1 text-xs font-medium text-[color:var(--muted)] transition hover:bg-background-subtle hover:text-foreground"
-                >
-                  {t("knowledge.sources.picker.clearAll")}
-                </button>
-              </form>
-            )}
-          </div>
-
-          {selections.length === 0 ? (
-            <div className="flex flex-col items-center px-6 py-12 text-center">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-background-subtle text-[color:var(--muted)]">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden>
-                  <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                </svg>
-              </span>
-              <p className="mt-3 max-w-[15rem] text-sm text-[color:var(--muted)]">
-                {t("knowledge.sources.picker.selectedEmpty")}
-              </p>
-            </div>
-          ) : (
-            <>
-              <p className="border-b border-border px-5 py-2 text-xs text-[color:var(--muted)]">
-                {t("knowledge.sources.picker.selectedSummary", {
-                  folders: selectedFolders,
-                  files: selectedFiles,
-                })}
-              </p>
-              <ul className="max-h-[30rem] divide-y divide-border overflow-y-auto">
-                {selections.map((entry) => (
-                  <li key={entry.path} className="flex items-start gap-2 px-4 py-2.5">
-                    <span className="mt-0.5 shrink-0 rounded bg-background-subtle px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[color:var(--muted)]">
-                      {entry.kind === "folder"
-                        ? t("knowledge.sources.picker.kindFolder")
-                        : t("knowledge.sources.picker.kindFile")}
-                    </span>
-                    <span className="min-w-0 flex-1 break-all font-mono text-xs leading-relaxed">
-                      {entry.path}
-                    </span>
-                    <form action={toggleSourceSelection} className="shrink-0">
-                      <input type="hidden" name="path" value={entry.path} />
-                      <input type="hidden" name="kind" value={entry.kind} />
-                      <input type="hidden" name="selected" value="false" />
-                      <button
-                        type="submit"
-                        aria-label={t("knowledge.sources.picker.remove")}
-                        className="rounded-md px-1.5 py-0.5 text-xs font-medium text-red-600 transition hover:bg-red-50 active:scale-95 dark:text-red-400 dark:hover:bg-red-950/40"
-                      >
-                        ✕
-                      </button>
-                    </form>
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-        </div>
+      <aside className="h-full lg:col-span-2">
+        <KnowledgeSelectedSources
+          initialSelections={selections}
+          canEdit={canEdit}
+          configured={configured}
+        />
       </aside>
     </div>
   );

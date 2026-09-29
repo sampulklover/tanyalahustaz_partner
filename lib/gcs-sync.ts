@@ -93,6 +93,95 @@ export type GcsSyncStatus = {
   prefix: string | null;
 };
 
+export type SyncPreview = {
+  /** Files covered by the selection that are not mirrored yet. */
+  additions: number;
+  /** Mirrored articles whose source file is no longer selected. */
+  removals: number;
+};
+
+const PREVIEW_CACHE_TTL_MS = 30_000;
+const PREVIEW_MAX_OBJECTS = 10_000;
+let previewCache: { at: number; key: string; preview: SyncPreview } | null = null;
+
+export function clearSyncPreviewCache() {
+  previewCache = null;
+}
+
+/**
+ * What the next sync would change, so the UI can warn before running it.
+ * Returns null when it would be too expensive to work out.
+ */
+export async function getSyncPreview(): Promise<SyncPreview | null> {
+  if (!isGcsConfigured()) return null;
+
+  const selections = await loadSourceSelections();
+  if (selections.length === 0) return { additions: 0, removals: 0 };
+
+  const key = selections
+    .map((selection) => `${selection.kind}:${selection.path}`)
+    .sort()
+    .join("|");
+
+  if (previewCache && previewCache.key === key && Date.now() - previewCache.at < PREVIEW_CACHE_TTL_MS) {
+    return previewCache.preview;
+  }
+
+  try {
+    const objects = await gatherSelectedObjects(selections);
+    if (objects.length > PREVIEW_MAX_OBJECTS) return null;
+
+    const excluded = new Set(excludedFolders());
+    const allowed = getAllowedExtensions();
+    const syncable = objects
+      .filter((object) => !isExcluded(object.name, excluded) && isSyncableDocument(object.name))
+      .filter(
+        (object) =>
+          allowed.length === 0 ||
+          allowed.some((extension) => object.name.toLowerCase().endsWith(extension)),
+      );
+
+    const syncableNames = new Set(syncable.map((object) => object.name));
+    const admin = createAdminClient();
+    const { data: mirrored } = await admin
+      .from("knowledge_articles")
+      .select("source_path")
+      .eq("source_provider", GCS_SOURCE_PROVIDER)
+      .not("source_path", "is", null)
+      .limit(20_000);
+
+    const mirroredPaths = ((mirrored ?? []) as { source_path: string }[]).map(
+      (row) => row.source_path,
+    );
+
+    // Too many rows to reason about reliably — skip the preview.
+    if (mirroredPaths.length >= 20_000) return null;
+
+    const mirroredSet = new Set(mirroredPaths);
+    const additions = syncable.filter((object) => !mirroredSet.has(object.name)).length;
+    const removals = mirroredPaths.filter((path) => !syncableNames.has(path)).length;
+
+    const preview = { additions, removals };
+    previewCache = { at: Date.now(), key, preview };
+    return preview;
+  } catch (error) {
+    logError("Could not build the sync preview", error);
+    return null;
+  }
+}
+
+/** Optional allow-list of file types, e.g. GCS_SYNC_EXTENSIONS=.pdf */
+export function getAllowedExtensions(): string[] {
+  const raw = process.env.GCS_SYNC_EXTENSIONS?.trim();
+  if (!raw) return [];
+
+  return raw
+    .split(",")
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean)
+    .map((value) => (value.startsWith(".") ? value : `.${value}`));
+}
+
 export type KnowledgeSourceSelection = { path: string; kind: "file" | "folder" };
 
 type MirroredRow = {
@@ -214,7 +303,7 @@ async function buildRowFromObject(object: GcsObject, publish: boolean): Promise<
   };
 }
 
-async function createRun(createdBy: string | null): Promise<string> {
+export async function createRun(createdBy: string | null): Promise<string> {
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("knowledge_sync_runs")
@@ -227,6 +316,22 @@ async function createRun(createdBy: string | null): Promise<string> {
   }
 
   return data.id as string;
+}
+
+/** Create a run row up front so progress can be tracked while it works. */
+export async function createSyncRun(createdBy: string | null): Promise<string> {
+  if (!isGcsConfigured()) {
+    throw new Error(
+      "Google Cloud Storage is not configured. Set GCS_SERVICE_ACCOUNT_JSON and GCS_BUCKET_NAME.",
+    );
+  }
+
+  return createRun(createdBy);
+}
+
+async function updateRunProgress(runId: string, patch: Record<string, unknown>): Promise<void> {
+  const admin = createAdminClient();
+  await admin.from("knowledge_sync_runs").update(patch).eq("id", runId);
 }
 
 async function finishRun(
@@ -244,6 +349,8 @@ export type SyncKnowledgeFromGcsOptions = {
   createdBy?: string | null;
   maxFiles?: number;
   publish?: boolean;
+  /** Reuse a run row created earlier (used for background jobs). */
+  runId?: string;
 };
 
 /**
@@ -265,11 +372,7 @@ export async function syncKnowledgeFromGcs(
   const maxFiles = Math.max(1, options.maxFiles ?? DEFAULT_MAX_FILES);
 
   const selections = await loadSourceSelections();
-  if (selections.length === 0) {
-    throw new Error("No sources selected. Choose folders or files to sync first.");
-  }
-
-  const runId = await createRun(options.createdBy ?? null);
+  const runId = options.runId ?? (await createRun(options.createdBy ?? null));
 
   const base = {
     runId,
@@ -287,9 +390,12 @@ export async function syncKnowledgeFromGcs(
   };
 
   try {
+    if (selections.length === 0) {
+      throw new Error("No sources selected. Choose folders or files to sync first.");
+    }
+
     const objects = await gatherSelectedObjects(selections);
     base.filesSeen = objects.length;
-
     // Safety valve: never wipe the mirror because of an empty/auth-failed listing.
     if (objects.length === 0) {
       await finishRun(runId, { status: "completed", files_seen: 0 });
@@ -297,8 +403,14 @@ export async function syncKnowledgeFromGcs(
     }
 
     const excluded = new Set(excludedFolders());
+    const allowed = getAllowedExtensions();
     const syncable = objects
       .filter((object) => !isExcluded(object.name, excluded) && isSyncableDocument(object.name))
+      .filter(
+        (object) =>
+          allowed.length === 0 ||
+          allowed.some((extension) => object.name.toLowerCase().endsWith(extension)),
+      )
       .sort((a, b) => a.name.localeCompare(b.name));
 
     base.considered = syncable.length;
@@ -340,6 +452,16 @@ export async function syncKnowledgeFromGcs(
         continue;
       }
       processed += 1;
+
+      // Record what we're working on so the UI can show live progress.
+      await updateRunProgress(runId, {
+        current_path: object.name,
+        files_seen: base.filesSeen,
+        created_count: base.created,
+        updated_count: base.updated,
+        skipped_count: base.skipped,
+        deferred_count: base.deferred,
+      });
 
       try {
         const row = await buildRowFromObject(object, existing?.published ?? publish);

@@ -1,62 +1,59 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useI18n } from "@/lib/i18n/client";
+import { emitSyncStarted } from "@/lib/activity-events";
 
-type SyncFailure = { path: string; error: string };
-
-type SyncResult = {
-  status: "completed" | "failed";
-  filesSeen: number;
-  created: number;
-  updated: number;
-  removed: number;
-  skipped: number;
-  deferred: number;
-  failed: SyncFailure[];
-  embedJobId?: string;
-  error?: string;
-};
-
+/**
+ * Starts a sync and hands the run id to the shared activity panel, which shows
+ * progress and the result.
+ */
 export function KnowledgeSyncButton({
   canSync,
   configured,
   hasSelections,
+  additions = null,
+  removals = null,
+  fullWidth = false,
 }: {
   canSync: boolean;
   configured: boolean;
   hasSelections: boolean;
+  additions?: number | null;
+  removals?: number | null;
+  fullWidth?: boolean;
 }) {
   const { t } = useI18n();
-  const router = useRouter();
   const [isPending, setIsPending] = useState(false);
-  const [result, setResult] = useState<SyncResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   if (!canSync) return null;
 
-  const disabled = isPending || !configured || !hasSelections;
+  const previewSummary =
+    additions === null && removals === null
+      ? null
+      : [
+          additions ? t("knowledge.sources.previewAdd", { count: additions }) : null,
+          removals ? t("knowledge.sources.previewRemove", { count: removals }) : null,
+        ]
+          .filter(Boolean)
+          .join(" · ");
 
   async function handleSync() {
     setIsPending(true);
     setError(null);
-    setResult(null);
 
     try {
       const response = await fetch("/api/knowledge/sources/sync", { method: "POST" });
       const payload = (await response.json().catch(() => null)) as
-        | { result?: SyncResult; error?: string }
+        | { runId?: string; error?: string }
         | null;
 
-      if (!response.ok) {
+      if (!response.ok || !payload?.runId) {
         throw new Error(payload?.error ?? t("knowledge.sources.syncFailed"));
       }
 
-      if (payload?.result) {
-        setResult(payload.result);
-      }
-      router.refresh();
+      emitSyncStarted(payload.runId);
     } catch (syncError) {
       setError(syncError instanceof Error ? syncError.message : t("knowledge.sources.syncFailed"));
     } finally {
@@ -65,7 +62,7 @@ export function KnowledgeSyncButton({
   }
 
   return (
-    <div className="flex flex-col items-stretch gap-2 sm:items-end">
+    <>
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -74,8 +71,10 @@ export function KnowledgeSyncButton({
       >
         <button
           type="submit"
-          disabled={disabled}
-          className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={isPending || !configured || !hasSelections}
+          className={`inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-50 ${
+            fullWidth ? "w-full" : ""
+          }`}
         >
           {isPending && (
             <svg
@@ -92,58 +91,25 @@ export function KnowledgeSyncButton({
               <path d="M21 12a9 9 0 1 1-6.2-8.6" />
             </svg>
           )}
-          {isPending ? t("knowledge.sources.syncing") : t("knowledge.sources.syncNow")}
+          {isPending ? t("knowledge.sources.syncing") : t("knowledge.sources.syncSelected")}
+          {!isPending && (additions || removals) && (
+            <span
+              title={previewSummary ?? undefined}
+              className="rounded-full bg-white/20 px-2 py-0.5 text-[11px] font-semibold tabular-nums"
+            >
+              {additions ? `+${additions}` : ""}
+              {additions && removals ? " " : ""}
+              {removals ? `−${removals}` : ""}
+            </span>
+          )}
         </button>
       </form>
 
       {error && (
-        <p className="max-w-sm rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-xs text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+        <p className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
           {error}
         </p>
       )}
-
-      {result && (
-        <div className="w-full rounded-xl border border-border bg-card px-4 py-3 text-left text-xs shadow-sm sm:max-w-sm">
-          <p className="flex items-center gap-2 font-semibold">
-            <span
-              className={`inline-block h-2 w-2 rounded-full ${
-                result.status === "failed" ? "bg-red-500" : "bg-emerald-500"
-              }`}
-            />
-            {result.status === "failed"
-              ? t("knowledge.sources.syncFailed")
-              : t("knowledge.sources.syncComplete")}
-          </p>
-          <p className="mt-1.5 text-[color:var(--muted)]">
-            {t("knowledge.sources.filesSeen", { count: result.filesSeen })}
-          </p>
-          <p className="mt-1 text-[color:var(--muted)]">
-            {t("knowledge.sources.resultSummary", {
-              created: result.created,
-              updated: result.updated,
-              removed: result.removed,
-              skipped: result.skipped,
-              deferred: result.deferred,
-            })}
-          </p>
-          {result.embedJobId && (
-            <p className="mt-1 text-[color:var(--muted)]">{t("knowledge.sources.embedQueued")}</p>
-          )}
-          {result.error && <p className="mt-1 text-red-600 dark:text-red-400">{result.error}</p>}
-          {result.failed.length > 0 && (
-            <ul className="mt-2 space-y-1 border-t border-border pt-2 text-red-600 dark:text-red-400">
-              {result.failed.slice(0, 5).map((failure) => (
-                <li key={failure.path} className="break-all">
-                  {failure.path}: {failure.error}
-                </li>
-              ))}
-              {result.failed.length > 5 && (
-                <li>{t("knowledge.sources.moreErrors", { count: result.failed.length - 5 })}</li>
-              )}
-            </ul>
-          )}
-        </div>
-      )}
-    </div>
+    </>
   );
 }

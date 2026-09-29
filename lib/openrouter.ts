@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { composeSystemPrompt } from "@/lib/ai-prompt";
-import { getSystemPrompt } from "@/lib/ai-settings";
+import { getEffectiveSystemPrompt } from "@/lib/ai-settings";
 import type { ChatHistoryMessage } from "@/lib/chat-history";
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
@@ -9,6 +9,34 @@ type ChatMessage = {
   role: "system" | "user" | "assistant";
   content: string;
 };
+
+/** Token usage and cost reported by OpenRouter on every completion. */
+export type ChatUsage = {
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+  /** OpenRouter's cost in USD credits (0 when the model is free). */
+  costUsd: number;
+};
+
+type RawUsage = {
+  prompt_tokens?: number;
+  completion_tokens?: number;
+  total_tokens?: number;
+  cost?: number;
+};
+
+export function normalizeChatUsage(raw: unknown): ChatUsage | null {
+  if (!raw || typeof raw !== "object") return null;
+
+  const usage = raw as RawUsage;
+  const promptTokens = Number(usage.prompt_tokens) || 0;
+  const completionTokens = Number(usage.completion_tokens) || 0;
+  const totalTokens = Number(usage.total_tokens) || promptTokens + completionTokens;
+  const costUsd = Number(usage.cost) || 0;
+
+  return { promptTokens, completionTokens, totalTokens, costUsd };
+}
 
 export function getOpenRouterModel() {
   return process.env.OPENROUTER_MODEL ?? "google/gemini-2.0-flash-001";
@@ -77,15 +105,18 @@ export async function generateChatReply({
   knowledgeContext,
   history = [],
   systemPrompt,
+  partnerId,
 }: {
   userMessage: string;
   knowledgeContext: string;
   history?: ChatHistoryMessage[];
   systemPrompt?: string;
+  partnerId?: string | null;
 }) {
   const apiKey = getOpenRouterApiKey();
   const model = getOpenRouterModel();
-  const resolvedPrompt = systemPrompt ?? (await getSystemPrompt());
+  const resolvedPrompt =
+    systemPrompt ?? (await getEffectiveSystemPrompt(partnerId));
   const messages = buildChatMessages({
     userMessage,
     knowledgeContext,
@@ -110,6 +141,7 @@ export async function generateChatReply({
 
   const payload = (await response.json()) as {
     choices?: Array<{ message?: { content?: string } }>;
+    usage?: unknown;
   };
 
   const reply = payload.choices?.[0]?.message?.content?.trim();
@@ -118,7 +150,7 @@ export async function generateChatReply({
     throw new Error("OpenRouter returned an empty response.");
   }
 
-  return { reply, model };
+  return { reply, model, usage: normalizeChatUsage(payload.usage) };
 }
 
 export async function streamChatReply({
@@ -127,16 +159,21 @@ export async function streamChatReply({
   history = [],
   signal,
   systemPrompt,
+  partnerId,
+  onUsage,
 }: {
   userMessage: string;
   knowledgeContext: string;
   history?: ChatHistoryMessage[];
   signal?: AbortSignal;
   systemPrompt?: string;
+  partnerId?: string | null;
+  onUsage?: (usage: ChatUsage) => void;
 }) {
   const apiKey = getOpenRouterApiKey();
   const model = getOpenRouterModel();
-  const resolvedPrompt = systemPrompt ?? (await getSystemPrompt());
+  const resolvedPrompt =
+    systemPrompt ?? (await getEffectiveSystemPrompt(partnerId));
   const messages = buildChatMessages({
     userMessage,
     knowledgeContext,
@@ -194,7 +231,11 @@ export async function streamChatReply({
               try {
                 const parsed = JSON.parse(payload) as {
                   choices?: Array<{ delta?: { content?: string } }>;
+                  usage?: unknown;
                 };
+                const usage = normalizeChatUsage(parsed.usage);
+                if (usage && onUsage) onUsage(usage);
+
                 const content = parsed.choices?.[0]?.delta?.content;
                 if (content) controller.enqueue(content);
               } catch {

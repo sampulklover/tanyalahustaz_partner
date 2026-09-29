@@ -22,6 +22,10 @@ Partner portal   →  Next.js dashboard  →  API keys, chat logs, usage
 - **Knowledge base** — curated Islamic articles managed in the admin dashboard, used as AI context
 - **Chat history API** — list, fetch, and delete sessions (or clear all history)
 - **Developer portal** — signup, API keys, chat logs, usage stats
+- **Prepaid credit billing** — top up via ToyyibPay; usage is charged from your balance
+- **Per-partner prompt** — API owners can append their own instructions on top of the shared prompt
+- **Low-credit email alerts** — set a balance threshold and get an email when it is reached
+- **Light / dark theme** — switch in the header or dashboard sidebar (follows the OS by default)
 - **OpenRouter integration** — server-side only; model configurable via env
 
 ## Setup
@@ -53,6 +57,9 @@ In Supabase SQL Editor, run all files in order:
 - `supabase/migrations/20250928000002_knowledge_source_size.sql`
 - `supabase/migrations/20250928000003_embedding_1536_openai.sql`
 - `supabase/migrations/20250928000004_ai_prompt_settings.sql`
+- `supabase/migrations/20250929000002_sync_run_progress.sql`
+- `supabase/migrations/20250930000000_toyyibpay_usage_billing.sql`
+- `supabase/migrations/20250930000001_partner_prompt_and_alerts.sql`
 
 Then add your first **knowledge admin** (Supabase SQL Editor):
 
@@ -110,6 +117,12 @@ cp .env.example .env.local
 | `OPENROUTER_API_KEY` | Your OpenRouter API key ([openrouter.ai](https://openrouter.ai)) |
 | `OPENROUTER_EMBEDDING_MODEL` | Embedding model for RAG (default: `openai/text-embedding-3-small`, 1536-dim) |
 | `NEXT_PUBLIC_APP_URL` | App URL for auth redirects |
+| `TOYYIBPAY_SECRET_KEY` | ToyyibPay user secret key (top-ups) |
+| `TOYYIBPAY_CATEGORY_CODE` | ToyyibPay category code for API-credit bills |
+| `TOYYIBPAY_ENV` | `sandbox` (dev.toyyibpay.com) or `production` (toyyibpay.com) |
+| `OPENROUTER_USD_MYR_RATE` | USD→MYR rate used for usage pricing (default `4.7`) |
+| `RESEND_API_KEY` | Resend API key for low-credit emails (optional; alerts skipped when unset) |
+| `EMAIL_FROM` | Verified sender for alert emails (default `Tanyalah Ustaz <noreply@tanyalahustaz.com>`) |
 
 ### 6. Configure Supabase Auth redirect
 
@@ -222,6 +235,26 @@ How every request is composed:
 - The no-material rule (never answer from general knowledge when nothing was
   retrieved) is applied by the app and cannot be removed by a prompt.
 
+## Partner prompt & low-credit alerts
+
+**Dashboard → AI prompt** lets each API owner add their own instructions. They
+are appended to the shared prompt as a `PARTNER-SPECIFIC INSTRUCTIONS` block and
+apply to every request made with that account's API keys. Leaving it empty uses
+the shared prompt only, and the no-material guard is never removed.
+
+**Dashboard → Billing → Low-credit email alerts** lets a partner pick a balance
+(e.g. RM20). When their credit falls to or below it, the app emails them via
+Resend — at most once every 24 hours while the balance stays low. A **Send test
+email** button confirms delivery. Requires `RESEND_API_KEY`; without it the
+setting is saved but no mail is sent.
+
+## Theming
+
+The app ships light and dark themes. The choice (light / dark / system) is saved
+in `localStorage` and applied to `<html data-theme="…">` by an inline script
+before first paint, so there is no flash. Tailwind's `dark:` variant is bound to
+that attribute in `app/globals.css`.
+
 ## Tuning search relevance
 
 Retrieval quality is controlled by two env vars:
@@ -305,6 +338,47 @@ what was pulled.
 | `GCS_SYNC_MAX_FILES` | Max new/changed files per run (default 10) |
 | `GCS_SYNC_MAX_BYTES` | Max file size to read (default 100 MB) |
 | `GCS_SYNC_EXCLUDE_PREFIXES` | Folder names to skip (default `cover-image,cover,covers`) |
+| `GCS_SYNC_EXTENSIONS` | Limit the sync to certain file types, e.g. `.pdf` (default: all supported) |
+
+## Billing, credits & markup
+
+Partners pay for AI usage from a **credit balance**, topped up via **ToyyibPay**
+(FPX and credit card, MYR). There is no Stripe integration.
+
+**How a chat is priced**
+
+```
+partner charge = OpenRouter cost (USD) × (1 + markup%) × USD→MYR rate
+```
+
+- The OpenRouter cost comes from the `usage` object returned with every
+  completion (streaming and non-streaming).
+- The **markup is at least 30%** and is adjustable by a knowledge **admin** at
+  **Dashboard → Knowledge → Pricing**. The database enforces the 30% floor.
+- `OPENROUTER_USD_MYR_RATE` (default `4.7`) converts USD to MYR.
+- Each charge is rounded up to the nearest sen and written to `credit_ledger`;
+  the balance is the sum of the ledger.
+
+**Top-up flow**
+
+1. Partner picks an amount on **Dashboard → Top up**.
+2. The server creates a ToyyibPay bill (`billExternalReferenceNo` = internal
+   reference) and redirects the partner to pay.
+3. ToyyibPay calls back to `/api/toyyibpay/callback` and returns the payer to
+   `/api/toyyibpay/return`. Both re-check the bill with the ToyyibPay API before
+   crediting, so the account is credited once even if callbacks repeat.
+
+**Setup**
+
+1. Create a ToyyibPay account and a **Category** (sandbox:
+   [dev.toyyibpay.com](https://dev.toyyibpay.com)).
+2. Set `TOYYIBPAY_SECRET_KEY` and `TOYYIBPAY_CATEGORY_CODE`.
+3. Set `TOYYIBPAY_ENV=production` (or `sandbox`) and `NEXT_PUBLIC_APP_URL` to your
+   public URL — ToyyibPay cannot call back to `localhost`.
+4. Run the `20250930000000_toyyibpay_usage_billing.sql` migration.
+
+> Charging is recorded but never blocks a request. Enforce a minimum balance
+> before spending if you need hard limits.
 
 ## Production setup
 
@@ -347,6 +421,6 @@ Set `CRON_SECRET` in Vercel — the cron at `/api/cron/embed-jobs` runs once dai
 
 ## Next steps
 
-- Usage billing per partner
+- Minimum-balance enforcement before serving requests
 - Streaming responses for chat widgets
 - Deploy to Vercel with production env vars

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { useI18n } from "@/lib/i18n/client";
 
 export function SiteHeader() {
@@ -33,6 +34,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-4 md:flex">
+          <ThemeToggle />
           <LanguageSwitcher />
           <div className="h-4 w-px bg-border" />
           <Link
@@ -59,6 +61,7 @@ export function SiteHeader() {
           </summary>
           <div className="absolute right-0 mt-2 w-56 rounded-xl border border-border bg-card p-2 shadow-lg">
             <LanguageSwitcher variant="menu" />
+            <ThemeToggle variant="menu" />
             <div className="my-2 h-px bg-border" />
             {navLinks.map((link) => (
               <Link

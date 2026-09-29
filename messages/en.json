@@ -72,7 +72,8 @@
     "knowledge": "Knowledge",
     "resources": "Resources",
     "documentation": "Documentation",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "prompt": "AI prompt"
   },
   "home": {
     "meta": {
@@ -177,32 +178,49 @@
     },
     "pricing": {
       "eyebrow": "Pricing",
-      "title": "Start free, scale when you're ready",
-      "subtitle": "Create an account and get an API key today. Talk to us when you need higher volume or a custom knowledge base.",
-      "developer": {
-        "title": "Starter",
-        "subtitle": "For building, testing, and early integrations.",
-        "price": "Free",
-        "features": [
-          "API key + live testing",
-          "Full knowledge-backed chat API",
-          "Usage insights & chat logs",
-          "Complete documentation"
-        ],
-        "cta": "Get started free"
-      },
-      "partner": {
-        "title": "Partner",
-        "subtitle": "For production apps and growing teams.",
-        "price": "Let's talk",
-        "features": [
-          "Everything in Starter",
-          "Higher rate limits & volume",
-          "Custom knowledge base content",
-          "Priority support"
-        ],
-        "cta": "Contact sales"
-      }
+      "title": "Prepaid credit. Pay as you go.",
+      "subtitle": "No subscriptions. Top up your balance and it is drawn down as your integration uses the API.",
+      "note": "All amounts are in Malaysian Ringgit (RM). Credit never expires, and you can top up again at any time from your dashboard.",
+      "packs": [
+        {
+          "name": "Starter",
+          "price": "RM10",
+          "tagline": "For building and testing.",
+          "features": [
+            "Full knowledge-backed chat API",
+            "Usage and cost tracking",
+            "Chat logs and playground",
+            "Credits never expire"
+          ],
+          "cta": "Get started"
+        },
+        {
+          "name": "Growth",
+          "price": "RM50",
+          "tagline": "For apps in production.",
+          "features": [
+            "Everything in Starter",
+            "Higher request volume",
+            "Priority processing",
+            "Email support"
+          ],
+          "cta": "Get started",
+          "popular": true,
+          "badge": "Most popular"
+        },
+        {
+          "name": "Scale",
+          "price": "RM200",
+          "tagline": "For high-traffic partners.",
+          "features": [
+            "Everything in Growth",
+            "Best value per credit",
+            "Custom knowledge integration",
+            "Priority support"
+          ],
+          "cta": "Get started"
+        }
+      ]
     },
     "faq": {
       "eyebrow": "FAQ",
@@ -282,7 +300,8 @@
     "unknown": "Unknown",
     "apiReferenceLink": "API reference",
     "systemStatusLink": "System status",
-    "role": "Role"
+    "role": "Role",
+    "finishNow": "Finish now"
   },
   "errors": {
     "somethingWentWrong": "Something went wrong",
@@ -364,14 +383,18 @@
       "total": "Total",
       "continue": "Continue to checkout",
       "redirecting": "Redirecting…",
-      "secureBy": "Payments are processed securely by Stripe.",
+      "balance": "Current balance",
+      "secureBy": "Payments are processed securely by ToyyibPay.",
       "success": "Payment received. Your balance will update shortly.",
+      "pending": "Payment is being processed. Your balance updates once ToyyibPay confirms it.",
       "cancelled": "Checkout cancelled. No charge was made.",
-      "notConfigured": "Payments are not configured yet. Add STRIPE_SECRET_KEY to enable top-ups."
+      "notConfigured": "Payments are not configured yet. Add TOYYIBPAY_SECRET_KEY and TOYYIBPAY_CATEGORY_CODE to enable top-ups."
     },
     "billing": {
       "title": "Billing",
       "description": "Your top-ups and payment receipts.",
+      "balance": "Credit balance",
+      "balanceHint": "Reduced as the API is used. Top up to add more.",
       "totalToppedUp": "Total topped up",
       "payments": "Payments",
       "invoice": "Receipt",
@@ -416,6 +439,10 @@
         "title": "AI prompt",
         "description": "Tune the instructions that shape every answer. The retrieved knowledge and the no-material guard are always applied.",
         "testLink": "Test in playground"
+      },
+      "pricing": {
+        "title": "API pricing",
+        "description": "Set the markup applied to AI usage cost. The minimum is 30%."
       },
       "edit": {
         "viewTitle": "View file"
@@ -573,6 +600,7 @@
     "nav": {
       "sources": "Sources",
       "prompt": "Prompt",
+      "pricing": "Pricing",
       "playground": "Try it live",
       "team": "Team",
       "roleLabel": "Role:"
@@ -606,6 +634,21 @@
       "defaultTitle": "Built-in default prompt",
       "defaultHint": "Shown for reference. The knowledge block and the no-material guard are added automatically."
     },
+    "pricing": {
+      "currentLabel": "Current markup",
+      "minLabel": "Minimum",
+      "rateLabel": "Conversion rate",
+      "editorTitle": "Markup",
+      "editorHint": "Partner charge = AI cost × (1 + markup). The minimum allowed markup is {min}% and cannot be lowered below it.",
+      "inputLabel": "Markup percentage",
+      "save": "Save markup",
+      "updatedLabel": "Last updated",
+      "exampleTitle": "Worked example",
+      "exampleHint": "Based on a US$0.01 AI cost at the current conversion rate.",
+      "exampleCost": "AI cost",
+      "exampleCharge": "Partner is charged",
+      "exampleMargin": "Tanyalah Ustaz margin"
+    },
     "sources": {
       "badge": "Synced",
       "connectionTitle": "Source connection",
@@ -614,22 +657,16 @@
       "notConfiguredHelp": "Set GCS_BUCKET_NAME and GCS_SERVICE_ACCOUNT_JSON in the server environment to connect your Google Cloud Storage bucket.",
       "selectTitle": "Choose what to sync",
       "lastRun": "Last run: {status} · {time}",
-      "embedProcess": "Process queue",
-      "embedProcessing": "Processing…",
-      "embedPending": "{count} pending",
-      "embedUpToDate": "All embedded",
+      "embedProcessing": "Embedding…",
       "embedDone": "Processed {chunks} chunk(s).",
       "embedPartial": "Processed {chunks} chunk(s) · {count} still pending.",
       "embedFailed": "Could not process the embedding queue.",
-      "syncNow": "Sync now",
       "syncing": "Syncing…",
       "syncFailed": "Sync failed.",
       "syncComplete": "Sync complete",
       "filesSeen": "{count} file(s) found in the bucket",
       "resultSummary": "{created} created · {updated} updated · {removed} removed · {skipped} unchanged · {deferred} deferred",
       "failedCount": "{count} file error(s)",
-      "moreErrors": "…and {count} more error(s)",
-      "embedQueued": "Embeddings queued for the updated files.",
       "historyTitle": "Sync history",
       "noRuns": "No syncs yet.",
       "startedAt": "Started",
@@ -664,7 +701,8 @@
         "emptyFolder": "This folder is empty.",
         "notConfigured": "Connect Google Cloud Storage to browse files.",
         "truncated": "Showing the first 1,000 entries. Open a folder to narrow it down.",
-        "selectFirst": "Select at least one folder or file to enable syncing."
+        "syncedBadge": "Synced",
+        "syncedCountBadge": "{count} synced"
       },
       "selectedSub": "selected for sync",
       "noSelection": "Nothing selected yet",
@@ -674,7 +712,19 @@
       "embeddingsEmpty": "Not searchable yet",
       "chunksSub": "{count} search chunks",
       "tabFiles": "Files",
-      "tabSync": "Sync"
+      "tabSync": "Sync",
+      "syncProgress": "Processing {done} of {total}",
+      "syncPreparing": "Preparing…",
+      "syncBackgroundNote": "Runs on the server — you can close this page.",
+      "syncRemaining": "{count} file(s) left for the next run.",
+      "syncSelected": "Sync selected",
+      "embedPreparing": "{count} file(s) still being prepared for search",
+      "previewAdd": "+{count} new",
+      "previewRemove": "−{count} will be removed",
+      "previewNone": "No changes",
+      "selectAll": "Select all ({count})",
+      "selecting": "Selecting…",
+      "selectAllFailed": "Could not select everything."
     },
     "viewer": {
       "slug": "Slug",
@@ -929,5 +979,48 @@
     "sampleQuestion": "Can a traveler combine Dhuhr and Asr?",
     "sampleResponse": "Yes. A traveler may combine Dhuhr and Asr (jama') during a journey, either advancing Asr into Dhuhr's time or delaying Dhuhr into Asr's time…",
     "okStatus": "200 OK"
+  },
+  "partnerPrompt": {
+    "title": "AI prompt",
+    "description": "Add your own instructions to shape how the API answers for your account. They sit on top of the shared prompt and the safety rules, which always apply.",
+    "statusLabel": "Status",
+    "statusCustom": "Using your instructions",
+    "statusDefault": "Using the shared prompt",
+    "updatedLabel": "Shared prompt updated",
+    "placeholderLabel": "Knowledge placeholder",
+    "editorTitle": "Your instructions",
+    "editorHint": "Extra guidance appended to the shared prompt for every request made with your API keys. Leave empty to use the shared prompt only.",
+    "placeholder": "e.g. Always answer in Bahasa Melayu, keep replies under 200 words, and mention our app name '…'.",
+    "save": "Save instructions",
+    "reset": "Remove my instructions",
+    "emptyHint": "Leave empty to use the shared prompt only.",
+    "composedTitle": "Preview of the composed prompt",
+    "composedHint": "What the model receives: the shared prompt plus your instructions and the retrieved knowledge.",
+    "globalTitle": "Shared prompt (set by Tanyalah Ustaz)",
+    "globalHint": "Managed by the knowledge admins and applied to every partner."
+  },
+  "theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "billingAlerts": {
+    "title": "Low-credit email alerts",
+    "description": "Get an email when your credit balance drops to or below an amount you choose. Alerts are sent at most once a day while your balance stays low.",
+    "thresholdLabel": "Alert me below",
+    "thresholdPlaceholder": "e.g. 20",
+    "thresholdHint": "We'll email you when your balance reaches {amount} or less.",
+    "thresholdOff": "No low-credit alert is set. Enter an amount to turn it on.",
+    "save": "Save alert",
+    "saving": "Saving…",
+    "saved": "Low-credit alert saved.",
+    "disabled": "Low-credit alert turned off.",
+    "testButton": "Send test email",
+    "testSending": "Sending…",
+    "testSent": "Test email sent. Check your inbox.",
+    "sendFailed": "Could not send the email. Please try again.",
+    "notConfigured": "Email sending is not configured yet. Add RESEND_API_KEY to enable alerts.",
+    "noEmail": "No email address is set on your account."
   }
 }

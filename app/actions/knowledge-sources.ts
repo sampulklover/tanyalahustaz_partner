@@ -81,3 +81,37 @@ export async function clearSourceSelections(): Promise<void> {
 
   revalidatePath("/dashboard/knowledge/sources");
 }
+
+/** Select many paths at once (used by "Select all"). */
+export async function selectSourcePaths(
+  items: { path: string; kind: "file" | "folder" }[],
+): Promise<void> {
+  const admin = await requireKnowledgeEditor();
+  if (!admin) {
+    throw new Error("Editor access required.");
+  }
+
+  const valid = items.filter(
+    (item) => (item.kind === "file" || item.kind === "folder") && isValidPath(item.path),
+  );
+
+  if (valid.length === 0) return;
+
+  const client = createAdminClient();
+  const rows = valid.slice(0, 1000).map((item) => ({
+    provider: PROVIDER,
+    path: item.path,
+    kind: item.kind,
+    created_by: admin.userId,
+  }));
+
+  const { error } = await client
+    .from("knowledge_source_selections")
+    .upsert(rows, { onConflict: "provider,path" });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/dashboard/knowledge/sources");
+}

@@ -43,8 +43,16 @@ export function HomePageContent() {
     howItWorks: { steps: ContentItem[] };
     useCases: { items: ContentItem[] };
     pricing: {
-      developer: { features: string[] };
-      partner: { features: string[] };
+      packs: {
+        name: string;
+        price: string;
+        tagline: string;
+        features: string[];
+        cta: string;
+        popular?: boolean;
+        badge?: string;
+      }[];
+      note: string;
     };
     faq: { items: FaqItem[] };
   };
@@ -277,53 +285,49 @@ export function HomePageContent() {
               title={t("home.pricing.title")}
               subtitle={t("home.pricing.subtitle")}
             />
-            <div className="mx-auto mt-14 grid max-w-4xl gap-6 md:grid-cols-2">
-              <div className="rounded-2xl border border-border bg-card p-8">
-                <h3 className="text-lg font-semibold">{t("home.pricing.developer.title")}</h3>
-                <p className="mt-1 text-sm text-[color:var(--muted)]">
-                  {t("home.pricing.developer.subtitle")}
-                </p>
-                <p className="mt-6 text-4xl font-bold tracking-tight">
-                  {t("home.pricing.developer.price")}
-                </p>
-                <ul className="mt-6 space-y-3 text-sm">
-                  {home.pricing.developer.features.map((item) => (
-                    <li key={item} className="flex items-center gap-2.5">
-                      <CheckIcon /> {item}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href="/signup"
-                  className="mt-8 block rounded-lg bg-brand-600 px-5 py-2.5 text-center font-semibold text-white transition hover:bg-brand-700"
+            <div className="mx-auto mt-14 grid max-w-5xl gap-6 md:grid-cols-3">
+              {home.pricing.packs.map((pack) => (
+                <div
+                  key={pack.name}
+                  className={`relative flex flex-col rounded-2xl border bg-card p-8 ${
+                    pack.popular
+                      ? "border-brand-200 ring-1 ring-brand-200 dark:border-brand-900 dark:ring-brand-900"
+                      : "border-border"
+                  }`}
                 >
-                  {t("home.pricing.developer.cta")}
-                </Link>
-              </div>
-
-              <div className="rounded-2xl border border-brand-200 bg-card p-8 ring-1 ring-brand-200 dark:border-brand-900 dark:ring-brand-900">
-                <h3 className="text-lg font-semibold">{t("home.pricing.partner.title")}</h3>
-                <p className="mt-1 text-sm text-[color:var(--muted)]">
-                  {t("home.pricing.partner.subtitle")}
-                </p>
-                <p className="mt-6 text-4xl font-bold tracking-tight">
-                  {t("home.pricing.partner.price")}
-                </p>
-                <ul className="mt-6 space-y-3 text-sm">
-                  {home.pricing.partner.features.map((item) => (
-                    <li key={item} className="flex items-center gap-2.5">
-                      <CheckIcon /> {item}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href="/signup"
-                  className="mt-8 block rounded-lg border border-border px-5 py-2.5 text-center font-semibold transition hover:bg-background-subtle"
-                >
-                  {t("home.pricing.partner.cta")}
-                </Link>
-              </div>
+                  {pack.badge && (
+                    <span className="absolute -top-3 left-8 rounded-full bg-brand-600 px-3 py-1 text-xs font-semibold text-white">
+                      {pack.badge}
+                    </span>
+                  )}
+                  <h3 className="text-lg font-semibold">{pack.name}</h3>
+                  <p className="mt-1 text-sm text-[color:var(--muted)]">{pack.tagline}</p>
+                  <p className="mt-6 text-4xl font-bold tracking-tight">{pack.price}</p>
+                  <ul className="mt-6 flex-1 space-y-3 text-sm">
+                    {pack.features.map((item) => (
+                      <li key={item} className="flex items-center gap-2.5">
+                        <CheckIcon /> {item}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    href="/signup"
+                    className={`mt-8 block rounded-lg px-5 py-2.5 text-center font-semibold transition ${
+                      pack.popular
+                        ? "bg-brand-600 text-white hover:bg-brand-700"
+                        : "border border-border hover:bg-background-subtle"
+                    }`}
+                  >
+                    {pack.cta}
+                  </Link>
+                </div>
+              ))}
             </div>
+            {home.pricing.note && (
+              <p className="mx-auto mt-8 max-w-2xl text-center text-sm text-[color:var(--muted)]">
+                {home.pricing.note}
+              </p>
+            )}
           </div>
         </section>
 

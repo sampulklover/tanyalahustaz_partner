@@ -1,7 +1,7 @@
 import { NextResponse, after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { requireKnowledgeEditor } from "@/lib/dashboard";
-import { getGcsSyncStatus, syncKnowledgeFromGcs } from "@/lib/gcs-sync";
+import { createSyncRun, getGcsSyncStatus, syncKnowledgeFromGcs } from "@/lib/gcs-sync";
 import { drainEmbedJobs } from "@/lib/knowledge-embed-jobs";
 import { logError } from "@/lib/logger";
 
@@ -18,7 +18,10 @@ export async function GET() {
   return NextResponse.json({ status: getGcsSyncStatus() });
 }
 
-/** Pull the Google Cloud Storage bucket into the Supabase mirror. */
+/**
+ * Start a sync. Returns immediately with a run id; the work continues on the
+ * server, so the admin can close the page and watch progress from the history.
+ */
 export async function POST() {
   const admin = await requireKnowledgeEditor();
   if (!admin) {
@@ -32,32 +35,33 @@ export async function POST() {
     );
   }
 
+  let runId: string;
+
   try {
-    const result = await syncKnowledgeFromGcs({
-      createdBy: admin.userId,
-      maxFiles: Number(process.env.GCS_SYNC_MAX_FILES ?? 10),
-    });
-
-    if (result.embedJobId) {
-      after(async () => {
-        try {
-          // Keep embedding in the background until the queue is drained.
-          await drainEmbedJobs({ deadlineMs: 180_000 });
-        } catch (error) {
-          logError("GCS sync embed drain failed", error, { jobId: result.embedJobId });
-        }
-      });
-    }
-
-    revalidatePath("/dashboard/knowledge");
-    revalidatePath("/dashboard/knowledge/sources");
-
-    return NextResponse.json({ result });
+    runId = await createSyncRun(admin.userId);
   } catch (error) {
-    logError("GCS sync request failed", error);
+    logError("Could not create sync run", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Sync failed." },
-      { status: 500 },
+      { error: error instanceof Error ? error.message : "Sync could not start." },
+      { status: 400 },
     );
   }
+
+  // Runs after the response is sent — the client polls for progress.
+  after(async () => {
+    try {
+      await syncKnowledgeFromGcs({
+        runId,
+        createdBy: admin.userId,
+        maxFiles: Number(process.env.GCS_SYNC_MAX_FILES ?? 10),
+      });
+      await drainEmbedJobs({ deadlineMs: 180_000 });
+    } catch (error) {
+      logError("GCS sync run failed", error, { runId });
+    } finally {
+      revalidatePath("/dashboard/knowledge/sources");
+    }
+  });
+
+  return NextResponse.json({ runId });
 }

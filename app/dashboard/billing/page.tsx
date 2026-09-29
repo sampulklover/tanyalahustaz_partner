@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { DashboardPage as DashboardShell } from "@/components/dashboard/page";
 import { PageHeader } from "@/components/dashboard/page-header";
+import { LowBalanceAlerts } from "@/components/low-balance-alerts";
 import { formatMyr } from "@/lib/billing";
+import { getCreditBalanceCents } from "@/lib/credit";
+import { getLowBalanceSettings } from "@/lib/credit-alerts";
+import { isEmailConfigured } from "@/lib/email";
 import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "@/lib/i18n/server";
 import type { Translator } from "@/lib/i18n/translator";
@@ -66,6 +70,9 @@ export default async function BillingPage() {
   const totalPaidCents = rows
     .filter((row) => row.status === "paid")
     .reduce((sum, row) => sum + (row.amount_cents ?? 0), 0);
+  const balanceCents = await getCreditBalanceCents(user!.id);
+  const alertSettings = await getLowBalanceSettings(user!.id);
+  const emailConfigured = isEmailConfigured();
 
   return (
     <DashboardShell>
@@ -74,7 +81,18 @@ export default async function BillingPage() {
         description={t("pages.billing.description")}
       />
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="rounded-xl border border-brand-200 bg-brand-50 p-5 shadow-sm dark:border-brand-900 dark:bg-brand-900/20">
+          <p className="text-sm font-medium text-brand-800 dark:text-brand-200">
+            {t("pages.billing.balance")}
+          </p>
+          <p className="mt-2 text-4xl font-bold tracking-tight">
+            {formatMyr(balanceCents, { decimals: true })}
+          </p>
+          <p className="mt-1 text-xs text-brand-700/80 dark:text-brand-300/80">
+            {t("pages.billing.balanceHint")}
+          </p>
+        </div>
         <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
           <p className="text-sm font-medium text-[color:var(--muted)]">
             {t("pages.billing.totalToppedUp")}
@@ -90,6 +108,11 @@ export default async function BillingPage() {
           <p className="mt-2 text-4xl font-bold tracking-tight">{rows.length.toLocaleString()}</p>
         </div>
       </div>
+
+      <LowBalanceAlerts
+        thresholdCents={alertSettings.thresholdCents}
+        emailConfigured={emailConfigured}
+      />
 
       <div className="mt-6 overflow-hidden rounded-xl border border-border bg-card shadow-sm">
         {rows.length === 0 ? (

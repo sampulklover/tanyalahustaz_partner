@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { KnowledgeEmbedButton } from "@/components/knowledge-embed-button";
+import { KnowledgeActivity } from "@/components/knowledge-activity";
 import { KnowledgeNav } from "@/components/knowledge-nav";
 import { KnowledgeReembedButton } from "@/components/knowledge-reembed-button";
 import { KnowledgeSourcePicker } from "@/components/knowledge-source-picker";
-import { KnowledgeSyncButton } from "@/components/knowledge-sync-button";
+import { KnowledgeSourcesTabs } from "@/components/knowledge-sources-tabs";
 import { DashboardPage as DashboardShell } from "@/components/dashboard/page";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { getDashboardContext } from "@/lib/dashboard";
@@ -18,7 +18,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { KnowledgeSyncRun } from "@/lib/types";
 import { getTranslations } from "@/lib/i18n/server";
 
-const MAX_LIBRARY_SHOWN = 200;
+const MAX_LIBRARY_SHOWN = 100;
 
 /** Global bucket search lists the whole bucket, so allow a longer render. */
 export const maxDuration = 60;
@@ -123,6 +123,7 @@ export default async function KnowledgeSourcesPage({
     { data: files },
     { count: articleCount },
     { data: selections },
+    { data: mirroredPaths },
     chunkCount,
     pendingEmbedJobs,
   ] = await Promise.all([
@@ -138,9 +139,19 @@ export default async function KnowledgeSourcesPage({
       .select("path, kind")
       .eq("provider", "gcs")
       .order("path", { ascending: true }),
+    supabase
+      .from("knowledge_articles")
+      .select("source_path")
+      .eq("source_provider", "gcs")
+      .not("source_path", "is", null)
+      .limit(1000),
     countKnowledgeChunks(),
     getPendingEmbedJobCount(),
   ]);
+
+  const syncedPaths = ((mirroredPaths ?? []) as { source_path: string }[]).map(
+    (row) => row.source_path,
+  );
 
   const runItems = (runs ?? []) as KnowledgeSyncRun[];
   const libraryItems = (files ?? []) as LibraryArticle[];
@@ -158,9 +169,6 @@ export default async function KnowledgeSourcesPage({
           ? "sync"
           : "files";
 
-  const tabBase = "inline-flex items-center rounded-md px-4 py-1.5 text-sm font-medium transition";
-  const tabActive = "bg-brand-600 text-white";
-  const tabIdle = "text-[color:var(--muted)] hover:bg-background-subtle hover:text-foreground";
 
   return (
     <DashboardShell>
@@ -169,19 +177,6 @@ export default async function KnowledgeSourcesPage({
       <PageHeader
         title={t("pages.knowledge.sources.title")}
         description={t("pages.knowledge.sources.description")}
-        actions={
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <KnowledgeEmbedButton
-              canProcess={knowledge.canEditKnowledge}
-              pending={pendingEmbedJobs}
-            />
-            <KnowledgeSyncButton
-              canSync={knowledge.canEditKnowledge}
-              configured={status.configured}
-              hasSelections={selectionItems.length > 0}
-            />
-          </div>
-        }
       />
 
       {!status.configured && (
@@ -250,54 +245,16 @@ export default async function KnowledgeSourcesPage({
         </div>
       </div>
 
-      <div className="mb-8 inline-flex rounded-lg border border-border bg-card p-1 shadow-sm">
-        <Link
-          href="/dashboard/knowledge/sources"
-          className={`${tabBase} ${view === "files" ? tabActive : tabIdle}`}
-        >
-          {t("knowledge.sources.tabFiles")}
-        </Link>
-        <Link
-          href="/dashboard/knowledge/sources?view=sync"
-          className={`${tabBase} ${view === "sync" ? tabActive : tabIdle}`}
-        >
-          {t("knowledge.sources.tabSync")}
-        </Link>
-      </div>
 
-      {view === "sync" && (
-        <>
-          {status.configured && selectionItems.length === 0 && (
-            <p className="mb-6 rounded-xl border border-border bg-card px-5 py-3 text-sm text-[color:var(--muted)] shadow-sm">
-              {t("knowledge.sources.picker.selectFirst")}
-            </p>
-          )}
+      <KnowledgeActivity
+        pendingEmbedJobs={pendingEmbedJobs}
+        canEdit={knowledge.canEditKnowledge}
+      />
 
-          <h2 className="mb-4 text-lg font-semibold tracking-tight">
-            {t("knowledge.sources.selectTitle")}
-          </h2>
-
-          <KnowledgeSourcePicker
-            configured={status.configured}
-            selections={selectionItems}
-            prefix={browsePrefix}
-            folders={filteredFolders}
-            files={filteredFiles}
-            filter={filter}
-            totalCount={browseTotal}
-            truncated={listing.truncated}
-            error={browseError}
-            search={search}
-            searchResults={searchResults}
-            searchTotal={searchTotal}
-            searchTruncated={searchTruncated}
-            view={view}
-          />
-        </>
-      )}
-
-      {view === "files" && (
-        <>
+      <KnowledgeSourcesTabs
+        initialView={view}
+        filesView={
+          <>
           <div className="mb-1 flex flex-wrap items-end justify-between gap-3">
             <div>
               <h2 className="text-lg font-semibold tracking-tight">
@@ -430,12 +387,34 @@ export default async function KnowledgeSourcesPage({
           </div>
         )}
       </div>
+          </>
+        }
+        syncView={
+          <>
+          <h2 className="mb-4 text-lg font-semibold tracking-tight">
+            {t("knowledge.sources.selectTitle")}
+          </h2>
 
-        </>
-      )}
+          <KnowledgeSourcePicker
+            configured={status.configured}
+            selections={selectionItems}
+            prefix={browsePrefix}
+            folders={filteredFolders}
+            files={filteredFiles}
+            filter={filter}
+            totalCount={browseTotal}
+            truncated={listing.truncated}
+            error={browseError}
+            search={search}
+            searchResults={searchResults}
+            searchTotal={searchTotal}
+            searchTruncated={searchTruncated}
+            syncedPaths={syncedPaths}
+            view={view}
+            canEdit={knowledge.canEditKnowledge}
+          />
+          <details className="group mt-10 block">
 
-      {view === "sync" && (
-        <details className="group">
         <summary className="flex cursor-pointer list-none items-center gap-3 rounded-xl border border-border bg-card px-5 py-4 shadow-sm transition hover:border-brand-200 dark:hover:border-brand-900">
           <svg
             width="16"
@@ -527,8 +506,10 @@ export default async function KnowledgeSourcesPage({
             </div>
           )}
         </div>
-      </details>
-      )}
+          </details>
+          </>
+        }
+      />
     </DashboardShell>
   );
 }

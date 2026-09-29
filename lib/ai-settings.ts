@@ -34,6 +34,67 @@ export async function getSystemPrompt(): Promise<string> {
   return prompt;
 }
 
+/**
+ * A partner's own extra instructions ("API owner" customisation).
+ * Layered on top of the shared prompt so the base guard rails stay intact.
+ */
+export async function getPartnerPrompt(userId: string): Promise<string> {
+  try {
+    const admin = createAdminClient();
+    const { data } = await admin
+      .from("profiles")
+      .select("prompt_instructions")
+      .eq("id", userId)
+      .maybeSingle();
+
+    return typeof data?.prompt_instructions === "string"
+      ? data.prompt_instructions.trim()
+      : "";
+  } catch {
+    return "";
+  }
+}
+
+export async function savePartnerPrompt(userId: string, prompt: string): Promise<void> {
+  const value = prompt.trim();
+
+  if (value.length > PROMPT_MAX_CHARS) {
+    throw new Error(`Prompt must be ${PROMPT_MAX_CHARS} characters or fewer.`);
+  }
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("profiles")
+    .update({ prompt_instructions: value || null })
+    .eq("id", userId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+/**
+ * The prompt actually sent to the model: the shared (admin) prompt, plus the
+ * partner's extra instructions when they have set any.
+ */
+export async function getEffectiveSystemPrompt(
+  partnerId?: string | null,
+): Promise<string> {
+  const base = await getSystemPrompt();
+
+  if (!partnerId) {
+    return base;
+  }
+
+  const partnerPrompt = await getPartnerPrompt(partnerId);
+
+  if (!partnerPrompt) {
+    return base;
+  }
+
+  return `${base}\n\nPARTNER-SPECIFIC INSTRUCTIONS (set by the API owner):\n${partnerPrompt}`;
+}
+
 /** Read the stored prompt plus metadata for the admin editor. */
 export async function getSystemPromptSettings(): Promise<{
   customPrompt: string;

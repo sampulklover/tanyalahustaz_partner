@@ -8,11 +8,11 @@ import { useI18n } from "@/lib/i18n/client";
 
 type KnowledgeNavProps = {
   knowledge: KnowledgePermissions;
-  active?: "sources" | "prompt" | "team" | "playground";
+  active?: "sources" | "prompt" | "team" | "pricing" | "playground";
 };
 
 /** Sibling tabs that live under /dashboard/knowledge but are not Sources. */
-const RESERVED_SEGMENTS = new Set(["sources", "prompt", "team"]);
+const RESERVED_SEGMENTS = new Set(["sources", "prompt", "team", "pricing"]);
 
 /**
  * Sources owns the workspace root and the per-file view
@@ -33,7 +33,10 @@ export function KnowledgeNav({ knowledge, active }: KnowledgeNavProps) {
     { href: "/dashboard/knowledge/prompt", id: "prompt" as const, badge: null as string | null },
     { href: "/dashboard/playground", id: "playground" as const, badge: null as string | null },
     ...(knowledge.canManageTeam
-      ? [{ href: "/dashboard/knowledge/team", id: "team" as const, badge: t("common.adminBadge") }]
+      ? [
+          { href: "/dashboard/knowledge/pricing", id: "pricing" as const, badge: t("common.adminBadge") },
+          { href: "/dashboard/knowledge/team", id: "team" as const, badge: t("common.adminBadge") },
+        ]
       : []),
   ];
 

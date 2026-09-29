@@ -3,7 +3,8 @@
 import { redirect } from "next/navigation";
 import { getActionTranslations } from "@/lib/i18n/actions";
 import { MAX_TOPUP_CENTS, MIN_TOPUP_CENTS } from "@/lib/billing";
-import { getStripe, getStripePaymentMethods, isStripeConfigured } from "@/lib/stripe";
+import { isToyyibPayConfigured } from "@/lib/toyyibpay";
+import { startToyyibPayTopUp } from "@/lib/toyyibpay-payments";
 import { createClient } from "@/lib/supabase/server";
 
 export async function createTopUpCheckout(formData: FormData) {
@@ -17,7 +18,7 @@ export async function createTopUpCheckout(formData: FormData) {
     return { error: t("actionErrors.notSignedIn") };
   }
 
-  if (!isStripeConfigured()) {
+  if (!isToyyibPayConfigured()) {
     return { error: t("actionErrors.paymentsNotConfigured") };
   }
 
@@ -31,39 +32,35 @@ export async function createTopUpCheckout(formData: FormData) {
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const stripe = getStripe();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("email, company_name")
+    .eq("id", user.id)
+    .maybeSingle();
 
-  let url: string | null = null;
+  const email = user.email ?? profile?.email ?? "";
+  const name = profile?.company_name?.trim() || email.split("@")[0] || "Customer";
+
+  let paymentUrl: string | null = null;
 
   try {
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      payment_method_types: getStripePaymentMethods(),
-      client_reference_id: user.id,
-      metadata: { user_id: user.id, amount_cents: String(amountCents) },
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency: "myr",
-            unit_amount: amountCents,
-            product_data: { name: "Tanyalah Ustaz API credit" },
-          },
-        },
-      ],
-      success_url: `${appUrl}/dashboard/top-up?status=success`,
-      cancel_url: `${appUrl}/dashboard/top-up?status=cancelled`,
+    const bill = await startToyyibPayTopUp({
+      userId: user.id,
+      email,
+      name,
+      amountCents,
+      appUrl,
     });
-    url = session.url;
+    paymentUrl = bill.paymentUrl;
   } catch (error) {
     return {
       error: error instanceof Error ? error.message : t("actionErrors.paymentFailed"),
     };
   }
 
-  if (!url) {
+  if (!paymentUrl) {
     return { error: t("actionErrors.paymentFailed") };
   }
 
-  redirect(url);
+  redirect(paymentUrl);
 }

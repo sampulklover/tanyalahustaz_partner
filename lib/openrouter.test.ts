@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { buildChatMessages } from "./openrouter";
+import { buildChatMessages, normalizeChatUsage } from "./openrouter";
 import { NO_KNOWLEDGE_CONTEXT } from "./rag-context";
 
 function systemContent(messages: ReturnType<typeof buildChatMessages>) {
@@ -42,5 +42,35 @@ describe("buildChatMessages", () => {
 
     assert.equal(messages.at(-1)?.role, "user");
     assert.equal(messages.filter((message) => message.role === "assistant").length, 1);
+  });
+});
+
+describe("normalizeChatUsage", () => {
+  it("maps OpenRouter usage and cost to the billing shape", () => {
+    const usage = normalizeChatUsage({
+      prompt_tokens: 194,
+      completion_tokens: 2,
+      total_tokens: 196,
+      cost: 0.00042,
+    });
+
+    assert.deepEqual(usage, {
+      promptTokens: 194,
+      completionTokens: 2,
+      totalTokens: 196,
+      costUsd: 0.00042,
+    });
+  });
+
+  it("derives total tokens when the field is missing", () => {
+    const usage = normalizeChatUsage({ prompt_tokens: 10, completion_tokens: 5 });
+    assert.equal(usage?.totalTokens, 15);
+    assert.equal(usage?.costUsd, 0);
+  });
+
+  it("returns null when there is no usage object", () => {
+    assert.equal(normalizeChatUsage(undefined), null);
+    assert.equal(normalizeChatUsage(null), null);
+    assert.equal(normalizeChatUsage("nope"), null);
   });
 });
