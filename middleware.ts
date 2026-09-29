@@ -31,15 +31,16 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   const emailConfirmed = Boolean(user?.email_confirmed_at);
+  const isProtected = pathname.startsWith("/dashboard") || pathname === "/demo";
 
-  if (pathname.startsWith("/dashboard") && !user) {
+  if (isProtected && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("redirect", pathname);
     return NextResponse.redirect(url);
   }
 
-  if (pathname.startsWith("/dashboard") && user && !emailConfirmed) {
+  if (isProtected && user && !emailConfirmed) {
     const url = request.nextUrl.clone();
     url.pathname = "/verify-email";
     if (user.email) {
@@ -61,5 +62,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/signup", "/verify-email"],
+  matcher: ["/dashboard/:path*", "/demo", "/login", "/signup", "/verify-email"],
 };
