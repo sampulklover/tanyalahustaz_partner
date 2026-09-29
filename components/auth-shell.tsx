@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { Logo, LogoMark } from "@/components/brand";
 import { ConsumerAppLink } from "@/components/consumer-app-link";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { CONSUMER_APP_NAME } from "@/lib/brand";
 import { useI18n } from "@/lib/i18n/client";
 
@@ -57,11 +58,16 @@ export function AuthShell({
 
       <div className="flex flex-col justify-center px-6 py-12 sm:px-12">
         <div className="mx-auto w-full max-w-sm">
-          <div className="mb-8 flex items-center gap-2.5 lg:hidden">
-            <LogoMark className="h-10 w-10" />
-            <span className="text-sm font-medium text-[color:var(--muted)]">
-              {t("brand.developers")}
-            </span>
+          <div className="mb-8 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 lg:hidden">
+              <LogoMark className="h-10 w-10" />
+              <span className="text-sm font-medium text-[color:var(--muted)]">
+                {t("brand.developers")}
+              </span>
+            </div>
+            <div className="ml-auto">
+              <ThemeToggle />
+            </div>
           </div>
           <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
           <p className="mt-2 text-sm text-[color:var(--muted)]">{subtitle}</p>

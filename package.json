@@ -8,9 +8,11 @@
     "start": "next start",
     "lint": "eslint",
     "test": "tsx --test \"lib/**/*.test.ts\"",
-    "embed-knowledge": "tsx scripts/embed-knowledge.ts"
+    "embed-knowledge": "tsx scripts/embed-knowledge.ts",
+    "search-knowledge": "tsx scripts/search-knowledge.ts"
   },
   "dependencies": {
+    "@google-cloud/storage": "^8.2.0",
     "@sentry/nextjs": "^10.64.0",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.110.0",
@@ -20,7 +22,7 @@
     "react-dom": "19.2.4",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
-    "stripe": "^22.6.2",
+    "resend": "^6.30.0",
     "unpdf": "^1.8.1"
   },
   "devDependencies": {

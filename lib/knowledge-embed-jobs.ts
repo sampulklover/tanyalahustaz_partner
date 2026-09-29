@@ -168,3 +168,40 @@ export async function runEmbedJobUntilComplete(jobId: string, maxRounds = 200) {
 
   return job;
 }
+
+/** How many embedding jobs still have work left. */
+export async function getPendingEmbedJobCount(): Promise<number> {
+  const admin = createAdminClient();
+  const { count, error } = await admin
+    .from("knowledge_embed_jobs")
+    .select("id", { count: "exact", head: true })
+    .in("status", ["pending", "processing"]);
+
+  if (error) return 0;
+  return count ?? 0;
+}
+
+/**
+ * Keep processing pending embedding jobs until the queue is empty or the time
+ * budget runs out. Safe to call from a cron or a background task.
+ */
+export async function drainEmbedJobs(
+  options: { deadlineMs?: number; maxRounds?: number } = {},
+): Promise<{ rounds: number; remaining: number }> {
+  const deadline = Date.now() + (options.deadlineMs ?? 50_000);
+  const maxRounds = options.maxRounds ?? 1000;
+  let rounds = 0;
+
+  for (let round = 0; round < maxRounds; round += 1) {
+    const jobs = await processPendingEmbedJobs(1);
+    if (jobs.length === 0) break;
+    rounds += 1;
+
+    if (Date.now() >= deadline) break;
+
+    const remaining = await getPendingEmbedJobCount();
+    if (remaining === 0) break;
+  }
+
+  return { rounds, remaining: await getPendingEmbedJobCount() };
+}

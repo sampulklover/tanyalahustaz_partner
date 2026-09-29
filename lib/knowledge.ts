@@ -1,9 +1,21 @@
 import { embedText } from "@/lib/embeddings";
+import { NO_KNOWLEDGE_CONTEXT } from "@/lib/rag-context";
+import { selectDiverseChunks } from "@/lib/retrieval";
+import { isSmallTalk } from "@/lib/small-talk";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { KnowledgeArticle, KnowledgeSource, RetrievedKnowledge } from "@/lib/types";
 
 const MAX_CONTEXT_CHUNKS = 6;
 const KEYWORD_FALLBACK_LIMIT = 4;
+/** Fetch extra candidates so one article can't monopolise the results. */
+const CANDIDATE_MULTIPLIER = 4;
+/** At most this many chunks from a single article. */
+const MAX_CHUNKS_PER_ARTICLE = Number(process.env.RAG_MAX_CHUNKS_PER_ARTICLE ?? 2);
+/** Chunks weaker than this are not used (avoids citing unrelated content). */
+const SIMILARITY_THRESHOLD = Number(process.env.RAG_SIMILARITY_THRESHOLD ?? 0.5);
+/** Hard caps so one huge document can never blow up the prompt (and the bill). */
+const MAX_CHUNK_CONTEXT_CHARS = 1200;
+const MAX_TOTAL_CONTEXT_CHARS = 12000;
 
 export function toKnowledgeSource(item: RetrievedKnowledge): KnowledgeSource {
   return {
@@ -28,16 +40,18 @@ export function dedupeSources(items: RetrievedKnowledge[]): KnowledgeSource[] {
 
 export function buildKnowledgeContext(items: RetrievedKnowledge[]) {
   if (items.length === 0) {
-    return "No specific knowledge articles matched. Answer carefully and recommend consulting a qualified local scholar for complex matters.";
+    return NO_KNOWLEDGE_CONTEXT;
   }
 
   return items
     .map((item, index) => {
       const similarity =
         typeof item.similarity === "number" ? ` | relevance ${(item.similarity * 100).toFixed(0)}%` : "";
-      return `[Source ${index + 1}: ${item.title} (${item.category})${similarity}]\n${item.content}`;
+      const content = item.content.slice(0, MAX_CHUNK_CONTEXT_CHARS);
+      return `[Source ${index + 1}: ${item.title} (${item.category})${similarity}]\n${content}`;
     })
-    .join("\n\n---\n\n");
+    .join("\n\n---\n\n")
+    .slice(0, MAX_TOTAL_CONTEXT_CHARS);
 }
 
 type VectorMatchRow = {
@@ -63,21 +77,26 @@ async function vectorSearch(message: string, category?: string) {
 
   const { data, error } = await admin.rpc("match_knowledge_chunks", {
     query_embedding: queryEmbedding,
-    match_count: MAX_CONTEXT_CHUNKS,
+    match_count: MAX_CONTEXT_CHUNKS * CANDIDATE_MULTIPLIER,
     filter_category: filterCategory,
-    similarity_threshold: 0.25,
+    similarity_threshold: SIMILARITY_THRESHOLD,
   });
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return ((data ?? []) as VectorMatchRow[]).map((row) => ({
+  const rows = selectDiverseChunks((data ?? []) as VectorMatchRow[], {
+    maxChunks: MAX_CONTEXT_CHUNKS,
+    perArticle: MAX_CHUNKS_PER_ARTICLE,
+  });
+
+  return rows.map((row) => ({
     articleId: row.article_id,
     slug: row.article_slug,
     title: row.article_title,
     category: row.category,
-    content: row.content,
+    content: row.content.slice(0, MAX_CHUNK_CONTEXT_CHARS),
     similarity: row.similarity,
   }));
 }
@@ -135,7 +154,8 @@ async function keywordFallback(message: string, category?: string) {
     slug: article.slug,
     title: article.title,
     category: article.category,
-    content: `${article.summary}\n\n${article.content}`,
+    // Never inject a full article here — a single e-book could be megabytes.
+    content: `${article.summary}\n\n${article.content}`.slice(0, MAX_CHUNK_CONTEXT_CHARS),
   }));
 }
 
@@ -154,17 +174,21 @@ async function hasEmbeddedChunks() {
 }
 
 export async function findRelevantKnowledge(message: string, category?: string) {
+  // Greetings and one-word chatter should not pull (or cite) random articles.
+  if (isSmallTalk(message)) {
+    return [];
+  }
+
   try {
     const chunksAvailable = await hasEmbeddedChunks();
 
     if (chunksAvailable) {
-      const vectorResults = await vectorSearch(message, category);
-      if (vectorResults.length > 0) {
-        return vectorResults;
-      }
+      // Trust the vector search: return what matched (possibly nothing) rather
+      // than falling back to unrelated recent articles.
+      return await vectorSearch(message, category);
     }
   } catch {
-    // Fall back to keyword search if embeddings or vector query fail.
+    // Embeddings unavailable — fall through to keyword search.
   }
 
   return keywordFallback(message, category);

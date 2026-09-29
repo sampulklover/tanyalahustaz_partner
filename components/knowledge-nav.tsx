@@ -8,16 +8,20 @@ import { useI18n } from "@/lib/i18n/client";
 
 type KnowledgeNavProps = {
   knowledge: KnowledgePermissions;
-  active?: "articles" | "team" | "playground";
+  active?: "sources" | "prompt" | "team" | "pricing" | "playground";
 };
 
-function isArticlesSection(pathname: string) {
-  return (
-    pathname === "/dashboard/knowledge" ||
-    pathname.startsWith("/dashboard/knowledge/new") ||
-    pathname.startsWith("/dashboard/knowledge/import") ||
-    /^\/dashboard\/knowledge\/[^/]+\/edit/.test(pathname)
-  );
+/** Sibling tabs that live under /dashboard/knowledge but are not Sources. */
+const RESERVED_SEGMENTS = new Set(["sources", "prompt", "team", "pricing"]);
+
+/**
+ * Sources owns the workspace root and the per-file view
+ * (/dashboard/knowledge/<id>), but not its sibling tabs.
+ */
+function isSourcesSection(pathname: string) {
+  if (pathname === "/dashboard/knowledge") return true;
+  const match = pathname.match(/^\/dashboard\/knowledge\/([^/]+)$/);
+  return Boolean(match && !RESERVED_SEGMENTS.has(match[1]));
 }
 
 export function KnowledgeNav({ knowledge, active }: KnowledgeNavProps) {
@@ -25,10 +29,14 @@ export function KnowledgeNav({ knowledge, active }: KnowledgeNavProps) {
   const pathname = usePathname();
 
   const tabs = [
-    { href: "/dashboard/knowledge", id: "articles" as const, badge: null as string | null },
+    { href: "/dashboard/knowledge/sources", id: "sources" as const, badge: null as string | null },
+    { href: "/dashboard/knowledge/prompt", id: "prompt" as const, badge: null as string | null },
     { href: "/dashboard/playground", id: "playground" as const, badge: null as string | null },
     ...(knowledge.canManageTeam
-      ? [{ href: "/dashboard/knowledge/team", id: "team" as const, badge: t("common.adminBadge") }]
+      ? [
+          { href: "/dashboard/knowledge/pricing", id: "pricing" as const, badge: t("common.adminBadge") },
+          { href: "/dashboard/knowledge/team", id: "team" as const, badge: t("common.adminBadge") },
+        ]
       : []),
   ];
 
@@ -37,7 +45,7 @@ export function KnowledgeNav({ knowledge, active }: KnowledgeNavProps) {
       {tabs.map((tab) => {
         const isActive =
           active === tab.id ||
-          (tab.id === "articles" && isArticlesSection(pathname)) ||
+          (tab.id === "sources" && isSourcesSection(pathname)) ||
           pathname === tab.href;
         return (
           <Link

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { processPendingEmbedJobs } from "@/lib/knowledge-embed-jobs";
+import { drainEmbedJobs } from "@/lib/knowledge-embed-jobs";
 import { logError } from "@/lib/logger";
 
 function isAuthorized(request: Request) {
@@ -18,20 +18,10 @@ export async function GET(request: Request) {
   }
 
   try {
-    const jobs = await processPendingEmbedJobs(3);
+    const embed = await drainEmbedJobs({ deadlineMs: 240_000 });
     return NextResponse.json({
-      processed: jobs.length,
-      jobs: jobs.map((job) =>
-        job
-          ? {
-              id: job.id,
-              status: job.status,
-              articles_processed: job.articles_processed,
-              articles_total: job.articles_total,
-              chunks_written: job.chunks_written,
-            }
-          : null,
-      ),
+      rounds: embed.rounds,
+      remaining: embed.remaining,
     });
   } catch (error) {
     logError("Cron embed-jobs failed", error);

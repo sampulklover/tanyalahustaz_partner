@@ -1,21 +1,40 @@
-// Server-side helpers for turning uploaded documents (PDF, DOCX, TXT) into
-// plain text that the knowledge importer can structure into articles.
+// Server-side helpers for turning uploaded documents (PDF, DOCX, TXT, HTML,
+// Markdown) into plain text that the knowledge importer can structure into
+// articles.
 
 import { MAX_DOCUMENT_BYTES } from "@/lib/knowledge-import";
 
 export const SUPPORTED_DOCUMENT_EXTENSIONS = [".pdf", ".docx", ".txt"] as const;
 
-export type DocumentKind = "pdf" | "docx" | "text";
+/** Extensions the Google Cloud Storage sync can read (a wider set than uploads). */
+export const SYNCABLE_DOCUMENT_EXTENSIONS = [
+  ".pdf",
+  ".docx",
+  ".txt",
+  ".md",
+  ".markdown",
+  ".html",
+  ".htm",
+] as const;
+
+export type DocumentKind = "pdf" | "docx" | "text" | "html" | "markdown";
 
 export function documentKindFromFilename(filename: string): DocumentKind | null {
   const lower = filename.toLowerCase();
   if (lower.endsWith(".pdf")) return "pdf";
   if (lower.endsWith(".docx")) return "docx";
   if (lower.endsWith(".txt")) return "text";
+  if (lower.endsWith(".md") || lower.endsWith(".markdown")) return "markdown";
+  if (lower.endsWith(".html") || lower.endsWith(".htm")) return "html";
   return null;
 }
 
 export function isSupportedDocument(filename: string): boolean {
+  const kind = documentKindFromFilename(filename);
+  return kind === "pdf" || kind === "docx" || kind === "text";
+}
+
+export function isSyncableDocument(filename: string): boolean {
   return documentKindFromFilename(filename) !== null;
 }
 
@@ -27,6 +46,29 @@ export function cleanExtractedText(raw: string): string {
     .replace(/[ \t]{2,}/g, " ")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
+}
+
+function decodeHtmlEntities(text: string): string {
+  return text
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0*39;/gi, "'");
+}
+
+/** Strip scripts, styles and tags so the model sees readable text only. */
+function extractHtmlText(buffer: Buffer): string {
+  const html = buffer.toString("utf-8");
+  return decodeHtmlEntities(
+    html
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<\/(p|div|section|article|li|h[1-6]|tr|br)>/gi, "\n")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<[^>]+>/g, " "),
+  );
 }
 
 async function extractPdfText(buffer: Buffer): Promise<string> {
@@ -45,8 +87,10 @@ async function extractDocxText(buffer: Buffer): Promise<string> {
 export async function extractDocumentText(
   filename: string,
   buffer: Buffer,
+  options: { maxBytes?: number } = {},
 ): Promise<string> {
   const kind = documentKindFromFilename(filename);
+  const maxBytes = options.maxBytes ?? MAX_DOCUMENT_BYTES;
 
   if (!kind) {
     throw new Error(`Unsupported file type: ${filename}`);
@@ -56,9 +100,9 @@ export async function extractDocumentText(
     throw new Error("The file is empty.");
   }
 
-  if (buffer.byteLength > MAX_DOCUMENT_BYTES) {
+  if (buffer.byteLength > maxBytes) {
     throw new Error(
-      `The file is larger than ${Math.round(MAX_DOCUMENT_BYTES / 1024 / 1024)} MB.`,
+      `The file is larger than ${Math.round(maxBytes / 1024 / 1024)} MB.`,
     );
   }
 
@@ -68,6 +112,10 @@ export async function extractDocumentText(
 
   if (kind === "docx") {
     return cleanExtractedText(await extractDocxText(buffer));
+  }
+
+  if (kind === "html") {
+    return cleanExtractedText(extractHtmlText(buffer));
   }
 
   return cleanExtractedText(buffer.toString("utf-8").replace(/^\uFEFF/, ""));

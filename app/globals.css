@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* Attribute-based dark mode so users can toggle light/dark/system in the UI.
+   The resolved value is written to <html data-theme="…"> (see lib/theme.ts). */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 /* ------------------------------------------------------------------ */
 /*  Design tokens                                                      */
 /* ------------------------------------------------------------------ */
@@ -25,15 +29,13 @@
   --brand-900: #064e3b;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #08100d;
-    --background-subtle: #0b1512;
-    --foreground: #eef2f0;
-    --card: #0d1613;
-    --border: #1d2a25;
-    --muted: #94a3a0;
-  }
+[data-theme="dark"] {
+  --background: #08100d;
+  --background-subtle: #0b1512;
+  --foreground: #eef2f0;
+  --card: #0d1613;
+  --border: #1d2a25;
+  --muted: #94a3a0;
 }
 
 @theme inline {

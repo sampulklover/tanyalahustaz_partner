@@ -8,6 +8,12 @@ export type EmbedKnowledgeResult = {
   chunksWritten: number;
 };
 
+/** Insert this many chunk rows per request (vectors are large). */
+const CHUNK_INSERT_BATCH_SIZE = Math.max(
+  1,
+  Number(process.env.CHUNK_INSERT_BATCH_SIZE ?? 200),
+);
+
 export async function embedKnowledgeArticles(
   articles: KnowledgeArticle[],
 ): Promise<{ articlesProcessed: number; chunksWritten: number }> {
@@ -27,28 +33,40 @@ export async function embedKnowledgeArticles(
   };
 }
 
-export async function embedAllKnowledgeArticles(): Promise<EmbedKnowledgeResult> {
+export async function embedAllKnowledgeArticles(
+  options: { limit?: number } = {},
+): Promise<EmbedKnowledgeResult> {
   const admin = createAdminClient();
 
-  const { data: articles, error } = await admin
+  let query = admin
     .from("knowledge_articles")
     .select("*")
     .eq("published", true)
     .order("title", { ascending: true });
 
+  if (options.limit && options.limit > 0) {
+    query = query.limit(options.limit);
+  }
+
+  const { data: articles, error } = await query;
+
   if (error) {
     throw new Error(error.message);
   }
 
+  const list = (articles ?? []) as KnowledgeArticle[];
   let chunksWritten = 0;
 
-  for (const article of (articles ?? []) as KnowledgeArticle[]) {
+  for (let index = 0; index < list.length; index += 1) {
+    const article = list[index];
+    console.log(`[${index + 1}/${list.length}] ${article.title}`);
+
     const written = await embedKnowledgeArticle(article);
     chunksWritten += written;
   }
 
   return {
-    articlesProcessed: articles?.length ?? 0,
+    articlesProcessed: list.length,
     chunksWritten,
   };
 }
@@ -56,6 +74,16 @@ export async function embedAllKnowledgeArticles(): Promise<EmbedKnowledgeResult>
 export async function removeArticleEmbeddings(articleId: string) {
   const admin = createAdminClient();
   await admin.from("knowledge_chunks").delete().eq("article_id", articleId);
+}
+
+/** Total chunk rows currently stored (used to report re-embed progress). */
+export async function countKnowledgeChunks(): Promise<number> {
+  const admin = createAdminClient();
+  const { count } = await admin
+    .from("knowledge_chunks")
+    .select("id", { count: "exact", head: true });
+
+  return count ?? 0;
 }
 
 export async function syncArticleEmbeddings(article: KnowledgeArticle) {
@@ -88,10 +116,14 @@ export async function embedKnowledgeArticle(article: KnowledgeArticle) {
     embedding: embeddings[chunkIndex],
   }));
 
-  const { error } = await admin.from("knowledge_chunks").insert(rows);
+  for (let index = 0; index < rows.length; index += CHUNK_INSERT_BATCH_SIZE) {
+    const { error } = await admin
+      .from("knowledge_chunks")
+      .insert(rows.slice(index, index + CHUNK_INSERT_BATCH_SIZE));
 
-  if (error) {
-    throw new Error(error.message);
+    if (error) {
+      throw new Error(error.message);
+    }
   }
 
   return rows.length;

@@ -121,7 +121,7 @@ Partner website          Portal (logged in)
 | `NEXT_PUBLIC_SUPABASE_*` | Portal (browser-safe) |
 | `SUPABASE_SECRET_KEY` | Server → database |
 | `OPENROUTER_API_KEY` | Server → AI chat |
-| `OPENROUTER_EMBEDDING_MODEL` | Server → embeddings (default: NVIDIA free, 2048-dim) |
+| `OPENROUTER_EMBEDDING_MODEL` | Server → embeddings (default: OpenAI text-embedding-3-small, 1536-dim) |
 
 ---
 
@@ -151,8 +151,10 @@ Different models output different vector sizes (e.g. **1536** for `openai/text-e
 
 | Model | Dimensions | HNSW index (≤2000 only) |
 |-------|------------|-------------------------|
+| `openai/text-embedding-3-small` (current) | 1536 | **Yes** |
 | `nvidia/llama-nemotron-embed-vl-1b-v2:free` | 2048 | No (exact search) |
-| `openai/text-embedding-3-small` | 1536 | Yes (optional, faster at scale) |
+| `baai/bge-m3` | 1024 | Yes |
+| `google/gemini-embedding-001` | 3072 | No (exact search) |
 
 **Rule:** change model → new vectors → always re-run `npm run embed-knowledge`.
 

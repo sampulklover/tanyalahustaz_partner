@@ -4,6 +4,8 @@ import "./globals.css";
 import { DEVELOPER_PORTAL_NAME } from "@/lib/brand";
 import { I18nProvider } from "@/lib/i18n/client";
 import { getLocale, getMessages, getTranslations } from "@/lib/i18n/server";
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -66,11 +68,16 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
+      data-theme="light"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <I18nProvider locale={locale} messages={messages}>
-          {children}
+          <ThemeProvider>{children}</ThemeProvider>
         </I18nProvider>
       </body>
     </html>

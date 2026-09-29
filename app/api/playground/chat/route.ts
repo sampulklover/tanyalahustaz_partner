@@ -1,4 +1,5 @@
 import { persistChatExchange, prepareChatContext } from "@/lib/chat";
+import type { ChatUsage } from "@/lib/openrouter";
 import { getDashboardContext } from "@/lib/dashboard";
 import {
   getActionTranslations,
@@ -82,11 +83,17 @@ export async function POST(request: Request) {
   const stream = createPlaygroundSseStream(async (send) => {
     send({ type: "meta", session_id: resolvedSessionId, sources });
 
+    let usage: ChatUsage | null = null;
+
     const { model, stream: tokenStream } = await streamChatReply({
       userMessage,
       knowledgeContext,
       history,
       signal: request.signal,
+      partnerId: user.id,
+      onUsage: (value) => {
+        usage = value;
+      },
     });
 
     const reader = tokenStream.getReader();
@@ -117,6 +124,7 @@ export async function POST(request: Request) {
       assistantMessage: trimmedReply,
       model,
       sources,
+      usage,
     });
 
     send({ type: "done" });
