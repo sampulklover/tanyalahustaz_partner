@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useI18n } from "@/lib/i18n/client";
 import { useToast } from "@/components/toast";
 import { emitSyncStarted } from "@/lib/activity-events";
+import { createClient } from "@/lib/supabase/client";
 
 /**
  * Starts a sync and hands the run id to the shared activity panel, which shows
@@ -15,6 +16,7 @@ export function KnowledgeSyncButton({
   hasSelections,
   additions = null,
   removals = null,
+  previewLoading = false,
   fullWidth = false,
 }: {
   canSync: boolean;
@@ -22,12 +24,14 @@ export function KnowledgeSyncButton({
   hasSelections: boolean;
   additions?: number | null;
   removals?: number | null;
+  previewLoading?: boolean;
   fullWidth?: boolean;
 }) {
   const { t } = useI18n();
   const { info: toastInfo, error: toastError } = useToast();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [prune, setPrune] = useState(false);
 
   if (!canSync) return null;
 
@@ -46,7 +50,18 @@ export function KnowledgeSyncButton({
     setError(null);
 
     try {
-      const response = await fetch("/api/knowledge/sources/sync", { method: "POST" });
+      // A stale access token would make the route answer 403. Refresh first.
+      try {
+        await createClient().auth.getSession();
+      } catch {
+        // Ignore; the request below will surface a real error if any.
+      }
+
+      const response = await fetch("/api/knowledge/sources/sync", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ prune }),
+      });
       const payload = (await response.json().catch(() => null)) as
         | { runId?: string; error?: string }
         | null;
@@ -69,6 +84,18 @@ export function KnowledgeSyncButton({
 
   return (
     <>
+      {hasSelections && (
+        <label className="mb-2 flex cursor-pointer items-start gap-2 text-xs leading-relaxed text-[color:var(--muted)]">
+          <input
+            type="checkbox"
+            checked={prune}
+            disabled={isPending}
+            onChange={(event) => setPrune(event.target.checked)}
+            className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border accent-red-600"
+          />
+          <span>{t("knowledge.sources.pruneOption")}</span>
+        </label>
+      )}
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -97,17 +124,24 @@ export function KnowledgeSyncButton({
               <path d="M21 12a9 9 0 1 1-6.2-8.6" />
             </svg>
           )}
-          {isPending ? t("knowledge.sources.syncing") : t("knowledge.sources.syncSelected")}
-          {!isPending && (additions || removals) && (
+          <span>
+            {isPending ? t("knowledge.sources.syncing") : t("knowledge.sources.syncSelected")}
+          </span>
+          {!isPending && previewLoading && additions === null && removals === null ? (
+            <span className="rounded-full bg-white/20 px-2 py-0.5 text-[11px] font-semibold tabular-nums">
+              {t("knowledge.sources.previewCounting")}
+            </span>
+          ) : null}
+          {!isPending && (additions || removals) ? (
             <span
               title={previewSummary ?? undefined}
               className="rounded-full bg-white/20 px-2 py-0.5 text-[11px] font-semibold tabular-nums"
             >
-              {additions ? `+${additions}` : ""}
-              {additions && removals ? " " : ""}
-              {removals ? `−${removals}` : ""}
+              {additions ? `+${additions}` : null}
+              {additions && removals ? " " : null}
+              {removals ? `−${removals}` : null}
             </span>
-          )}
+          ) : null}
         </button>
       </form>
 

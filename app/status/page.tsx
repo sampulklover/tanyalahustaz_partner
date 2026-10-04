@@ -10,7 +10,9 @@ import {
   STATUS_INCIDENTS,
   STATUS_SERVICES,
   buildServiceHistory,
+  deriveIncidents,
   fetchApiHealth,
+  fetchUsageHistory,
   overallStatus,
 } from "@/lib/status-page";
 
@@ -27,16 +29,20 @@ export default async function PublicStatusPage() {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const health = await fetchApiHealth(baseUrl);
   const liveOperational = health.ok;
+  const usage = await fetchUsageHistory();
 
   const histories = Object.fromEntries(
     STATUS_SERVICES.map((service) => [
       service.id,
-      buildServiceHistory(service.id, STATUS_INCIDENTS, liveOperational),
+      buildServiceHistory(service.id, usage, STATUS_INCIDENTS, liveOperational),
     ]),
   );
 
   const systemLevel = overallStatus(histories);
-  const incidents = [...STATUS_INCIDENTS].sort((a, b) => b.date.localeCompare(a.date));
+  const autoIncidents = deriveIncidents(usage, t, { liveOperational });
+  const incidents = [...STATUS_INCIDENTS, ...autoIncidents].sort((a, b) =>
+    b.date.localeCompare(a.date),
+  );
 
   return (
     <>
@@ -63,6 +69,9 @@ export default async function PublicStatusPage() {
             latency: health.latencyMs,
             version: health.version,
           })}
+        </p>
+        <p className="mt-1 text-xs text-[color:var(--muted)]">
+          {t("status.dataNote")}
         </p>
 
         <section className="mt-10 space-y-8">
@@ -113,6 +122,11 @@ export default async function PublicStatusPage() {
                       day: "numeric",
                       year: "numeric",
                     })}
+                    {incident.auto && (
+                      <span className="ml-2 rounded-full bg-background-subtle px-2 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wide text-[color:var(--muted)]">
+                        {t("status.auto.badge")}
+                      </span>
+                    )}
                   </p>
                   <h3 className="mt-1 text-lg font-semibold">{incident.title}</h3>
                   <ul className="mt-4 space-y-3">

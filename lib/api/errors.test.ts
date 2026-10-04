@@ -39,7 +39,7 @@ describe("mapChatError", () => {
   });
 
   it("maps validation failures to validation errors", () => {
-    const mapped = mapChatError("Message must be at least 3 characters.");
+    const mapped = mapChatError("Message cannot be empty.");
     assert.equal(mapped.code, ApiErrorCode.VALIDATION_ERROR);
     assert.equal(mapped.status, 400);
   });

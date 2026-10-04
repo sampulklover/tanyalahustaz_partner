@@ -22,7 +22,7 @@ export async function GET() {
  * Start a sync. Returns immediately with a run id; the work continues on the
  * server, so the admin can close the page and watch progress from the history.
  */
-export async function POST() {
+export async function POST(request: Request) {
   const admin = await requireKnowledgeEditor();
   if (!admin) {
     return NextResponse.json({ error: "Editor access required." }, { status: 403 });
@@ -34,6 +34,10 @@ export async function POST() {
       { status: 400 },
     );
   }
+
+  // Pruning is opt-in: a normal sync never deletes mirrored files.
+  const body = (await request.json().catch(() => null)) as { prune?: boolean } | null;
+  const prune = body?.prune === true;
 
   let runId: string;
 
@@ -54,6 +58,7 @@ export async function POST() {
         runId,
         createdBy: admin.userId,
         maxFiles: Number(process.env.GCS_SYNC_MAX_FILES ?? 10),
+        prune,
       });
       await drainEmbedJobs({ deadlineMs: 180_000 });
     } catch (error) {

@@ -27,8 +27,8 @@ export type ExecuteChatResult =
 export function validateChatMessage(message: string) {
   const trimmed = message.trim();
 
-  if (trimmed.length < 3) {
-    return { ok: false as const, error: "Message must be at least 3 characters." };
+  if (trimmed.length === 0) {
+    return { ok: false as const, error: "Message cannot be empty." };
   }
 
   if (trimmed.length > 4000) {

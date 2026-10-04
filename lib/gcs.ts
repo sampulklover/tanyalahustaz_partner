@@ -63,6 +63,15 @@ function getStorage(): Storage {
   });
 }
 
+// Full-prefix listings are used by the sync/preview, which re-lists every
+// selected folder. Cache per prefix so repeated previews don't re-hit GCS.
+const objectCache = new Map<string, { at: number; objects: GcsObject[] }>();
+const OBJECT_LIST_CACHE_TTL_MS = 60_000;
+
+export function clearGcsObjectCache() {
+  objectCache.clear();
+}
+
 export async function listGcsObjects(prefix?: string | null): Promise<GcsObject[]> {
   const bucketName = getGcsBucketName();
   if (!bucketName) {
@@ -70,17 +79,27 @@ export async function listGcsObjects(prefix?: string | null): Promise<GcsObject[
   }
 
   const normalized = prefix ? `${prefix.replace(/\/+$/g, "")}/` : undefined;
+  const cacheKey = normalized ?? "";
+
+  const cached = objectCache.get(cacheKey);
+  if (cached && Date.now() - cached.at < OBJECT_LIST_CACHE_TTL_MS) {
+    return cached.objects;
+  }
+
   const [files] = await getStorage().bucket(bucketName).getFiles({
     prefix: normalized,
     autoPaginate: true,
   });
 
-  return files.map((file) => ({
+  const objects = files.map((file) => ({
     name: file.name,
     size: Number(file.metadata.size ?? 0),
     generation: String(file.metadata.generation ?? ""),
     updated: typeof file.metadata.updated === "string" ? file.metadata.updated : null,
   }));
+
+  objectCache.set(cacheKey, { at: Date.now(), objects });
+  return objects;
 }
 
 export async function downloadGcsObject(name: string): Promise<Buffer> {
@@ -91,6 +110,42 @@ export async function downloadGcsObject(name: string): Promise<Buffer> {
 
   const [contents] = await getStorage().bucket(bucketName).file(name).download();
   return contents;
+}
+
+export type GcsFileStream = {
+  stream: NodeJS.ReadableStream;
+  contentType: string;
+  size: number;
+};
+
+/**
+ * Open a readable stream for one object, so the server can pipe the real file
+ * to the browser without buffering it all in memory.
+ */
+export async function streamGcsObject(
+  name: string,
+  range?: { start: number; end: number } | null,
+): Promise<GcsFileStream | null> {
+  const bucketName = getGcsBucketName();
+  if (!bucketName) {
+    throw new Error("GCS_BUCKET_NAME is not set.");
+  }
+
+  const file = getStorage().bucket(bucketName).file(name);
+  const [exists] = await file.exists();
+  if (!exists) return null;
+
+  const [metadata] = await file.getMetadata();
+  const stream = file.createReadStream(range ?? undefined);
+
+  return {
+    stream,
+    contentType:
+      typeof metadata.contentType === "string"
+        ? metadata.contentType
+        : "application/octet-stream",
+    size: Number(metadata.size ?? 0),
+  };
 }
 
 export type GcsChildListing = {

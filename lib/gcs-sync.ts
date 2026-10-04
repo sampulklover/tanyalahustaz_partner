@@ -141,7 +141,6 @@ export async function getSyncPreview(): Promise<SyncPreview | null> {
           allowed.some((extension) => object.name.toLowerCase().endsWith(extension)),
       );
 
-    const syncableNames = new Set(syncable.map((object) => object.name));
     const admin = createAdminClient();
     const { data: mirrored } = await admin
       .from("knowledge_articles")
@@ -159,7 +158,9 @@ export async function getSyncPreview(): Promise<SyncPreview | null> {
 
     const mirroredSet = new Set(mirroredPaths);
     const additions = syncable.filter((object) => !mirroredSet.has(object.name)).length;
-    const removals = mirroredPaths.filter((path) => !syncableNames.has(path)).length;
+    // Mirror is only pruned on an explicit request, so don't advertise removals
+    // a normal sync won't perform.
+    const removals = 0;
 
     const preview = { additions, removals };
     previewCache = { at: Date.now(), key, preview };
@@ -240,21 +241,45 @@ async function gatherSelectedObjects(
 ): Promise<GcsObject[]> {
   const byName = new Map<string, GcsObject>();
 
-  for (const selection of selections) {
-    if (selection.kind !== "folder") continue;
-    const objects = await listGcsObjects(selection.path);
+  // List folders concurrently: sequential calls made the preview take seconds
+  // when many folders were selected.
+  const folderPaths = selections.filter((s) => s.kind === "folder").map((s) => s.path);
+
+  const listings = await Promise.all(
+    folderPaths.map(async (path) => {
+      try {
+        return await listGcsObjects(path);
+      } catch (error) {
+        logError("GCS folder listing failed during gather", error, { path });
+        return [];
+      }
+    }),
+  );
+
+  for (const objects of listings) {
     for (const object of objects) {
       byName.set(object.name, object);
     }
   }
 
-  for (const selection of selections) {
-    if (selection.kind !== "file") continue;
-    if (byName.has(selection.path)) continue;
-    const object = await getGcsObject(selection.path);
-    if (object) {
-      byName.set(object.name, object);
-    }
+  const filePaths = selections
+    .filter((s) => s.kind === "file")
+    .map((s) => s.path)
+    .filter((path) => !byName.has(path));
+
+  const files = await Promise.all(
+    filePaths.map(async (path) => {
+      try {
+        return await getGcsObject(path);
+      } catch (error) {
+        logError("GCS object fetch failed during gather", error, { path });
+        return null;
+      }
+    }),
+  );
+
+  for (const object of files) {
+    if (object) byName.set(object.name, object);
   }
 
   return [...byName.values()];
@@ -326,6 +351,9 @@ export async function createSyncRun(createdBy: string | null): Promise<string> {
     );
   }
 
+  // Clear ghosts from earlier interrupted runs before adding a new one.
+  await reapStaleSyncRuns();
+
   return createRun(createdBy);
 }
 
@@ -345,12 +373,49 @@ async function finishRun(
     .eq("id", runId);
 }
 
+/** A run still marked "running" after this long is dead (server restart, timeout). */
+const STALE_RUN_MS = Number(process.env.GCS_SYNC_STALE_MS ?? 20 * 60 * 1000);
+
+/**
+ * Close out runs that were interrupted mid-flight. A dev-server restart or a
+ * function timeout skips `finishRun`, leaving a row stuck on "running" forever.
+ * The already-mirrored files stay; only the ghost run row is marked failed.
+ */
+export async function reapStaleSyncRuns(): Promise<number> {
+  const admin = createAdminClient();
+  const cutoff = new Date(Date.now() - STALE_RUN_MS).toISOString();
+
+  const { data, error } = await admin
+    .from("knowledge_sync_runs")
+    .update({
+      status: "failed",
+      error: "Interrupted before it could finish (server restarted or timed out).",
+      finished_at: new Date().toISOString(),
+    })
+    .eq("status", "running")
+    .lt("started_at", cutoff)
+    .select("id");
+
+  if (error) {
+    logError("Could not reap stale sync runs", error);
+    return 0;
+  }
+
+  return data?.length ?? 0;
+}
+
 export type SyncKnowledgeFromGcsOptions = {
   createdBy?: string | null;
   maxFiles?: number;
   publish?: boolean;
   /** Reuse a run row created earlier (used for background jobs). */
   runId?: string;
+  /**
+   * Delete mirrored articles whose source is no longer covered by the current
+   * selection. Defaults to false: without it a sync only adds and updates, so
+   * unticking one file can never silently delete its already-mirrored siblings.
+   */
+  prune?: boolean;
 };
 
 /**
@@ -370,6 +435,7 @@ export async function syncKnowledgeFromGcs(
   const bucket = getGcsBucketName()!;
   const publish = options.publish ?? true;
   const maxFiles = Math.max(1, options.maxFiles ?? DEFAULT_MAX_FILES);
+  const prune = options.prune ?? false;
 
   const selections = await loadSourceSelections();
   const runId = options.runId ?? (await createRun(options.createdBy ?? null));
@@ -488,9 +554,10 @@ export async function syncKnowledgeFromGcs(
     }
 
     // Remove articles whose source object is gone from the bucket. Guarded by
-    // `considered > 0` so a filter that matches nothing can never wipe the mirror.
+    // `considered > 0` so a filter that matches nothing can never wipe the
+    // mirror, and by `prune` so a selection change never deletes implicitly.
     const currentPaths = new Set(syncable.map((object) => object.name));
-    const deletions = base.considered > 0 ? [...mirroredByPath] : [];
+    const deletions = prune && base.considered > 0 ? [...mirroredByPath] : [];
     for (const [path, row] of deletions) {
       if (currentPaths.has(path)) continue;
 

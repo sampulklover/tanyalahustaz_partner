@@ -43,29 +43,16 @@ export function HomePageContent() {
     howItWorks: { steps: ContentItem[] };
     useCases: { items: ContentItem[] };
     pricing: {
-      packs: {
-        name: string;
-        price: string;
-        tagline: string;
-        features: string[];
-        cta: string;
-        popular?: boolean;
-        badge?: string;
-      }[];
+      title: string;
+      subtitle: string;
       note: string;
+      bullets: string[];
+      cta: string;
     };
     faq: { items: FaqItem[] };
   };
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const consumerUrl = CONSUMER_APP_URL.replace(/^https?:\/\//, "");
-
-  const stats = [
-    { value: "1", label: t("home.stats.endpoint") },
-    { value: "5", label: t("home.stats.categories") },
-    { value: "✓", label: t("home.stats.rag") },
-    { value: "100%", label: t("home.stats.sources") },
-  ];
 
   return (
     <>
@@ -115,37 +102,35 @@ export function HomePageContent() {
 
             <div className="animate-fade-up">
               <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-xl shadow-black/5">
-                <div className="flex items-center gap-2 border-b border-border bg-background-subtle px-4 py-3">
-                  <span className="h-3 w-3 rounded-full bg-red-400/70" />
-                  <span className="h-3 w-3 rounded-full bg-amber-400/70" />
-                  <span className="h-3 w-3 rounded-full bg-brand-400/70" />
-                  <span className="ml-2 font-mono text-xs text-[color:var(--muted)]">
-                    POST /api/v1/chat
+                <div className="flex items-center gap-2.5 border-b border-border bg-background-subtle px-4 py-3">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-600 text-xs font-bold text-white">
+                    TU
+                  </span>
+                  <span className="text-sm font-semibold">
+                    {t("homeDemo.chatTitle")}
+                  </span>
+                  <span className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-medium text-brand-700 dark:bg-brand-900/40 dark:text-brand-200">
+                    <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
+                    {t("playground.live")}
                   </span>
                 </div>
-                <pre className="overflow-x-auto px-4 py-4 text-[13px] leading-relaxed">
-                  <code className="text-[color:var(--muted)]">
-{`curl -X POST ${baseUrl.replace(/^https?:\/\//, "")}/api/v1/chat \\
-  -H "Authorization: Bearer `}
-                    <span className="text-brand-600 dark:text-brand-400">tlh_live_•••</span>
-{`" \\
-  -d '{ "message": "${t("homeDemo.sampleQuestion")}",
-        "category": "fiqh" }'`}
-                  </code>
-                </pre>
-                <div className="border-t border-border px-4 py-4">
-                  <p className="mb-2 font-mono text-[11px] uppercase tracking-wider text-[color:var(--muted)]">
-                    {t("homeDemo.okStatus")}
-                  </p>
-                  <p className="text-sm leading-relaxed">
-                    {t("homeDemo.sampleResponse")}
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-medium text-brand-700 dark:bg-brand-900/40 dark:text-brand-200">
-                      source: jamak-solat-musafir
+                <div className="space-y-4 px-4 py-5">
+                  <div className="flex justify-end">
+                    <p className="max-w-[85%] rounded-2xl rounded-br-md bg-brand-600 px-4 py-2.5 text-sm text-white">
+                      {t("homeDemo.userQuestion")}
+                    </p>
+                  </div>
+                  <div className="flex justify-start">
+                    <p className="max-w-[90%] rounded-2xl rounded-bl-md border border-border bg-background-subtle px-4 py-3 text-sm leading-relaxed">
+                      {t("homeDemo.assistantReply")}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 pl-1">
+                    <span className="text-xs font-medium text-[color:var(--muted)]">
+                      {t("homeDemo.sourceLabel")}
                     </span>
-                    <span className="rounded-full bg-background-subtle px-2.5 py-0.5 text-xs text-[color:var(--muted)]">
-                      category: fiqh
+                    <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-medium text-brand-700 dark:bg-brand-900/40 dark:text-brand-200">
+                      jamak-solat-musafir
                     </span>
                   </div>
                 </div>
@@ -172,19 +157,6 @@ export function HomePageContent() {
             >
               {t("home.trust.visitConsumer", { consumerApp: CONSUMER_APP_NAME })}
             </a>
-          </div>
-        </section>
-
-        <section className="border-b border-border bg-background-subtle">
-          <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-6 py-10 sm:grid-cols-4">
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center sm:text-left">
-                <p className="text-3xl font-bold tracking-tight text-brand-600 dark:text-brand-500">
-                  {stat.value}
-                </p>
-                <p className="mt-1 text-sm text-[color:var(--muted)]">{stat.label}</p>
-              </div>
-            ))}
           </div>
         </section>
 
@@ -285,49 +257,31 @@ export function HomePageContent() {
               title={t("home.pricing.title")}
               subtitle={t("home.pricing.subtitle")}
             />
-            <div className="mx-auto mt-14 grid max-w-5xl gap-6 md:grid-cols-3">
-              {home.pricing.packs.map((pack) => (
-                <div
-                  key={pack.name}
-                  className={`relative flex flex-col rounded-2xl border bg-card p-8 ${
-                    pack.popular
-                      ? "border-brand-200 ring-1 ring-brand-200 dark:border-brand-900 dark:ring-brand-900"
-                      : "border-border"
-                  }`}
+            <div className="mx-auto mt-14 max-w-2xl">
+              <div className="rounded-3xl border border-brand-200 bg-card p-8 shadow-sm dark:border-brand-900 sm:p-10">
+                <ul className="grid gap-4 sm:grid-cols-2">
+                  {home.pricing.bullets.map((item) => (
+                    <li key={item} className="flex items-start gap-3">
+                      <span className="mt-0.5">
+                        <CheckIcon />
+                      </span>
+                      <span className="text-sm font-medium">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href="/signup"
+                  className="mt-8 block rounded-lg bg-brand-600 px-5 py-3 text-center font-semibold text-white transition hover:bg-brand-700"
                 >
-                  {pack.badge && (
-                    <span className="absolute -top-3 left-8 rounded-full bg-brand-600 px-3 py-1 text-xs font-semibold text-white">
-                      {pack.badge}
-                    </span>
-                  )}
-                  <h3 className="text-lg font-semibold">{pack.name}</h3>
-                  <p className="mt-1 text-sm text-[color:var(--muted)]">{pack.tagline}</p>
-                  <p className="mt-6 text-4xl font-bold tracking-tight">{pack.price}</p>
-                  <ul className="mt-6 flex-1 space-y-3 text-sm">
-                    {pack.features.map((item) => (
-                      <li key={item} className="flex items-center gap-2.5">
-                        <CheckIcon /> {item}
-                      </li>
-                    ))}
-                  </ul>
-                  <Link
-                    href="/signup"
-                    className={`mt-8 block rounded-lg px-5 py-2.5 text-center font-semibold transition ${
-                      pack.popular
-                        ? "bg-brand-600 text-white hover:bg-brand-700"
-                        : "border border-border hover:bg-background-subtle"
-                    }`}
-                  >
-                    {pack.cta}
-                  </Link>
-                </div>
-              ))}
+                  {home.pricing.cta}
+                </Link>
+              </div>
+              {home.pricing.note && (
+                <p className="mx-auto mt-6 max-w-xl text-center text-sm text-[color:var(--muted)]">
+                  {home.pricing.note}
+                </p>
+              )}
             </div>
-            {home.pricing.note && (
-              <p className="mx-auto mt-8 max-w-2xl text-center text-sm text-[color:var(--muted)]">
-                {home.pricing.note}
-              </p>
-            )}
           </div>
         </section>
 

@@ -9,7 +9,9 @@ import { buildChatLogsPath } from "@/lib/chat-logs";
 import { useI18n } from "@/lib/i18n/client";
 import {
   clearStoredPlaygroundSessionId,
+  readStoredPlaygroundApiKey,
   readStoredPlaygroundSessionId,
+  writeStoredPlaygroundApiKey,
   writeStoredPlaygroundSessionId,
 } from "@/lib/playground-storage";
 import { parsePlaygroundStreamChunk, type PlaygroundStreamEvent } from "@/lib/playground-stream";
@@ -74,6 +76,10 @@ export function ChatPlayground() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [isRestoring, setIsRestoring] = useState(true);
   const [retryMessage, setRetryMessage] = useState<string | null>(null);
+  const [apiKey, setApiKey] = useState("");
+  const [showKey, setShowKey] = useState(false);
+  const [rememberKey, setRememberKey] = useState(true);
+  const [keyReady, setKeyReady] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -109,6 +115,12 @@ export function ChatPlayground() {
     let cancelled = false;
 
     async function restoreSession() {
+      const storedKey = readStoredPlaygroundApiKey();
+      if (!cancelled) {
+        if (storedKey) setApiKey(storedKey);
+        setKeyReady(true);
+      }
+
       const storedSessionId = readStoredPlaygroundSessionId();
       if (!storedSessionId) {
         if (!cancelled) setIsRestoring(false);
@@ -154,6 +166,11 @@ export function ChatPlayground() {
   }, [persistSessionId]);
 
   useEffect(() => {
+    if (!keyReady) return;
+    writeStoredPlaygroundApiKey(rememberKey ? apiKey : "");
+  }, [keyReady, apiKey, rememberKey]);
+
+  useEffect(() => {
     if (isRestoring) return;
     scrollToBottom(isStreaming ? "auto" : "smooth");
   }, [messages, isStreaming, isRestoring, scrollToBottom]);
@@ -174,6 +191,24 @@ export function ChatPlayground() {
     async (messageText?: string) => {
       const text = (messageText ?? input).trim();
       if (!text || isStreaming || isRestoring) return;
+
+      // Mirror the server rules so we never show a sent bubble the API will
+      // reject. Short greetings like "hi" are fine — the server treats them as
+      // small talk.
+      if (text.length === 0) {
+        setError(t("playground.messageEmpty"));
+        return;
+      }
+      if (text.length > 4000) {
+        setError(t("playground.messageTooLong"));
+        return;
+      }
+
+      const key = apiKey.trim();
+      if (!key) {
+        setError(t("playground.keyMissing"));
+        return;
+      }
 
       setError(null);
       setRetryMessage(null);
@@ -208,7 +243,10 @@ export function ChatPlayground() {
       try {
         const response = await fetch("/api/playground/chat", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${key}`,
+          },
           body: JSON.stringify({
             message: text,
             session_id: sessionIdRef.current || undefined,
@@ -299,7 +337,7 @@ export function ChatPlayground() {
         inputRef.current?.focus();
       }
     },
-    [category, input, isRestoring, isStreaming, persistSessionId, scrollToBottom, t, updateMessage],
+    [apiKey, category, input, isRestoring, isStreaming, persistSessionId, scrollToBottom, t, updateMessage],
   );
 
   function handleClear() {
@@ -321,13 +359,57 @@ export function ChatPlayground() {
 
   const charCount = input.length;
   const maxChars = 4000;
-  const canSend = input.trim().length >= 3 && !isStreaming && !isRestoring;
+  const hasKey = apiKey.trim().length > 0;
+  const canSend = input.trim().length >= 3 && !isStreaming && !isRestoring && hasKey;
   const showEmptyState = !isRestoring && messages.length === 0;
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-4 lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-5">
       <aside className="shrink-0 rounded-xl border border-border bg-card p-4 shadow-sm lg:flex lg:h-full lg:min-h-0 lg:flex-col lg:overflow-y-auto lg:p-5">
-        <p className="text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)]">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)]">
+            {t("playground.keyTitle")}
+          </p>
+          <p className="mt-2 text-xs leading-relaxed text-[color:var(--muted)]">
+            {t("playground.keyHelp")}
+          </p>
+          <div className="mt-3 flex items-center gap-2">
+            <input
+              type={showKey ? "text" : "password"}
+              value={apiKey}
+              onChange={(event) => setApiKey(event.target.value)}
+              placeholder={t("playground.keyPlaceholder")}
+              autoComplete="off"
+              spellCheck={false}
+              disabled={isStreaming}
+              className="min-w-0 flex-1 rounded-lg border border-border bg-background px-3 py-2 font-mono text-xs outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 disabled:opacity-60"
+            />
+            <button
+              type="button"
+              onClick={() => setShowKey((value) => !value)}
+              className="shrink-0 rounded-lg border border-border px-2.5 py-2 text-xs font-medium transition hover:bg-background-subtle"
+            >
+              {showKey ? t("playground.hideKey") : t("playground.showKey")}
+            </button>
+          </div>
+          <label className="mt-2.5 flex items-center gap-2 text-xs text-[color:var(--muted)]">
+            <input
+              type="checkbox"
+              checked={rememberKey}
+              onChange={(event) => setRememberKey(event.target.checked)}
+              className="h-3.5 w-3.5 accent-brand-600"
+            />
+            {t("playground.rememberKey")}
+          </label>
+          <Link
+            href="/dashboard/api-keys"
+            className="mt-2 inline-block text-xs font-medium text-brand-600 hover:underline dark:text-brand-500"
+          >
+            {t("playground.createKey")} →
+          </Link>
+        </div>
+
+        <p className="mt-4 border-t border-border pt-4 text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)]">
           {t("playground.settings")}
         </p>
 
@@ -430,23 +512,36 @@ export function ChatPlayground() {
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                 </svg>
               </div>
-              <p className="mt-4 text-lg font-semibold">{t("playground.emptyTitle")}</p>
-              <p className="mt-2 max-w-md text-sm text-[color:var(--muted)]">
-                {t("playground.emptyDescription")}
+              <p className="mt-4 text-lg font-semibold">
+                {hasKey ? t("playground.emptyTitle") : t("playground.unlockTitle")}
               </p>
-              <div className="mt-6 flex flex-wrap justify-center gap-2">
-                {starterPrompts.map((prompt) => (
-                  <button
-                    key={prompt}
-                    type="button"
-                    onClick={() => void handleSend(prompt)}
-                    disabled={isStreaming || isRestoring}
-                    className="rounded-full border border-border bg-background-subtle px-4 py-2 text-sm transition hover:border-brand-300 hover:bg-brand-50 disabled:opacity-50 dark:hover:bg-brand-900/20"
-                  >
-                    {prompt}
-                  </button>
-                ))}
-              </div>
+              <p className="mt-2 max-w-md text-sm text-[color:var(--muted)]">
+                {hasKey
+                  ? t("playground.emptyDescription")
+                  : t("playground.unlockDescription")}
+              </p>
+              {hasKey ? (
+                <div className="mt-6 flex flex-wrap justify-center gap-2">
+                  {starterPrompts.map((prompt) => (
+                    <button
+                      key={prompt}
+                      type="button"
+                      onClick={() => void handleSend(prompt)}
+                      disabled={isStreaming || isRestoring}
+                      className="rounded-full border border-border bg-background-subtle px-4 py-2 text-sm transition hover:border-brand-300 hover:bg-brand-50 disabled:opacity-50 dark:hover:bg-brand-900/20"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <Link
+                  href="/dashboard/api-keys"
+                  className="mt-6 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
+                >
+                  {t("playground.createKey")}
+                </Link>
+              )}
             </div>
           ) : (
             <div className="mx-auto max-w-3xl space-y-5">
@@ -555,7 +650,10 @@ export function ChatPlayground() {
               <textarea
                 ref={inputRef}
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={(e) => {
+                  setInput(e.target.value);
+                  if (error) setError(null);
+                }}
                 onKeyDown={handleKeyDown}
                 disabled={isStreaming || isRestoring}
                 rows={2}

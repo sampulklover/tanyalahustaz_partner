@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Spinner } from "@/components/spinner";
 import { useI18n } from "@/lib/i18n/client";
 import { onSyncStarted } from "@/lib/activity-events";
+import { createClient } from "@/lib/supabase/client";
 
 type RunStatus = {
   id: string;
@@ -18,6 +19,7 @@ type RunStatus = {
   current_path: string | null;
   error: string | null;
   embed_job_id: string | null;
+  embed_cost_usd: number | null;
 };
 
 /**
@@ -48,6 +50,20 @@ export function KnowledgeActivity({
   const ticksRef = useRef(0);
   const pendingSignature = String(pendingEmbedJobs);
   const [lastPendingSignature, setLastPendingSignature] = useState(pendingSignature);
+
+  /**
+   * A long sync can outlive the access token. Refreshing the browser session
+   * writes fresh auth cookies, so the server route does not answer 403
+   * ("Editor access required") mid-poll.
+   */
+  async function refreshSession() {
+    try {
+      const supabase = createClient();
+      await supabase.auth.getSession();
+    } catch {
+      // Non-fatal: the next poll or a page refresh will recover.
+    }
+  }
 
   // Adopt the server value after a refresh.
   if (lastPendingSignature !== pendingSignature) {
@@ -80,6 +96,7 @@ export function KnowledgeActivity({
         }
 
         try {
+          await refreshSession();
           const response = await fetch(
             `/api/knowledge/sources/sync/status?runId=${encodeURIComponent(runId)}`,
           );
@@ -114,6 +131,7 @@ export function KnowledgeActivity({
     setEmbedMessage(null);
 
     try {
+      await refreshSession();
       const response = await fetch("/api/knowledge/sources/embed", { method: "POST" });
       const payload = (await response.json().catch(() => null)) as
         | { chunksWritten?: number; pending?: number; error?: string }
@@ -232,6 +250,13 @@ export function KnowledgeActivity({
                 {syncRun.deferred_count > 0 && (
                   <p className="mt-1 text-amber-700 dark:text-amber-400">
                     {t("knowledge.sources.syncRemaining", { count: syncRun.deferred_count })}
+                  </p>
+                )}
+                {syncRun.embed_cost_usd != null && Number(syncRun.embed_cost_usd) > 0 && (
+                  <p className="mt-1 text-[color:var(--muted)]">
+                    {t("knowledge.sources.syncCost", {
+                      cost: `$${Number(syncRun.embed_cost_usd).toFixed(4)}`,
+                    })}
                   </p>
                 )}
                 {syncRun.error && (

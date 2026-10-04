@@ -1,6 +1,7 @@
+import { authenticateApiRequest, recordApiUsage } from "@/lib/api-auth";
+import { resolveRequestId } from "@/lib/api/errors";
 import { persistChatExchange, prepareChatContext } from "@/lib/chat";
 import type { ChatUsage } from "@/lib/openrouter";
-import { getDashboardContext } from "@/lib/dashboard";
 import {
   getActionTranslations,
   translateChatError,
@@ -8,8 +9,7 @@ import {
 } from "@/lib/i18n/actions";
 import { streamChatReply } from "@/lib/openrouter";
 import { createPlaygroundSseStream } from "@/lib/playground-stream";
-import { checkPlaygroundRateLimit } from "@/lib/rate-limit";
-import { createClient } from "@/lib/supabase/server";
+import { checkApiKeyRateLimit } from "@/lib/rate-limit";
 
 export const maxDuration = 60;
 
@@ -19,29 +19,28 @@ type PlaygroundChatBody = {
   category?: unknown;
 };
 
+/**
+ * Streaming chat for the "Try it live" playground. Unlike the dashboard-only
+ * version, this authenticates with the user's own API key so what they test is
+ * exactly what their product will call.
+ */
 export async function POST(request: Request) {
   const t = await getActionTranslations();
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
-  if (!user) {
-    return Response.json({ error: t("actionErrors.notSignedIn") }, { status: 401 });
+  const auth = await authenticateApiRequest(request);
+  if (!auth.ok) {
+    return Response.json({ error: auth.error }, { status: auth.status });
   }
 
-  const context = await getDashboardContext();
-  if (!context?.isTeamMember) {
-    return Response.json({ error: t("actionErrors.teamOnly") }, { status: 403 });
-  }
+  const context = auth.context;
 
-  const rateLimit = await checkPlaygroundRateLimit(user.id);
+  const rateLimit = await checkApiKeyRateLimit(context.apiKeyId, "chat");
   if (!rateLimit.ok) {
     return Response.json(
       {
         error: translateRateLimitError(t, rateLimit.error, {
-          perMinute: Number(process.env.RATE_LIMIT_PLAYGROUND_PER_MINUTE ?? 10),
-          perDay: Number(process.env.RATE_LIMIT_PLAYGROUND_PER_DAY ?? 50),
+          perMinute: Number(process.env.RATE_LIMIT_CHAT_PER_MINUTE ?? 20),
+          perDay: Number(process.env.RATE_LIMIT_CHAT_PER_DAY ?? 500),
         }),
       },
       { status: 429 },
@@ -70,7 +69,7 @@ export async function POST(request: Request) {
     message,
     sessionId,
     category,
-    partnerId: user.id,
+    partnerId: context.userId,
   });
 
   if (!prepared.ok) {
@@ -90,7 +89,7 @@ export async function POST(request: Request) {
       knowledgeContext,
       history,
       signal: request.signal,
-      partnerId: user.id,
+      partnerId: context.userId,
       onUsage: (value) => {
         usage = value;
       },
@@ -117,8 +116,8 @@ export async function POST(request: Request) {
     }
 
     await persistChatExchange({
-      partnerId: user.id,
-      apiKeyId: null,
+      partnerId: context.userId,
+      apiKeyId: context.apiKeyId,
       sessionId: resolvedSessionId,
       userMessage,
       assistantMessage: trimmedReply,
@@ -129,6 +128,12 @@ export async function POST(request: Request) {
 
     send({ type: "done" });
   });
+
+  void recordApiUsage(
+    { ...context, requestId: resolveRequestId(request) },
+    request,
+    200,
+  );
 
   return new Response(stream, {
     headers: {

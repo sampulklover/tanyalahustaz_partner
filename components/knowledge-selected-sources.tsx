@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   clearSourceSelections,
@@ -9,6 +9,7 @@ import {
 import { KnowledgeSyncButton } from "@/components/knowledge-sync-button";
 import { useToast } from "@/components/toast";
 import { useI18n } from "@/lib/i18n/client";
+import { isPathSynced } from "@/lib/sync-path";
 import {
   emitSourceSelection,
   onSourceSelection,
@@ -27,10 +28,12 @@ function signatureOf(items: SelectedSource[]) {
  */
 export function KnowledgeSelectedSources({
   initialSelections,
+  syncedPaths = [],
   canEdit = true,
   configured = true,
 }: {
   initialSelections: SelectedSource[];
+  syncedPaths?: string[];
   canEdit?: boolean;
   configured?: boolean;
 }) {
@@ -39,15 +42,27 @@ export function KnowledgeSelectedSources({
   const router = useRouter();
   const [, startTransition] = useTransition();
 
-  const serverSignature = signatureOf(initialSelections);
+  const syncedSet = new Set(syncedPaths);
+  const isSynced = (path: string) => isPathSynced(path, syncedSet);
+  // Keep the latest synced set available to the mounted event listener.
+  const syncedSetRef = useRef(syncedSet);
+  useEffect(() => {
+    syncedSetRef.current = syncedSet;
+  });
+
+  // Already-mirrored paths never appear in "what will sync" — there's nothing
+  // left to do for them.
+  const pendingSelections = initialSelections.filter((item) => !isSynced(item.path));
+
+  const serverSignature = signatureOf(pendingSelections);
   const [state, setState] = useState({
     signature: serverSignature,
-    items: initialSelections,
+    items: pendingSelections,
   });
 
   // Adopt the server value once a refresh brings new data.
   if (state.signature !== serverSignature) {
-    setState({ signature: serverSignature, items: initialSelections });
+    setState({ signature: serverSignature, items: pendingSelections });
   }
 
   const items = state.items;
@@ -62,6 +77,7 @@ export function KnowledgeSelectedSources({
 
         const exists = previous.items.some((item) => item.path === event.path);
         if (event.selected && !exists) {
+          if (isPathSynced(event.path, syncedSetRef.current)) return previous;
           return {
             ...previous,
             items: [...previous.items, { path: event.path, kind: event.kind }],
@@ -80,6 +96,7 @@ export function KnowledgeSelectedSources({
 
   // Fetch what the next sync would change, on demand (never during navigation).
   const [preview, setPreview] = useState<{ additions: number; removals: number } | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
   const selectionSignature = items
     .map((item) => `${item.kind}:${item.path}`)
     .sort()
@@ -90,9 +107,14 @@ export function KnowledgeSelectedSources({
 
     const run = async () => {
       if (items.length === 0) {
-        if (!cancelled) setPreview(null);
+        if (!cancelled) {
+          setPreview(null);
+          setPreviewLoading(false);
+        }
         return;
       }
+
+      if (!cancelled) setPreviewLoading(true);
 
       try {
         const response = await fetch("/api/knowledge/sources/preview");
@@ -102,12 +124,18 @@ export function KnowledgeSelectedSources({
         if (!cancelled) setPreview(payload?.preview ?? null);
       } catch {
         if (!cancelled) setPreview(null);
+      } finally {
+        if (!cancelled) setPreviewLoading(false);
       }
     };
 
-    void run();
+    const timer = setTimeout(() => {
+      void run();
+    }, 500);
+
     return () => {
       cancelled = true;
+      clearTimeout(timer);
     };
   }, [selectionSignature, items.length]);
 
@@ -226,6 +254,7 @@ export function KnowledgeSelectedSources({
           hasSelections={items.length > 0}
           additions={preview?.additions ?? null}
           removals={preview?.removals ?? null}
+          previewLoading={previewLoading}
           fullWidth
         />
       </footer>

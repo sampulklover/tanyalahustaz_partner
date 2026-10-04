@@ -6,7 +6,7 @@ export async function getActionTranslations() {
 }
 
 const CHAT_ERROR_MAP: Record<string, string> = {
-  "Message must be at least 3 characters.": "actionErrors.messageTooShort",
+  "Message cannot be empty.": "actionErrors.messageEmpty",
   "Message must be 4000 characters or fewer.": "actionErrors.messageTooLong",
   "Failed to generate AI response.": "actionErrors.aiResponseFailed",
 };

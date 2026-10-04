@@ -5,17 +5,14 @@ import { DashboardPage as DashboardShell } from "@/components/dashboard/page";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { Pagination } from "@/components/dashboard/pagination";
-import { StatCard } from "@/components/dashboard/stat-card";
 import {
   buildChatLogsPath,
   CHAT_LOGS_PER_PAGE,
-  getIsoTimestampHoursAgo,
   parseChatLogsPage,
   sanitizeChatLogSearch,
   normalizeChatLogRow,
   type ChatLogsSearchParams,
 } from "@/lib/chat-logs";
-import { getDashboardContext } from "@/lib/dashboard";
 import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "@/lib/i18n/server";
 
@@ -36,15 +33,12 @@ export default async function ChatLogsPage({
   const session = params.session?.trim() ?? "";
 
   const supabase = await createClient();
-  const context = await getDashboardContext();
-  const isTeamMember = context?.isTeamMember ?? false;
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const from = (page - 1) * CHAT_LOGS_PER_PAGE;
   const to = from + CHAT_LOGS_PER_PAGE - 1;
-  const last24h = getIsoTimestampHoursAgo(24);
 
   let logsQuery = supabase
     .from("partner_chat_logs")
@@ -68,18 +62,12 @@ export default async function ChatLogsPage({
   const [
     { data: logs, count },
     { count: totalAll },
-    { count: last24hCount },
   ] = await Promise.all([
     logsQuery.range(from, to),
     supabase
       .from("partner_chat_logs")
       .select("*", { count: "exact", head: true })
       .eq("partner_id", user!.id),
-    supabase
-      .from("partner_chat_logs")
-      .select("*", { count: "exact", head: true })
-      .eq("partner_id", user!.id)
-      .gte("created_at", last24h),
   ]);
 
   const items = (logs ?? []).map((row) => normalizeChatLogRow(row));
@@ -92,7 +80,6 @@ export default async function ChatLogsPage({
     redirect(buildChatLogsPath("/dashboard/chat", filterQuery));
   }
 
-  const hasFilters = Boolean(q || session);
   const showingEmptyFiltered = items.length === 0 && (totalAll ?? 0) > 0;
 
   return (
@@ -101,47 +88,14 @@ export default async function ChatLogsPage({
         title={t("pages.chatLogs.title")}
         description={t("pages.chatLogs.description")}
         actions={
-          isTeamMember ? (
-            <Link
-              href="/dashboard/playground"
-              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
-            >
-              {t("pages.overview.tryItLive")}
-            </Link>
-          ) : undefined
+          <Link
+            href="/dashboard/playground"
+            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
+          >
+            {t("pages.overview.tryItLive")}
+          </Link>
         }
       />
-
-      <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <StatCard
-          label={t("pages.chatLogs.totalRequests")}
-          value={(totalAll ?? 0).toLocaleString()}
-          icon={
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            </svg>
-          }
-        />
-        <StatCard
-          label={t("pages.chatLogs.last24Hours")}
-          value={(last24hCount ?? 0).toLocaleString()}
-          icon={
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
-          }
-        />
-        <StatCard
-          label={hasFilters ? t("pages.chatLogs.matchingFilters") : t("pages.chatLogs.onThisPage")}
-          value={hasFilters ? total.toLocaleString() : items.length.toLocaleString()}
-          icon={
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-            </svg>
-          }
-        />
-      </div>
 
       {showingEmptyFiltered ? (
         <EmptyState
@@ -152,16 +106,8 @@ export default async function ChatLogsPage({
       ) : items.length === 0 ? (
         <EmptyState
           title={t("pages.chatLogs.noChatRequestsYet")}
-          description={
-            isTeamMember
-              ? t("pages.chatLogs.noChatRequestsDescription")
-              : t("pages.chatLogs.noChatRequestsDescriptionIntegrate")
-          }
-          action={
-            isTeamMember
-              ? { href: "/dashboard/playground", label: t("pages.overview.tryItLive") }
-              : { href: "/docs/endpoints", label: t("common.apiReferenceLink") }
-          }
+          description={t("pages.chatLogs.noChatRequestsDescription")}
+          action={{ href: "/dashboard/playground", label: t("pages.overview.tryItLive") }}
         />
       ) : (
         <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
