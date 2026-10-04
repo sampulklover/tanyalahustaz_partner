@@ -1,7 +1,13 @@
 import { NextResponse, after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { requireKnowledgeEditor } from "@/lib/dashboard";
-import { createSyncRun, getGcsSyncStatus, syncKnowledgeFromGcs, syncRunCap } from "@/lib/gcs-sync";
+import {
+  clearSyncPreviewCache,
+  createSyncRun,
+  getGcsSyncStatus,
+  syncKnowledgeFromGcs,
+  syncRunCap,
+} from "@/lib/gcs-sync";
 import { drainEmbedJobs } from "@/lib/knowledge-embed-jobs";
 import { logError } from "@/lib/logger";
 
@@ -64,6 +70,8 @@ export async function POST(request: Request) {
     } catch (error) {
       logError("GCS sync run failed", error, { runId });
     } finally {
+      // The library changed, so any cached preview is now wrong.
+      clearSyncPreviewCache();
       revalidatePath("/dashboard/knowledge/sources");
     }
   });

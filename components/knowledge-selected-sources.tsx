@@ -10,6 +10,7 @@ import { KnowledgeSyncButton } from "@/components/knowledge-sync-button";
 import { useToast } from "@/components/toast";
 import { useI18n } from "@/lib/i18n/client";
 import { isPathSynced } from "@/lib/sync-path";
+import { onSyncFinished } from "@/lib/activity-events";
 import {
   emitSourceSelection,
   onSourceSelection,
@@ -102,6 +103,12 @@ export function KnowledgeSelectedSources({
     estimatedCostUsd: number;
   } | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+  // Bumped when a sync finishes so the preview re-fetches for the new state.
+  const [previewTick, setPreviewTick] = useState(0);
+
+  useEffect(() => {
+    return onSyncFinished(() => setPreviewTick((value) => value + 1));
+  }, []);
   const selectionSignature = items
     .map((item) => `${item.kind}:${item.path}`)
     .sort()
@@ -149,7 +156,7 @@ export function KnowledgeSelectedSources({
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [selectionSignature, items.length]);
+  }, [selectionSignature, items.length, previewTick]);
 
   const folderCount = items.filter((item) => item.kind === "folder").length;
   const fileCount = items.filter((item) => item.kind === "file").length;

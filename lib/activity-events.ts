@@ -18,3 +18,17 @@ export function onSyncStarted(handler: (runId: string) => void) {
   window.addEventListener(SYNC_STARTED_EVENT, listener);
   return () => window.removeEventListener(SYNC_STARTED_EVENT, listener);
 }
+
+/** Fired when a run finishes, so counts and previews can refresh. */
+export const SYNC_FINISHED_EVENT = "tanyalahustaz:sync-finished";
+
+export function emitSyncFinished() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(SYNC_FINISHED_EVENT));
+}
+
+export function onSyncFinished(handler: () => void) {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener(SYNC_FINISHED_EVENT, handler);
+  return () => window.removeEventListener(SYNC_FINISHED_EVENT, handler);
+}
