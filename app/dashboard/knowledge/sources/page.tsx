@@ -534,9 +534,23 @@ export default async function KnowledgeSourcesPage({
                           {run.error ? (
                             <span className="text-red-600 dark:text-red-400">{run.error}</span>
                           ) : failedCount > 0 ? (
-                            <span className="text-amber-700 dark:text-amber-400">
-                              {t("knowledge.sources.failedCount", { count: failedCount })}
-                            </span>
+                            <details className="group">
+                              <summary className="cursor-pointer list-none text-amber-700 hover:underline dark:text-amber-400">
+                                {t("knowledge.sources.failedCount", { count: failedCount })}
+                              </summary>
+                              <ul className="mt-2 max-h-48 space-y-1 overflow-y-auto text-xs">
+                                {(run.failed ?? []).map((failure, index) => (
+                                  <li key={`${failure.path}-${index}`} className="leading-relaxed">
+                                    <span className="font-mono break-all text-[color:var(--muted)]">
+                                      {failure.path}
+                                    </span>
+                                    <span className="mt-0.5 block text-red-600 dark:text-red-400">
+                                      {failure.error}
+                                    </span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </details>
                           ) : (
                             <span className="text-[color:var(--muted)]">—</span>
                           )}
