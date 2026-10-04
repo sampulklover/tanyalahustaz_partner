@@ -2,7 +2,7 @@
   "brand": {
     "signIn": "Sign in",
     "getStarted": "Get started",
-    "developers": "Developers",
+    "developers": "For Business",
     "dashboard": "Dashboard",
     "visitApp": "Visit app"
   },
@@ -39,7 +39,7 @@
     "inviteCode": "Invite code",
     "invitePlaceholder": "Enter your invite code",
     "inviteHelp": "Signup is invite-only. Contact us if you need access.",
-    "companyPlaceholder": "Acme Inc.",
+    "companyPlaceholder": "Your company name",
     "emailPlaceholder": "you@company.com",
     "passwordHint": "At least 8 characters.",
     "signingIn": "Signing in…",
@@ -52,14 +52,16 @@
     "createYourAccount": "Create your account",
     "signupInviteSubtitle": "Enter your invite code to join the Tanyalah Ustaz partner program.",
     "signupOpenSubtitle": "Start building with the Tanyalah Ustaz API. Free to get started.",
-    "developerPlatform": "Developer platform",
+    "developerPlatform": "Business platform",
     "authHeroTitle": "Bring Tanyalah Ustaz Islamic AI to your users",
     "authHighlight1": "Knowledge-backed answers with source citations",
     "authHighlight2": "API keys, live testing, and usage insights",
     "authHighlight3": "Same trusted content as the Tanyalah Ustaz app",
     "authFooterNote": "Developer accounts are separate from personal accounts on {consumerApp}.",
     "consumerAppPrompt": "Looking for the personal app?",
-    "consumerAppLink": "Go to {consumerUrl} →"
+    "consumerAppLink": "Go to {consumerUrl} →",
+    "continueWithGoogle": "Continue with Google",
+    "orDivider": "or"
   },
   "dashboard": {
     "overview": "Overview",
@@ -73,90 +75,88 @@
     "resources": "Resources",
     "documentation": "Documentation",
     "signOut": "Sign out",
-    "prompt": "Custom instructions"
+    "prompt": "Custom instructions",
+    "settings": "Settings",
+    "signOutConfirmTitle": "Sign out?",
+    "signOutConfirm": "You will be signed out of your account and returned to the home page.",
+    "signOutConfirmCta": "Sign out"
   },
   "home": {
     "meta": {
-      "title": "Islamic AI for your product",
-      "description": "Embed the same knowledge-backed Islamic AI behind Tanyalah Ustaz into your platform, app, or website."
+      "title": "Trusted Islamic AI for your product",
+      "description": "Give your users reliable, knowledge-backed answers on fiqh, ibadah, and daily practice. Powered by the same trusted content as Tanyalah Ustaz."
     },
     "hero": {
-      "title": "Bring Tanyalah Ustaz Islamic AI to your users",
-      "subtitle": "The same trusted Islamic AI behind {consumerApp}, now available for your platform, app, or website. One integration, cited answers, and no AI infrastructure to manage.",
-      "viewDocs": "View documentation",
+      "title": "Trusted Islamic guidance, built into your product",
+      "subtitle": "Give your users clear, reliable answers about their faith — right inside your app or website. Powered by the same curated knowledge behind {consumerApp}, with sources on every reply.",
+      "viewDocs": "See how it works",
       "freeToStart": "Free to start",
-      "noAiSetup": "No AI setup required",
+      "noAiSetup": "No AI team needed",
       "sourcesEveryAnswer": "Sources on every answer"
     },
     "trust": {
       "eyebrow": "Powered by Tanyalah Ustaz",
-      "body": "Your integration uses the same curated knowledge base and answer quality as our app, built for teams who want to offer trusted Islamic guidance inside their own products.",
+      "body": "You get the same trusted knowledge and answer quality as our app, so you can offer dependable Islamic guidance inside your own product — without building AI from scratch.",
       "visitConsumer": "Visit {consumerApp} ↗"
     },
-    "stats": {
-      "endpoint": "Simple integration",
-      "categories": "Knowledge categories",
-      "rag": "Knowledge-grounded",
-      "sources": "Answers with sources"
-    },
     "features": {
-      "eyebrow": "Developer platform",
-      "title": "Everything you need to integrate",
-      "subtitle": "A complete pipeline behind a single API, so your team ships faster, without building AI infrastructure from scratch.",
+      "eyebrow": "Why teams choose us",
+      "title": "Everything you need to offer trusted guidance",
+      "subtitle": "We handle the knowledge, the AI, and the quality checks. You focus on your product and your users.",
       "items": [
         {
-          "title": "Grounded in the same knowledge base",
-          "body": "Answers draw from the curated library that powers Tanyalah Ustaz: articles on fiqh, ibadah, aqidah, and akhlak. Scholarship-backed responses, not generic guesses."
+          "title": "Grounded in trusted knowledge",
+          "body": "Answers come from the same curated library that powers Tanyalah Ustaz: articles on fiqh, ibadah, aqidah, and akhlak — not generic guesses."
         },
         {
-          "title": "Cited sources on every reply",
-          "body": "Responses come with references to the source articles used. Build trust with your users by showing exactly where each answer comes from."
+          "title": "Sources on every answer",
+          "body": "Every reply includes references to the source articles, so your users can trust what they read and check it themselves."
         },
         {
-          "title": "One simple integration",
-          "body": "Send a user's question and get a reply back. No prompt engineering, no databases to run, no model providers to manage. We handle it all."
+          "title": "One simple connection",
+          "body": "Send a question, get an answer. No prompt engineering, no databases, and no AI models for you to run or maintain."
         },
         {
           "title": "Conversation memory",
-          "body": "Follow-up questions stay in context across multiple turns, just like a real conversation with a knowledgeable guide."
+          "body": "Follow-up questions stay in context, just like a real conversation with a knowledgeable guide."
         },
         {
           "title": "Category filtering",
-          "body": "Scope answers to fiqh, ibadah, aqidah, akhlak, or general so responses match the context of the page your users are on."
+          "body": "Scope answers to fiqh, ibadah, aqidah, akhlak, or general so they match the context of your product."
         },
         {
-          "title": "Developer dashboard",
-          "body": "API keys, live testing, chat logs, and usage insights: everything your team needs to launch and monitor your integration."
+          "title": "A dashboard for your team",
+          "body": "API keys, live testing, chat logs, and usage insights — everything you need to launch and monitor your integration."
         }
       ]
     },
     "howItWorks": {
       "eyebrow": "How it works",
-      "title": "From question to cited answer in one step",
-      "subtitle": "You send a message. We retrieve, ground, and generate the answer. Your users get guidance they can trust.",
+      "title": "From question to trusted answer, automatically",
+      "subtitle": "Your users ask a question. We find the right guidance and write a clear, sourced answer. You simply show it.",
       "steps": [
         {
-          "title": "Create your API key",
-          "body": "Sign up and generate an API key from the dashboard in seconds."
+          "title": "Connect your product",
+          "body": "Create an account and connect your app in minutes. There is no AI infrastructure to build or maintain."
         },
         {
-          "title": "Send a question",
-          "body": "Pass the user's message through our chat API. Optionally set a topic category for more relevant answers."
+          "title": "Your users ask questions",
+          "body": "They ask about prayer, fasting, finance, or daily practice — right inside your app or website."
         },
         {
-          "title": "We retrieve & ground",
-          "body": "We search the knowledge base for the most relevant passages and build a grounded response."
+          "title": "We find the right answers",
+          "body": "Every question is matched against a curated library of verified Islamic content."
         },
         {
-          "title": "Return a cited answer",
-          "body": "Your users get a clear, knowledge-backed reply, complete with the source articles behind it."
+          "title": "You show sourced replies",
+          "body": "Your users get a helpful answer with the sources behind it, so they know what they read can be trusted."
         }
       ]
     },
     "useCases": {
       "eyebrow": "Use cases",
       "title": "Built for products that serve Muslims",
-      "subtitle": "Wherever your users have questions about their faith, give them grounded answers in context.",
+      "subtitle": "Wherever your users have questions about their faith, give them dependable answers in context.",
       "items": [
         {
           "title": "Islamic education platforms",
@@ -178,78 +178,45 @@
     },
     "pricing": {
       "eyebrow": "Pricing",
-      "title": "Prepaid credit. Pay as you go.",
-      "subtitle": "No subscriptions. Top up your balance and it is drawn down as your integration uses the API.",
-      "note": "All amounts are in Malaysian Ringgit (RM). Credit never expires, and you can top up again at any time from your dashboard.",
-      "packs": [
-        {
-          "name": "Starter",
-          "price": "RM10",
-          "tagline": "For building and testing.",
-          "features": [
-            "Full knowledge-backed chat API",
-            "Usage and cost tracking",
-            "Chat logs and playground",
-            "Credits never expire"
-          ],
-          "cta": "Get started"
-        },
-        {
-          "name": "Growth",
-          "price": "RM50",
-          "tagline": "For apps in production.",
-          "features": [
-            "Everything in Starter",
-            "Higher request volume",
-            "Priority processing",
-            "Email support"
-          ],
-          "cta": "Get started",
-          "popular": true,
-          "badge": "Most popular"
-        },
-        {
-          "name": "Scale",
-          "price": "RM200",
-          "tagline": "For high-traffic partners.",
-          "features": [
-            "Everything in Growth",
-            "Best value per credit",
-            "Custom knowledge integration",
-            "Priority support"
-          ],
-          "cta": "Get started"
-        }
-      ]
+      "title": "Simple, credit-based pricing",
+      "subtitle": "No subscriptions and no surprises. Add credit to your account and it is used only when your product gets answers.",
+      "note": "All amounts are in Malaysian Ringgit (RM). Credit never expires, and you can top up any time from your dashboard.",
+      "bullets": [
+        "Pay only for what you use",
+        "No monthly commitment",
+        "Credit never expires",
+        "Top up whenever you need"
+      ],
+      "cta": "Get started"
     },
     "faq": {
       "eyebrow": "FAQ",
       "title": "Questions, answered",
-      "subtitle": "Everything you need to know before you integrate.",
+      "subtitle": "Everything you need to know before you get started.",
       "items": [
         {
-          "q": "How is this different from tanyalahustaz.com?",
-          "a": "This is the developer platform for businesses. {consumerApp} ({consumerUrl}) is where individuals ask questions directly. This API lets you embed the same knowledge-backed AI into your own product."
+          "q": "How is this different from the Tanyalah Ustaz app?",
+          "a": "This is the platform for businesses. {consumerApp} ({consumerUrl}) is where individuals ask questions directly. Through this platform you can embed the same trusted Islamic guidance into your own product."
         },
         {
-          "q": "Is this login the same as tanyalahustaz.com?",
-          "a": "No. Sign in here to manage your developer dashboard: API keys, testing, and usage. The {consumerApp} app has its own login for individuals. The two accounts are not interchangeable."
+          "q": "Is this login the same as the Tanyalah Ustaz app?",
+          "a": "No. You sign in here to manage your business dashboard: API keys, testing, and usage. The {consumerApp} app has its own login for individuals. The two accounts are not interchangeable."
         },
         {
           "q": "Where do the answers come from?",
-          "a": "Answers are generated from the same curated Tanyalah Ustaz knowledge base used in the app. We find the most relevant passages for each question and use them to produce grounded, cited responses."
+          "a": "Answers are generated from the curated Tanyalah Ustaz knowledge base — a collection of verified Islamic content. We find the most relevant passages for each question and produce sourced replies."
         },
         {
-          "q": "Do I need to run my own AI infrastructure?",
-          "a": "No. We handle search, grounding, and generation. You make a single authenticated API call and receive a finished reply with sources."
+          "q": "Do I need my own AI team?",
+          "a": "No. We handle search, grounding, and answer generation. You just connect your product and start asking."
         },
         {
-          "q": "How is the API authenticated?",
-          "a": "Each request uses an API key you create in the dashboard. Keys can be revoked at any time. See the documentation for full authentication details."
+          "q": "How do I connect it to my product?",
+          "a": "Create an account, get an API key, and send user questions from your backend. Our documentation walks you through it step by step."
         },
         {
-          "q": "Can I test before integrating?",
-          "a": "Yes. The dashboard includes a live testing area that uses the same pipeline as production, so you can try questions and categories before writing any code."
+          "q": "Can I try it before committing?",
+          "a": "Yes. You can test questions and categories live in the dashboard before writing any code."
         },
         {
           "q": "Are the answers a substitute for a scholar?",
@@ -258,9 +225,9 @@
       ]
     },
     "cta": {
-      "title": "Bring Tanyalah Ustaz to your users",
-      "subtitle": "Create a free account, get your API key, and make your first chat request in minutes.",
-      "exploreDocs": "Explore the docs"
+      "title": "Bring trusted Islamic guidance to your users",
+      "subtitle": "Create a free account and start giving your users reliable answers in minutes.",
+      "exploreDocs": "See how it works"
     }
   },
   "common": {
@@ -326,16 +293,16 @@
     "backToSignIn": "Back to sign in"
   },
   "meta": {
-    "layoutTitle": "Tanyalah Ustaz Developers: Islamic AI API",
-    "layoutDescription": "Developer platform and API for embedding Tanyalah Ustaz Islamic AI in your product. Knowledge-backed answers with source citations.",
-    "ogDescription": "Add trustworthy, knowledge-backed Islamic AI to your product with a single API call. Grounded answers with source citations."
+    "layoutTitle": "Tanyalah Ustaz for Business",
+    "layoutDescription": "Trusted Islamic AI for your product. Knowledge-backed answers with source citations, from the team behind Tanyalah Ustaz.",
+    "ogDescription": "Add trusted, knowledge-backed Islamic AI to your product. Clear answers with sources on every reply."
   },
   "pages": {
     "overview": {
       "title": "Overview",
       "welcomeBack": "Welcome back",
       "welcomeBackWithCompany": "Welcome back, {company}",
-      "description": "Manage API keys, test your integration, and monitor usage from your dashboard.",
+      "description": "Your API keys, usage, and credit at a glance.",
       "tryItLive": "Try it live",
       "activeApiKeys": "Active API keys",
       "manageKeys": "Manage keys",
@@ -350,7 +317,11 @@
       "recentApiActivityDescription": "Last 8 requests across your keys",
       "noApiCallsYet": "No API calls yet",
       "noApiCallsDescription": "Create an API key and send your first request, or try it live.",
-      "createApiKey": "Create API key"
+      "createApiKey": "Create API key",
+      "requests30d": "Requests (30 days)",
+      "viewUsage": "View usage",
+      "creditBalance": "Credit balance",
+      "topUp": "Top up"
     },
     "apiKeys": {
       "title": "API keys",
@@ -358,9 +329,9 @@
     },
     "usage": {
       "title": "Usage",
-      "description": "API requests across your keys over time.",
+      "description": "Requests to your API over time.",
       "timezoneNote": "All times are UTC and data may be delayed by a few minutes.",
-      "totalRequests": "Total requests",
+      "totalRequests": "Requests",
       "chatRequests": "Chat requests",
       "successful": "Successful",
       "errors": "Errors",
@@ -375,7 +346,8 @@
       "chartTitle": "Requests",
       "seriesAll": "All",
       "seriesChat": "Chat",
-      "empty": "No requests in this period."
+      "empty": "No requests in this period.",
+      "keyFilterHint": "Switch keys instantly — no reload."
     },
     "topUp": {
       "title": "Top up",
@@ -479,7 +451,7 @@
     },
     "status": {
       "title": "System Status",
-      "description": "Current uptime and incident history for the Tanyalah Ustaz Developers API."
+      "description": "Current uptime and incident history for the Tanyalah Ustaz for Business API."
     }
   },
   "onboarding": {
@@ -576,6 +548,8 @@
     "cancelled": "Generation stopped.",
     "stopped": "You stopped this response.",
     "streamError": "Something went wrong while generating the answer.",
+    "messageEmpty": "Type a message first.",
+    "messageTooLong": "Message must be 4000 characters or fewer.",
     "sources": "Sources",
     "loadingHistory": "Loading conversation…",
     "dismiss": "Dismiss",
@@ -594,7 +568,17 @@
       "Can a traveler combine Dhuhr and Asr?",
       "What is the intention (niat) in prayer?",
       "What is sedekah and when is it encouraged?"
-    ]
+    ],
+    "keyTitle": "API key",
+    "keyHelp": "Paste a key from your account to test the live API. It is sent exactly like your app would send it.",
+    "keyPlaceholder": "tlh_live_…",
+    "keyMissing": "Add an API key to start testing.",
+    "showKey": "Show",
+    "hideKey": "Hide",
+    "rememberKey": "Remember in this browser",
+    "createKey": "Create an API key",
+    "unlockTitle": "Connect your key to start",
+    "unlockDescription": "Every message here goes to the real API using the key you enter."
   },
   "demo": {
     "keyTitle": "Partner API key",
@@ -677,10 +661,16 @@
       "description": "Everything the AI can draw on. Content is owned by Google Cloud and synced from Sources.",
       "searchPlaceholder": "Search by title, file name, or category…",
       "colSource": "Source",
+      "colCost": "Embed cost",
+      "costTitle": "{chunks} chunk(s) embedded with {model}",
+      "costUnknown": "Not embedded since cost tracking was added",
+      "totalCost": "{cost} embedding cost",
+      "totalCostTitle": "Total OpenRouter cost to embed all files in the library",
       "sourceSynced": "Google Cloud",
       "sourceManual": "Manual",
       "noMatches": "No files match your search.",
       "showing": "Showing {shown} of {total}",
+      "pageOf": "Page {page} of {total}",
       "noFiles": "No files yet. Select sources above and sync."
     },
     "prompt": {
@@ -741,18 +731,18 @@
       "noRuns": "No syncs yet.",
       "startedAt": "Started",
       "colResult": "Result",
-      "colErrors": "Errors",
-      "statusRunning": "Running",
+      "colCost": "Embed cost",
+      "colErrors": "Errors",      "statusRunning": "Running",
       "statusCompleted": "Completed",
       "statusFailed": "Failed",
       "readOnlyNote": "This file is mirrored from Google Cloud and is read-only. Edit it in the source system, then sync again.",
       "picker": {
-        "selectedTitle": "Selected sources",
-        "selectedEmpty": "Nothing selected yet. Tick folders or files below to choose what to mirror.",
-        "selectedSummary": "{folders} folder(s), {files} file(s)",
+        "selectedTitle": "Will sync",
+        "selectedEmpty": "Nothing queued. Tick folders or files below to add them to the library.",
+        "selectedSummary": "{folders} folder(s), {files} file(s) queued",
         "clearAll": "Clear all",
         "browseTitle": "Browse bucket",
-        "browseHint": "Tick a folder to mirror everything inside it, or tick a file to mirror just that document.",
+        "browseHint": "Tick a folder to mirror everything inside it, or tick a file to mirror just that document. Items already in the library are marked Synced.",
         "filterPlaceholder": "Filter by name…",
         "filterCount": "Showing {shown} of {total}",
         "noMatches": "Nothing matches “{query}”.",
@@ -772,7 +762,9 @@
         "notConfigured": "Connect Google Cloud Storage to browse files.",
         "truncated": "Showing the first 1,000 entries. Open a folder to narrow it down.",
         "syncedBadge": "Synced",
-        "syncedCountBadge": "{count} synced"
+        "syncedCountBadge": "{count} synced",
+        "syncedLocked": "Already synced — untick its folder to stop mirroring it",
+        "openFile": "Open the original file in a new tab"
       },
       "selectedSub": "selected for sync",
       "noSelection": "Nothing selected yet",
@@ -787,11 +779,14 @@
       "syncPreparing": "Preparing…",
       "syncBackgroundNote": "Runs on the server — you can close this page.",
       "syncRemaining": "{count} file(s) left for the next run.",
+      "syncCost": "Embedding cost: {cost}",
       "syncSelected": "Sync selected",
       "embedPreparing": "{count} file(s) still being prepared for search",
       "previewAdd": "+{count} new",
       "previewRemove": "−{count} will be removed",
       "previewNone": "No changes",
+      "previewCounting": "checking…",
+      "pruneOption": "Also remove files that are no longer selected (deletes them from the library)",
       "selectAll": "Select all ({count})",
       "selecting": "Selecting…",
       "selectAllFailed": "Could not select everything.",
@@ -968,6 +963,14 @@
     "pageDescription": "Current status and {days}-day uptime for API services.",
     "testApiKey": "Test your API key",
     "lastChecked": "Last checked {time} · {latency}ms · API {version}",
+    "dataNote": "Uptime is calculated from real API request results over the last 90 days. Today also reflects a live health check.",
+    "auto": {
+      "outageTitle": "Detected service outage",
+      "degradedTitle": "Detected service degradation",
+      "badge": "Auto",
+      "detectedAt": "Auto-detected",
+      "update": "{service}: {failed} of {total} requests failed ({rate}%)"
+    },
     "pastIncidents": "Past incidents",
     "noIncidents": "No incidents reported in the last {days} days.",
     "levels": {
@@ -1030,7 +1033,7 @@
     "verifyEmailBeforeSignIn": "Please verify your email before signing in. Check your inbox for the confirmation link.",
     "inviteRequired": "An invite code is required to create an account.",
     "inviteInvalid": "Invalid or expired invite code.",
-    "messageTooShort": "Message must be at least 3 characters.",
+    "messageEmpty": "Message cannot be empty.",
     "messageTooLong": "Message must be 4000 characters or fewer.",
     "aiResponseFailed": "Failed to generate AI response.",
     "rateLimitMinute": "Rate limit exceeded: {limit} requests per minute.",
@@ -1038,7 +1041,7 @@
     "editorAccessRequired": "Editor access required.",
     "adminAccessRequired": "Admin access required.",
     "reembedFailed": "Re-embed failed.",
-    "reembedSuccess": "Re-embedded {articles} article(s) and {chunks} chunk(s).",
+    "reembedSuccess": "Re-embedded {articles} article(s) and {chunks} chunk(s) for {cost}.",
     "adminAssignOnly": "Only knowledge admins can assign roles.",
     "emailRequired": "Email is required.",
     "invalidRole": "Choose a valid role.",
@@ -1056,7 +1059,11 @@
   "homeDemo": {
     "sampleQuestion": "Can a traveler combine Dhuhr and Asr?",
     "sampleResponse": "Yes. A traveler may combine Dhuhr and Asr (jama') during a journey, either advancing Asr into Dhuhr's time or delaying Dhuhr into Asr's time…",
-    "okStatus": "200 OK"
+    "okStatus": "200 OK",
+    "chatTitle": "Tanyalah Ustaz assistant",
+    "userQuestion": "Can a traveler combine Dhuhr and Asr?",
+    "assistantReply": "Yes. During a journey, a traveller may combine Dhuhr and Asr — either bringing Asr forward or delaying Dhuhr.",
+    "sourceLabel": "Source"
   },
   "partnerPrompt": {
     "title": "Custom instructions",
@@ -1067,10 +1074,10 @@
     "updatedLabel": "Shared prompt updated",
     "placeholderLabel": "Knowledge placeholder",
     "editorTitle": "Your instructions",
-    "editorHint": "Write anything specific to your app or audience — tone, language, or rules to follow. Leave empty to use the default.",
+    "editorHint": "Tell us about your product and audience, and how you want answers written — tone, language, or rules. Leave empty to use the default.",
     "tryDemo": "Test in demo site",
     "sharedNote": "The shared prompt is maintained by Tanyalah Ustaz and always applies. You only need to add guidance specific to your account.",
-    "placeholder": "e.g. Always answer in Bahasa Melayu, keep replies short, and mention our app name '…'.",
+    "placeholder": "e.g. Our app helps Muslims with daily worship and Islamic finance. Answer in a warm, simple tone, use Bahasa Melayu, and keep replies short and practical.",
     "save": "Save",
     "reset": "Clear",
     "saved": "Custom instructions saved.",
@@ -1105,5 +1112,43 @@
     "sendFailed": "Could not send the email. Please try again.",
     "notConfigured": "Email sending is not configured yet. Add RESEND_API_KEY to enable alerts.",
     "noEmail": "No email address is set on your account."
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your account details.",
+    "profileTitle": "Profile",
+    "profileDescription": "This information appears on your receipts and in the dashboard.",
+    "nameLabel": "Display name",
+    "namePlaceholder": "Your name",
+    "companyLabel": "Company name",
+    "companyPlaceholder": "Your company name",
+    "emailLabel": "Email",
+    "emailHint": "Contact support to change your sign-in email.",
+    "save": "Save changes",
+    "saved": "Profile updated.",
+    "passwordTitle": "Password",
+    "passwordDescription": "Change the password you use to sign in with email.",
+    "currentPasswordLabel": "Current password",
+    "newPasswordLabel": "New password",
+    "confirmPasswordLabel": "Confirm new password",
+    "passwordSave": "Update password",
+    "passwordSaved": "Password updated.",
+    "passwordTooShort": "New password must be at least 8 characters.",
+    "passwordMismatch": "The new passwords do not match.",
+    "currentPasswordWrong": "Your current password is incorrect.",
+    "emailTitle": "Email address",
+    "emailDescription": "Change the email you use to sign in. We'll send a confirmation link to the new address.",
+    "newEmailLabel": "New email",
+    "emailSave": "Update email",
+    "emailInvalid": "Enter a valid email address.",
+    "emailSame": "That is already your current email.",
+    "emailSent": "Check your inbox to confirm the new email.",
+    "dangerTitle": "Delete account",
+    "dangerDescription": "Permanently delete your account, API keys, chat logs, and billing records. This cannot be undone.",
+    "deleteButton": "Delete my account",
+    "deleteConfirmTitle": "Delete your account?",
+    "deleteConfirmBody": "This permanently removes your account and all associated data. This action cannot be undone.",
+    "deleteConfirmCta": "Yes, delete my account",
+    "deleteError": "Could not delete your account. Please try again."
   }
 }

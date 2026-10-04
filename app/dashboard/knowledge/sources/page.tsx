@@ -1,13 +1,17 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { KnowledgeActivity } from "@/components/knowledge-activity";
 import { KnowledgeNav } from "@/components/knowledge-nav";
 import { KnowledgeReembedButton } from "@/components/knowledge-reembed-button";
 import { KnowledgeSourcePicker } from "@/components/knowledge-source-picker";
 import { KnowledgeSourcesTabs } from "@/components/knowledge-sources-tabs";
+import {
+  KnowledgeSourcesStats,
+  KnowledgeSourcesStatsSkeleton,
+} from "./stats-section";
 import { DashboardPage as DashboardShell } from "@/components/dashboard/page";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { getDashboardContext } from "@/lib/dashboard";
-import { countKnowledgeChunks } from "@/lib/embed-knowledge";
 import { formatBytes } from "@/lib/format-bytes";
 import { listGcsChildren, searchGcsObjects } from "@/lib/gcs";
 import { getGcsSyncStatus } from "@/lib/gcs-sync";
@@ -18,7 +22,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { KnowledgeSyncRun } from "@/lib/types";
 import { getTranslations } from "@/lib/i18n/server";
 
-const MAX_LIBRARY_SHOWN = 100;
+const LIBRARY_PAGE_SIZE = 50;
 
 /** Global bucket search lists the whole bucket, so allow a longer render. */
 export const maxDuration = 60;
@@ -52,7 +56,14 @@ type LibraryArticle = {
 export default async function KnowledgeSourcesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; browse?: string; filter?: string; search?: string; view?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    browse?: string;
+    filter?: string;
+    search?: string;
+    view?: string;
+    page?: string;
+  }>;
 }) {
   const t = await getTranslations();
   const params = await searchParams;
@@ -61,6 +72,10 @@ export default async function KnowledgeSourcesPage({
   const knowledge = context!.knowledge;
   const status = getGcsSyncStatus();
   const supabase = await createClient();
+
+  const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
+  const pageFrom = (page - 1) * LIBRARY_PAGE_SIZE;
+  const pageTo = pageFrom + LIBRARY_PAGE_SIZE - 1;
 
   const browseRaw = params.browse?.trim() ?? "";
   const browsePrefix =
@@ -112,10 +127,16 @@ export default async function KnowledgeSourcesPage({
       "id, title, slug, category, published, updated_at, source_provider, source_path, source_size",
     )
     .order("updated_at", { ascending: false })
-    .limit(MAX_LIBRARY_SHOWN);
+    .range(pageFrom, pageTo);
+
+  let libraryCountQuery = supabase
+    .from("knowledge_articles")
+    .select("id", { count: "exact", head: true });
 
   if (q) {
-    libraryQuery = libraryQuery.or(`title.ilike.%${q}%,source_path.ilike.%${q}%,category.ilike.%${q}%`);
+    const filter = `title.ilike.%${q}%,source_path.ilike.%${q}%,category.ilike.%${q}%`;
+    libraryQuery = libraryQuery.or(filter);
+    libraryCountQuery = libraryCountQuery.or(filter);
   }
 
   const [
@@ -124,8 +145,8 @@ export default async function KnowledgeSourcesPage({
     { count: articleCount },
     { data: selections },
     { data: mirroredPaths },
-    chunkCount,
     pendingEmbedJobs,
+    { count: filteredCount },
   ] = await Promise.all([
     supabase
       .from("knowledge_sync_runs")
@@ -145,8 +166,8 @@ export default async function KnowledgeSourcesPage({
       .eq("source_provider", "gcs")
       .not("source_path", "is", null)
       .limit(1000),
-    countKnowledgeChunks(),
     getPendingEmbedJobCount(),
+    libraryCountQuery,
   ]);
 
   const syncedPaths = ((mirroredPaths ?? []) as { source_path: string }[]).map(
@@ -157,6 +178,21 @@ export default async function KnowledgeSourcesPage({
   const libraryItems = (files ?? []) as LibraryArticle[];
   const selectionItems = (selections ?? []) as { path: string; kind: "file" | "folder" }[];
   const lastRun = runItems[0] ?? null;
+
+  const totalForQuery = filteredCount ?? articleCount ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalForQuery / LIBRARY_PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const hasPrev = currentPage > 1;
+  const hasNext = currentPage < totalPages;
+
+  // Build a querystring that keeps the current search/view but swaps the page.
+  function pageHref(target: number): string {
+    const sp = new URLSearchParams();
+    sp.set("view", "files");
+    if (params.q) sp.set("q", params.q);
+    sp.set("page", String(target));
+    return `/dashboard/knowledge/sources?${sp.toString()}`;
+  }
 
   // Files is the default view, unless the library is still empty — then Sync is
   // the obvious next step.
@@ -185,65 +221,11 @@ export default async function KnowledgeSourcesPage({
         </p>
       )}
 
-      <div className="mb-10 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-border bg-border shadow-sm sm:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-card px-5 py-4">
-          <div className="flex items-center gap-2">
-            <span
-              className={`inline-block h-2.5 w-2.5 shrink-0 rounded-full ${
-                status.configured ? "bg-emerald-500" : "bg-amber-500"
-              }`}
-            />
-            <p className="text-sm font-semibold">
-              {status.configured
-                ? t("knowledge.sources.configured")
-                : t("knowledge.sources.notConfigured")}
-            </p>
-          </div>
-          <p className="mt-1.5 truncate font-mono text-xs text-[color:var(--muted)]" title={status.bucket ?? undefined}>
-            {status.bucket ?? t("knowledge.sources.connectionTitle")}
-          </p>
-        </div>
-
-        <div className="bg-card px-5 py-4">
-          <p className="text-2xl font-bold tabular-nums leading-none tracking-tight">
-            {selectionItems.length}
-          </p>
-          <p className="mt-1.5 text-xs text-[color:var(--muted)]">
-            {selectionItems.length > 0
-              ? t("knowledge.sources.selectedSub")
-              : t("knowledge.sources.noSelection")}
-          </p>
-        </div>
-
-        <div className="bg-card px-5 py-4">
-          <p className="text-2xl font-bold tabular-nums leading-none tracking-tight">
-            {articleCount ?? 0}
-          </p>
-          <p className="mt-1.5 text-xs text-[color:var(--muted)]">
-            {t("knowledge.sources.filesSub")}
-          </p>
-        </div>
-
-        <div className="bg-card px-5 py-4">
-          <div className="flex items-center gap-2">
-            <span
-              className={`inline-block h-2.5 w-2.5 shrink-0 rounded-full ${
-                pendingEmbedJobs > 0 ? "bg-amber-500" : "bg-emerald-500"
-              }`}
-            />
-            <p className="text-sm font-semibold">
-              {pendingEmbedJobs > 0
-                ? t("knowledge.sources.embeddingsPending", { count: pendingEmbedJobs })
-                : chunkCount === 0
-                  ? t("knowledge.sources.embeddingsEmpty")
-                  : t("knowledge.sources.embeddingsReady")}
-            </p>
-          </div>
-          <p className="mt-1.5 text-xs tabular-nums text-[color:var(--muted)]">
-            {t("knowledge.sources.chunksSub", { count: chunkCount.toLocaleString() })}
-          </p>
-        </div>
-      </div>
+      <Suspense
+        fallback={<KnowledgeSourcesStatsSkeleton />}
+      >
+        <KnowledgeSourcesStats status={status} selectionCount={selectionItems.length} />
+      </Suspense>
 
 
       <KnowledgeActivity
@@ -312,7 +294,7 @@ export default async function KnowledgeSourcesPage({
           <span className="shrink-0 text-xs tabular-nums text-[color:var(--muted)]">
             {t("knowledge.library.showing", {
               shown: libraryItems.length,
-              total: articleCount ?? 0,
+              total: totalForQuery,
             })}
           </span>
         </div>
@@ -384,6 +366,43 @@ export default async function KnowledgeSourcesPage({
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between gap-3 border-t border-border px-4 py-3">
+            <span className="text-xs tabular-nums text-[color:var(--muted)]">
+              {t("knowledge.library.pageOf", {
+                page: currentPage,
+                total: totalPages,
+              })}
+            </span>
+            <div className="flex items-center gap-2">
+              {hasPrev ? (
+                <Link
+                  href={pageHref(currentPage - 1)}
+                  className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium transition hover:bg-background-subtle active:scale-[0.98]"
+                >
+                  {t("common.previous")}
+                </Link>
+              ) : (
+                <span className="cursor-not-allowed rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-[color:var(--muted)] opacity-50">
+                  {t("common.previous")}
+                </span>
+              )}
+              {hasNext ? (
+                <Link
+                  href={pageHref(currentPage + 1)}
+                  className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium transition hover:bg-background-subtle active:scale-[0.98]"
+                >
+                  {t("common.next")}
+                </Link>
+              ) : (
+                <span className="cursor-not-allowed rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-[color:var(--muted)] opacity-50">
+                  {t("common.next")}
+                </span>
+              )}
+            </div>
           </div>
         )}
       </div>

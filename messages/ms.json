@@ -2,7 +2,7 @@
   "brand": {
     "signIn": "Log masuk",
     "getStarted": "Mula sekarang",
-    "developers": "Pembangun",
+    "developers": "Untuk Perniagaan",
     "dashboard": "Papan pemuka",
     "visitApp": "Lawati aplikasi"
   },
@@ -52,14 +52,16 @@
     "createYourAccount": "Cipta akaun anda",
     "signupInviteSubtitle": "Masukkan kod jemputan anda untuk menyertai program rakan kongsi Tanyalah Ustaz.",
     "signupOpenSubtitle": "Mula membina dengan API Tanyalah Ustaz. Percuma untuk bermula.",
-    "developerPlatform": "Platform pembangun",
+    "developerPlatform": "Platform perniagaan",
     "authHeroTitle": "Bawa AI Islam Tanyalah Ustaz kepada pengguna anda",
     "authHighlight1": "Jawapan berasaskan pengetahuan dengan rujukan sumber",
     "authHighlight2": "Kunci API, ujian langsung, dan pandangan penggunaan",
     "authHighlight3": "Kandungan dipercayai yang sama seperti aplikasi Tanyalah Ustaz",
     "authFooterNote": "Akaun pembangun adalah berasingan daripada akaun peribadi di {consumerApp}.",
     "consumerAppPrompt": "Mencari aplikasi peribadi?",
-    "consumerAppLink": "Pergi ke {consumerUrl} →"
+    "consumerAppLink": "Pergi ke {consumerUrl} →",
+    "continueWithGoogle": "Teruskan dengan Google",
+    "orDivider": "atau"
   },
   "dashboard": {
     "overview": "Gambaran keseluruhan",
@@ -73,94 +75,92 @@
     "resources": "Sumber",
     "documentation": "Dokumentasi",
     "signOut": "Log keluar",
-    "prompt": "Arahan tersuai"
+    "prompt": "Arahan tersuai",
+    "settings": "Tetapan",
+    "signOutConfirmTitle": "Log keluar?",
+    "signOutConfirm": "Anda akan dilog keluar daripada akaun anda dan kembali ke laman utama.",
+    "signOutConfirmCta": "Log keluar"
   },
   "home": {
     "meta": {
-      "title": "AI Islam untuk produk anda",
-      "description": "Benamkan AI Islam berasaskan pengetahuan yang sama di sebalik Tanyalah Ustaz ke dalam platform, aplikasi, atau laman web anda."
+      "title": "AI Islam dipercayai untuk produk anda",
+      "description": "Berikan pengguna anda jawapan yang boleh dipercayai tentang fiqh, ibadah, dan amalan harian. Dikuasakan oleh kandungan yang sama seperti Tanyalah Ustaz."
     },
     "hero": {
-      "title": "Bawa AI Islam Tanyalah Ustaz kepada pengguna anda",
-      "subtitle": "AI Islam dipercayai yang sama di sebalik {consumerApp}, kini tersedia untuk platform, aplikasi, atau laman web anda. Satu integrasi, jawapan dengan rujukan, dan tiada infrastruktur AI untuk diuruskan.",
-      "viewDocs": "Lihat dokumentasi",
+      "title": "Panduan Islam yang dipercayai, terus dalam produk anda",
+      "subtitle": "Berikan pengguna anda jawapan yang jelas dan boleh dipercayai tentang agama mereka — terus di dalam aplikasi atau laman web anda. Dikuasakan oleh pengetahuan terkurasi yang sama di sebalik {consumerApp}, dengan sumber pada setiap jawapan.",
+      "viewDocs": "Lihat cara ia berfungsi",
       "freeToStart": "Percuma untuk bermula",
-      "noAiSetup": "Tiada persediaan AI diperlukan",
-      "sourcesEveryAnswer": "Rujukan pada setiap jawapan"
+      "noAiSetup": "Tiada pasukan AI diperlukan",
+      "sourcesEveryAnswer": "Sumber pada setiap jawapan"
     },
     "trust": {
       "eyebrow": "Dikuasakan oleh Tanyalah Ustaz",
-      "body": "Integrasi anda menggunakan pangkalan pengetahuan terkurasi dan kualiti jawapan yang sama seperti aplikasi kami, dibina untuk pasukan yang ingin menawarkan panduan Islam yang dipercayai dalam produk mereka sendiri.",
+      "body": "Anda mendapat pengetahuan dan kualiti jawapan yang sama dipercayai seperti aplikasi kami, jadi anda boleh menawarkan panduan Islam yang boleh diharap dalam produk anda sendiri — tanpa membina AI dari awal.",
       "visitConsumer": "Lawati {consumerApp} ↗"
     },
-    "stats": {
-      "endpoint": "Integrasi mudah",
-      "categories": "Kategori pengetahuan",
-      "rag": "Berasaskan pengetahuan",
-      "sources": "Jawapan dengan rujukan"
-    },
     "features": {
-      "eyebrow": "Platform pembangun",
-      "title": "Semua yang anda perlukan untuk integrasi",
-      "subtitle": "Saluran lengkap di sebalik satu API, supaya pasukan anda boleh melancarkan lebih pantas, tanpa membina infrastruktur AI sejak awal.",
+      "eyebrow": "Mengapa pasukan memilih kami",
+      "title": "Semua yang anda perlukan untuk memberi panduan yang dipercayai",
+      "subtitle": "Kami uruskan pengetahuan, AI, dan kawalan kualiti. Anda fokus pada produk dan pengguna anda.",
       "items": [
         {
-          "title": "Berasaskan pangkalan pengetahuan yang sama",
-          "body": "Jawapan diambil daripada perpustakaan terkurasi yang menguasakan Tanyalah Ustaz: artikel tentang fiqh, ibadah, aqidah, dan akhlak. Respons disokong ilmu, bukan tekaan generik."
+          "title": "Berasaskan pengetahuan yang dipercayai",
+          "body": "Jawapan datang daripada perpustakaan terkurasi yang sama yang menguasakan Tanyalah Ustaz: artikel tentang fiqh, ibadah, aqidah, dan akhlak — bukan tekaan generik."
         },
         {
-          "title": "Rujukan sumber pada setiap balasan",
-          "body": "Respons disertakan dengan rujukan kepada artikel sumber yang digunakan. Bina kepercayaan dengan pengguna anda dengan menunjukkan daripada mana setiap jawapan datang."
+          "title": "Sumber pada setiap jawapan",
+          "body": "Setiap balasan disertakan rujukan kepada artikel sumber, jadi pengguna anda boleh percaya dan menyemaknya sendiri."
         },
         {
-          "title": "Satu integrasi mudah",
-          "body": "Hantar soalan pengguna dan dapatkan balasan. Tiada kejuruteraan prompt, tiada pangkalan data untuk diuruskan, tiada penyedia model untuk diuruskan. Kami uruskan semuanya."
+          "title": "Satu sambungan yang mudah",
+          "body": "Hantar soalan, dapatkan jawapan. Tiada kejuruteraan prompt, tiada pangkalan data, dan tiada model AI untuk anda jalankan atau jaga."
         },
         {
           "title": "Ingatan perbualan",
-          "body": "Soalan susulan kekal dalam konteks merentasi beberapa giliran, seperti perbualan sebenar dengan panduan yang berpengetahuan."
+          "body": "Soalan susulan kekal dalam konteks, seperti perbualan sebenar dengan pembimbing yang berpengetahuan."
         },
         {
           "title": "Penapisan kategori",
-          "body": "Hadkan jawapan kepada fiqh, ibadah, aqidah, akhlak, atau umum supaya respons sepadan dengan konteks halaman pengguna anda."
+          "body": "Hadkan jawapan kepada fiqh, ibadah, aqidah, akhlak, atau umum supaya sepadan dengan konteks produk anda."
         },
         {
-          "title": "Papan pemuka pembangun",
-          "body": "Kunci API, ujian langsung, log sembang, dan pandangan penggunaan: semua yang diperlukan pasukan anda untuk melancarkan dan memantau integrasi."
+          "title": "Papan pemuka untuk pasukan anda",
+          "body": "Kunci API, ujian langsung, log sembang, dan pandangan penggunaan — semua yang diperlukan untuk melancarkan dan memantau integrasi."
         }
       ]
     },
     "howItWorks": {
       "eyebrow": "Cara ia berfungsi",
-      "title": "Dari soalan ke jawapan dengan rujukan dalam satu langkah",
-      "subtitle": "Anda hantar mesej. Kami cari, asaskan, dan jana jawapan. Pengguna anda mendapat panduan yang boleh dipercayai.",
+      "title": "Dari soalan ke jawapan yang dipercayai, secara automatik",
+      "subtitle": "Pengguna anda bertanya. Kami cari panduan yang tepat dan tulis jawapan yang jelas serta bersumber. Anda hanya paparkan.",
       "steps": [
         {
-          "title": "Cipta kunci API anda",
-          "body": "Daftar dan jana kunci API daripada papan pemuka dalam beberapa saat."
+          "title": "Sambungkan produk anda",
+          "body": "Cipta akaun dan sambungkan aplikasi anda dalam beberapa minit. Tiada infrastruktur AI untuk dibina atau dijaga."
         },
         {
-          "title": "Hantar soalan",
-          "body": "Hantar mesej pengguna melalui API sembang kami. Anda boleh menetapkan kategori topik bagi jawapan yang lebih relevan."
+          "title": "Pengguna anda bertanya",
+          "body": "Mereka bertanya tentang solat, puasa, kewangan, atau amalan harian — terus dalam aplikasi atau laman web anda."
         },
         {
-          "title": "Kami cari & asaskan",
-          "body": "Kami cari petikan paling relevan dalam pangkalan pengetahuan dan bina respons berasaskan konteks."
+          "title": "Kami cari jawapan yang tepat",
+          "body": "Setiap soalan dipadankan dengan perpustakaan kandungan Islam yang disahkan dan terkurasi."
         },
         {
-          "title": "Kembalikan jawapan dengan rujukan",
-          "body": "Pengguna anda mendapat balasan jelas berasaskan pengetahuan, lengkap dengan artikel sumber di sebaliknya."
+          "title": "Anda paparkan jawapan bersumber",
+          "body": "Pengguna anda mendapat jawapan berguna berserta sumbernya, jadi mereka tahu apa yang dibaca boleh dipercayai."
         }
       ]
     },
     "useCases": {
       "eyebrow": "Kes penggunaan",
       "title": "Dibina untuk produk yang melayani umat Islam",
-      "subtitle": "Di mana sahaja pengguna anda mempunyai soalan tentang iman mereka, berikan jawapan berasaskan konteks.",
+      "subtitle": "Di mana sahaja pengguna anda ada soalan tentang agama, berikan jawapan yang boleh diharap dalam konteks.",
       "items": [
         {
           "title": "Platform pendidikan Islam",
-          "body": "Berikan pelajar pembantu sentiasa tersedia yang menjawab soalan dengan rujukan kepada bahan sebenar."
+          "body": "Berikan pelajar pembantu yang sentiasa tersedia dan menjawab dengan rujukan kepada bahan sebenar."
         },
         {
           "title": "Aplikasi masjid & komuniti",
@@ -178,89 +178,56 @@
     },
     "pricing": {
       "eyebrow": "Harga",
-      "title": "Kredit prabayar. Bayar ikut penggunaan.",
-      "subtitle": "Tiada langganan. Tambah nilai baki anda dan ia akan digunakan apabila integrasi anda menggunakan API.",
+      "title": "Harga mudah berasaskan kredit",
+      "subtitle": "Tiada langganan dan tiada kejutan. Tambah kredit ke akaun anda dan ia hanya digunakan apabila produk anda mendapat jawapan.",
       "note": "Semua jumlah dalam Ringgit Malaysia (RM). Kredit tidak luput, dan anda boleh tambah nilai bila-bila masa dari papan pemuka.",
-      "packs": [
-        {
-          "name": "Starter",
-          "price": "RM10",
-          "tagline": "Untuk pembinaan dan ujian.",
-          "features": [
-            "API sembang berasaskan pengetahuan penuh",
-            "Pemantauan penggunaan & kos",
-            "Log sembang dan taman permainan",
-            "Kredit tidak luput"
-          ],
-          "cta": "Mula sekarang"
-        },
-        {
-          "name": "Growth",
-          "price": "RM50",
-          "tagline": "Untuk apl dalam produksi.",
-          "features": [
-            "Semua dalam Starter",
-            "Jumlah permintaan lebih tinggi",
-            "Pemprosesan keutamaan",
-            "Sokongan e-mel"
-          ],
-          "cta": "Mula sekarang",
-          "popular": true,
-          "badge": "Paling popular"
-        },
-        {
-          "name": "Scale",
-          "price": "RM200",
-          "tagline": "Untuk rakan kongsi trafik tinggi.",
-          "features": [
-            "Semua dalam Growth",
-            "Nilai terbaik per kredit",
-            "Integrasi pengetahuan tersuai",
-            "Sokongan keutamaan"
-          ],
-          "cta": "Mula sekarang"
-        }
-      ]
+      "bullets": [
+        "Bayar hanya untuk apa yang anda guna",
+        "Tiada komitmen bulanan",
+        "Kredit tidak luput",
+        "Tambah nilai bila-bila masa"
+      ],
+      "cta": "Mula sekarang"
     },
     "faq": {
       "eyebrow": "Soalan lazim",
       "title": "Soalan, dijawab",
-      "subtitle": "Semua yang anda perlu tahu sebelum mengintegrasikan.",
+      "subtitle": "Semua yang anda perlu tahu sebelum bermula.",
       "items": [
         {
-          "q": "Apakah perbezaannya dengan tanyalahustaz.com?",
-          "a": "Ini adalah platform pembangun untuk perniagaan. {consumerApp} ({consumerUrl}) adalah tempat individu bertanya soalan secara langsung. API ini membolehkan anda membenamkan AI berasaskan pengetahuan yang sama ke dalam produk anda sendiri."
+          "q": "Apakah perbezaannya dengan aplikasi Tanyalah Ustaz?",
+          "a": "Ini adalah platform untuk perniagaan. {consumerApp} ({consumerUrl}) ialah tempat individu bertanya soalan secara terus. Melalui platform ini, anda boleh membenamkan panduan Islam yang sama ke dalam produk anda sendiri."
         },
         {
-          "q": "Adakah log masuk ini sama dengan tanyalahustaz.com?",
-          "a": "Tidak. Log masuk di sini untuk mengurus papan pemuka pembangun anda: kunci API, ujian, dan penggunaan. Aplikasi {consumerApp} mempunyai log masuk sendiri untuk individu. Kedua-dua akaun tidak boleh ditukar ganti."
+          "q": "Adakah log masuk ini sama dengan aplikasi Tanyalah Ustaz?",
+          "a": "Tidak. Log masuk di sini untuk menguruskan papan pemuka perniagaan anda: kunci API, ujian, dan penggunaan. Aplikasi {consumerApp} mempunyai log masuk sendiri untuk individu. Kedua-dua akaun tidak boleh ditukar ganti."
         },
         {
           "q": "Daripada mana jawapan datang?",
-          "a": "Jawapan dijana daripada pangkalan pengetahuan Tanyalah Ustaz terkurasi yang sama dengan yang digunakan dalam aplikasi. Kami cari petikan paling relevan untuk setiap soalan dan menggunakannya untuk menjana respons berasaskan konteks dengan rujukan."
+          "a": "Jawapan dijana daripada pangkalan pengetahuan Tanyalah Ustaz yang terkurasi — koleksi kandungan Islam yang disahkan. Kami cari petikan paling relevan untuk setiap soalan dan menghasilkan jawapan bersumber."
         },
         {
-          "q": "Adakah saya perlu menguruskan infrastruktur AI sendiri?",
-          "a": "Tidak. Kami uruskan carian, pengasasan, dan penjanaan. Buat satu panggilan API yang disahkan dan terima balasan siap dengan sumber."
+          "q": "Adakah saya perlu pasukan AI sendiri?",
+          "a": "Tidak. Kami uruskan carian, pengasasan, dan penjanaan jawapan. Anda hanya sambungkan produk anda dan mula bertanya."
         },
         {
-          "q": "Bagaimana API disahkan?",
-          "a": "Setiap permintaan menggunakan kunci API yang anda cipta dalam papan pemuka. Kunci boleh dibatalkan pada bila-bila masa. Lihat dokumentasi untuk butiran pengesahan penuh."
+          "q": "Bagaimana saya menyambungkannya ke produk saya?",
+          "a": "Cipta akaun, dapatkan kunci API, dan hantar soalan pengguna daripada backend anda. Dokumentasi kami menunjukkan langkah demi langkah."
         },
         {
-          "q": "Bolehkah saya uji sebelum mengintegrasikan?",
-          "a": "Ya. Papan pemuka termasuk ruang ujian langsung yang menggunakan saluran yang sama seperti pengeluaran, jadi anda boleh mencuba soalan dan kategori sebelum menulis sebarang kod."
+          "q": "Bolehkah saya cuba dahulu sebelum melanggan?",
+          "a": "Ya. Anda boleh menguji soalan dan kategori secara langsung dalam papan pemuka sebelum menulis sebarang kod."
         },
         {
-          "q": "Adakah jawapan ini pengganti ulama?",
-          "a": "Tidak. Respons dijana AI untuk panduan dan kemudahan. Untuk hukum tentang perkara sensitif atau peribadi, pengguna hendaklah merujuk ulama yang berkelayakan. Kami mengesyorkan agar ini dipaparkan dengan jelas dalam produk anda."
+          "q": "Adakah jawapan ini menggantikan ulama?",
+          "a": "Tidak. Jawapan dijana AI untuk panduan dan kemudahan. Untuk hukum tentang perkara sensitif atau peribadi, pengguna hendaklah merujuk ulama yang berkelayakan. Kami mengesyorkan agar ini dipaparkan dengan jelas dalam produk anda."
         }
       ]
     },
     "cta": {
-      "title": "Bawa Tanyalah Ustaz kepada pengguna anda",
-      "subtitle": "Cipta akaun percuma, dapatkan kunci API anda, dan buat permintaan sembang pertama anda dalam beberapa minit.",
-      "exploreDocs": "Terokai dokumentasi"
+      "title": "Bawa panduan Islam yang dipercayai kepada pengguna anda",
+      "subtitle": "Cipta akaun percuma dan mula beri pengguna anda jawapan yang boleh diharap dalam beberapa minit.",
+      "exploreDocs": "Lihat cara ia berfungsi"
     }
   },
   "common": {
@@ -326,16 +293,16 @@
     "backToSignIn": "Kembali ke log masuk"
   },
   "meta": {
-    "layoutTitle": "Tanyalah Ustaz Pembangun: API AI Islam",
-    "layoutDescription": "Platform pembangun dan API untuk membenamkan AI Islam Tanyalah Ustaz dalam produk anda. Jawapan berasaskan pengetahuan dengan rujukan sumber.",
-    "ogDescription": "Tambah AI Islam berasaskan pengetahuan yang dipercayai ke produk anda dengan satu panggilan API. Jawapan berasaskan konteks dengan rujukan sumber."
+    "layoutTitle": "Tanyalah Ustaz untuk Perniagaan",
+    "layoutDescription": "AI Islam yang dipercayai untuk produk anda. Jawapan berasaskan pengetahuan dengan rujukan sumber, daripada pasukan di sebalik Tanyalah Ustaz.",
+    "ogDescription": "Tambah AI Islam yang dipercayai dan berasaskan pengetahuan ke produk anda. Jawapan jelas berserta sumber pada setiap balasan."
   },
   "pages": {
     "overview": {
       "title": "Gambaran keseluruhan",
       "welcomeBack": "Selamat kembali",
       "welcomeBackWithCompany": "Selamat kembali, {company}",
-      "description": "Urus kunci API, uji integrasi anda, dan pantau penggunaan daripada papan pemuka anda.",
+      "description": "Kunci API, penggunaan, dan kredit anda sekilas pandang.",
       "tryItLive": "Cuba secara langsung",
       "activeApiKeys": "Kunci API aktif",
       "manageKeys": "Urus kunci",
@@ -350,7 +317,11 @@
       "recentApiActivityDescription": "8 permintaan terakhir merentasi kunci anda",
       "noApiCallsYet": "Tiada panggilan API lagi",
       "noApiCallsDescription": "Cipta kunci API dan hantar permintaan pertama anda, atau cuba secara langsung.",
-      "createApiKey": "Cipta kunci API"
+      "createApiKey": "Cipta kunci API",
+      "requests30d": "Permintaan (30 hari)",
+      "viewUsage": "Lihat penggunaan",
+      "creditBalance": "Baki kredit",
+      "topUp": "Tambah nilai"
     },
     "apiKeys": {
       "title": "Kunci API",
@@ -358,9 +329,9 @@
     },
     "usage": {
       "title": "Penggunaan",
-      "description": "Permintaan API merentasi kunci anda mengikut masa.",
+      "description": "Permintaan ke API anda mengikut masa.",
       "timezoneNote": "Semua masa dalam UTC dan data mungkin lambat beberapa minit.",
-      "totalRequests": "Jumlah permintaan",
+      "totalRequests": "Permintaan",
       "chatRequests": "Permintaan sembang",
       "successful": "Berjaya",
       "errors": "Ralat",
@@ -375,7 +346,8 @@
       "chartTitle": "Permintaan",
       "seriesAll": "Semua",
       "seriesChat": "Sembang",
-      "empty": "Tiada permintaan dalam tempoh ini."
+      "empty": "Tiada permintaan dalam tempoh ini.",
+      "keyFilterHint": "Tukar kunci serta-merta — tanpa muat semula."
     },
     "topUp": {
       "title": "Tambah nilai",
@@ -479,7 +451,7 @@
     },
     "status": {
       "title": "Status Sistem",
-      "description": "Masa operasi semasa dan sejarah insiden untuk API Tanyalah Ustaz Pembangun."
+      "description": "Masa operasi semasa dan sejarah insiden untuk API Tanyalah Ustaz untuk Perniagaan."
     }
   },
   "onboarding": {
@@ -576,6 +548,8 @@
     "cancelled": "Penjanaan dihentikan.",
     "stopped": "Anda menghentikan respons ini.",
     "streamError": "Sesuatu tidak kena semasa menjana jawapan.",
+    "messageEmpty": "Taip mesej dahulu.",
+    "messageTooLong": "Mesej mesti 4000 aksara atau kurang.",
     "sources": "Sumber",
     "loadingHistory": "Memuatkan perbualan…",
     "dismiss": "Tutup",
@@ -594,7 +568,17 @@
       "Bolehkah musafir jamak Zohor dan Asar?",
       "Apakah niat dalam solat?",
       "Apakah sedekah dan bilakah ia digalakkan?"
-    ]
+    ],
+    "keyTitle": "Kunci API",
+    "keyHelp": "Tampal kunci daripada akaun anda untuk menguji API sebenar. Ia dihantar sama seperti aplikasi anda menghantarnya.",
+    "keyPlaceholder": "tlh_live_…",
+    "keyMissing": "Tambah kunci API untuk mula menguji.",
+    "showKey": "Tunjuk",
+    "hideKey": "Sembunyi",
+    "rememberKey": "Ingat dalam pelayar ini",
+    "createKey": "Cipta kunci API",
+    "unlockTitle": "Sambungkan kunci anda untuk mula",
+    "unlockDescription": "Setiap mesej di sini pergi ke API sebenar menggunakan kunci yang anda masukkan."
   },
   "demo": {
     "keyTitle": "Kunci API rakan kongsi",
@@ -677,10 +661,16 @@
       "description": "Semua yang boleh digunakan oleh AI. Kandungan dimiliki oleh Google Cloud dan disegerakkan dari Sumber.",
       "searchPlaceholder": "Cari mengikut tajuk, nama fail, atau kategori…",
       "colSource": "Sumber",
+      "colCost": "Kos embed",
+      "costTitle": "{chunks} petikan di-embed dengan {model}",
+      "costUnknown": "Belum di-embed sejak penjejakan kos ditambah",
+      "totalCost": "{cost} kos embed",
+      "totalCostTitle": "Jumlah kos OpenRouter untuk meng-embed semua fail dalam pustaka",
       "sourceSynced": "Google Cloud",
       "sourceManual": "Manual",
       "noMatches": "Tiada fail sepadan dengan carian anda.",
       "showing": "Menunjukkan {shown} daripada {total}",
+      "pageOf": "Halaman {page} daripada {total}",
       "noFiles": "Belum ada fail. Pilih sumber di atas dan segerakkan."
     },
     "prompt": {
@@ -741,18 +731,19 @@
       "noRuns": "Belum ada penyegerakan.",
       "startedAt": "Dimulakan",
       "colResult": "Hasil",
+      "colCost": "Kos embed",
       "colErrors": "Ralat",
       "statusRunning": "Berjalan",
       "statusCompleted": "Selesai",
       "statusFailed": "Gagal",
       "readOnlyNote": "Fail ini dicermin daripada Google Cloud dan hanya boleh dibaca. Edit di sistem sumber, kemudian segerak semula.",
       "picker": {
-        "selectedTitle": "Sumber dipilih",
-        "selectedEmpty": "Belum ada pilihan. Tandakan folder atau fail di bawah untuk memilih apa yang dicermin.",
-        "selectedSummary": "{folders} folder, {files} fail",
+        "selectedTitle": "Akan disegerak",
+        "selectedEmpty": "Belum ada dalam baris gilir. Tandakan folder atau fail di bawah untuk menambah ke pustaka.",
+        "selectedSummary": "{folders} folder, {files} fail dalam baris gilir",
         "clearAll": "Kosongkan semua",
         "browseTitle": "Layari bucket",
-        "browseHint": "Tandakan folder untuk mencermin semua kandungannya, atau tandakan fail untuk mencermin dokumen itu sahaja.",
+        "browseHint": "Tandakan folder untuk mencermin semua kandungannya, atau tandakan fail untuk mencermin dokumen itu sahaja. Item yang sudah ada dalam pustaka ditanda Disegerakkan.",
         "filterPlaceholder": "Tapis mengikut nama…",
         "filterCount": "Menunjukkan {shown} daripada {total}",
         "noMatches": "Tiada apa-apa sepadan dengan “{query}”.",
@@ -772,7 +763,9 @@
         "notConfigured": "Sambungkan Google Cloud Storage untuk melayari fail.",
         "truncated": "Menunjukkan 1,000 entri pertama. Buka folder untuk mengecilkan lagi.",
         "syncedBadge": "Disegerakkan",
-        "syncedCountBadge": "{count} disegerakkan"
+        "syncedCountBadge": "{count} disegerakkan",
+        "syncedLocked": "Sudah disegerakkan — nyah-tanda foldernya untuk berhenti mencermin",
+        "openFile": "Buka fail asal dalam tab baharu"
       },
       "selectedSub": "dipilih untuk segerak",
       "noSelection": "Belum ada pilihan",
@@ -787,11 +780,14 @@
       "syncPreparing": "Menyediakan…",
       "syncBackgroundNote": "Berjalan di pelayan — anda boleh tutup halaman ini.",
       "syncRemaining": "{count} fail lagi untuk jalan seterusnya.",
+      "syncCost": "Kos embed: {cost}",
       "syncSelected": "Segerak dipilih",
       "embedPreparing": "{count} fail masih disediakan untuk carian",
       "previewAdd": "+{count} baharu",
       "previewRemove": "−{count} akan dibuang",
       "previewNone": "Tiada perubahan",
+      "previewCounting": "menyemak…",
+      "pruneOption": "Turut buang fail yang tidak lagi dipilih (dipadam dari pustaka)",
       "selectAll": "Pilih semua ({count})",
       "selecting": "Memilih…",
       "selectAllFailed": "Tidak dapat memilih semuanya.",
@@ -968,6 +964,14 @@
     "pageDescription": "Status semasa dan masa operasi {days} hari untuk perkhidmatan API.",
     "testApiKey": "Uji kunci API anda",
     "lastChecked": "Terakhir disemak {time} · {latency}ms · API {version}",
+    "dataNote": "Masa operasi dikira daripada hasil permintaan API sebenar dalam 90 hari lepas. Hari ini turut mengambil kira semakan kesihatan langsung.",
+    "auto": {
+      "outageTitle": "Gangguan perkhidmatan dikesan",
+      "degradedTitle": "Penurunan prestasi dikesan",
+      "badge": "Auto",
+      "detectedAt": "Dikesan automatik",
+      "update": "{service}: {failed} daripada {total} permintaan gagal ({rate}%)"
+    },
     "pastIncidents": "Insiden lepas",
     "noIncidents": "Tiada insiden dilaporkan dalam {days} hari lepas.",
     "levels": {
@@ -1030,7 +1034,7 @@
     "verifyEmailBeforeSignIn": "Sila sahkan e-mel anda sebelum log masuk. Semak peti masuk untuk pautan pengesahan.",
     "inviteRequired": "Kod jemputan diperlukan untuk mencipta akaun.",
     "inviteInvalid": "Kod jemputan tidak sah atau telah tamat tempoh.",
-    "messageTooShort": "Mesej mestilah sekurang-kurangnya 3 aksara.",
+    "messageEmpty": "Mesej tidak boleh kosong.",
     "messageTooLong": "Mesej mestilah 4000 aksara atau kurang.",
     "aiResponseFailed": "Gagal menjana respons AI.",
     "rateLimitMinute": "Had kadar melebihi: {limit} permintaan seminit.",
@@ -1038,7 +1042,7 @@
     "editorAccessRequired": "Akses editor diperlukan.",
     "adminAccessRequired": "Akses admin diperlukan.",
     "reembedFailed": "Pembenaman semula gagal.",
-    "reembedSuccess": "Pembenaman semula {articles} artikel dan {chunks} petikan selesai.",
+    "reembedSuccess": "Pembenaman semula {articles} artikel dan {chunks} petikan selesai dengan kos {cost}.",
     "adminAssignOnly": "Hanya pentadbir pengetahuan boleh menetapkan peranan.",
     "emailRequired": "E-mel diperlukan.",
     "invalidRole": "Pilih peranan yang sah.",
@@ -1056,7 +1060,11 @@
   "homeDemo": {
     "sampleQuestion": "Bolehkah musafir jamak Zohor dan Asar?",
     "sampleResponse": "Ya. Musafir boleh jamak Zohor dan Asar semasa musafir, sama ada mendahulukan Asar ke dalam waktu Zohor atau melambatkan Zohor ke dalam waktu Asar…",
-    "okStatus": "200 OK"
+    "okStatus": "200 OK",
+    "chatTitle": "Pembantu Tanyalah Ustaz",
+    "userQuestion": "Bolehkah musafir jamak Zohor dan Asar?",
+    "assistantReply": "Ya. Semasa musafir, seseorang boleh jamak Zohor dan Asar — sama ada mendahulukan Asar atau melambatkan Zohor.",
+    "sourceLabel": "Sumber"
   },
   "partnerPrompt": {
     "title": "Arahan tersuai",
@@ -1067,10 +1075,10 @@
     "updatedLabel": "Prompt dikongsi dikemas kini",
     "placeholderLabel": "Placeholder pengetahuan",
     "editorTitle": "Arahan anda",
-    "editorHint": "Tulis apa-apa yang khusus untuk apl atau audiens anda — nada, bahasa, atau peraturan. Biarkan kosong untuk guna tetapan lalai.",
+    "editorHint": "Beritahu kami tentang produk dan audiens anda, serta cara anda mahu jawapan ditulis — nada, bahasa, atau peraturan. Biarkan kosong untuk guna tetapan lalai.",
     "tryDemo": "Uji di laman demo",
     "sharedNote": "Prompt dikongsi diuruskan oleh Tanyalah Ustaz dan sentiasa terpakai. Anda hanya perlu tambah panduan khusus untuk akaun anda.",
-    "placeholder": "cth. Sentiasa jawab dalam Bahasa Melayu, ringkaskan jawapan, dan sebut nama aplikasi kami '…'.",
+    "placeholder": "cth. Aplikasi kami membantu umat Islam dalam ibadah harian dan kewangan Islam. Jawab dengan nada mesra dan mudah, guna Bahasa Melayu, serta ringkaskan jawapan supaya praktikal.",
     "save": "Simpan",
     "reset": "Kosongkan",
     "saved": "Arahan khusus disimpan.",
@@ -1105,5 +1113,43 @@
     "sendFailed": "Tidak dapat menghantar e-mel. Sila cuba lagi.",
     "notConfigured": "Penghantaran e-mel belum dikonfigurasikan. Tambah RESEND_API_KEY untuk mengaktifkan amaran.",
     "noEmail": "Tiada alamat e-mel pada akaun anda."
+  },
+  "settings": {
+    "title": "Tetapan",
+    "description": "Urus butiran akaun anda.",
+    "profileTitle": "Profil",
+    "profileDescription": "Maklumat ini dipaparkan pada resit anda dan dalam papan pemuka.",
+    "nameLabel": "Nama paparan",
+    "namePlaceholder": "Nama anda",
+    "companyLabel": "Nama syarikat",
+    "companyPlaceholder": "Nama syarikat anda.",
+    "emailLabel": "E-mel",
+    "emailHint": "Hubungi sokongan untuk menukar e-mel log masuk anda.",
+    "save": "Simpan perubahan",
+    "saved": "Profil dikemas kini.",
+    "passwordTitle": "Kata laluan",
+    "passwordDescription": "Tukar kata laluan yang anda gunakan untuk log masuk dengan e-mel.",
+    "currentPasswordLabel": "Kata laluan semasa",
+    "newPasswordLabel": "Kata laluan baharu",
+    "confirmPasswordLabel": "Sahkan kata laluan baharu",
+    "passwordSave": "Kemas kini kata laluan",
+    "passwordSaved": "Kata laluan dikemas kini.",
+    "passwordTooShort": "Kata laluan baharu mesti sekurang-kurangnya 8 aksara.",
+    "passwordMismatch": "Kata laluan baharu tidak sepadan.",
+    "currentPasswordWrong": "Kata laluan semasa anda tidak betul.",
+    "emailTitle": "Alamat e-mel",
+    "emailDescription": "Tukar e-mel yang anda gunakan untuk log masuk. Kami akan hantar pautan pengesahan ke alamat baharu.",
+    "newEmailLabel": "E-mel baharu",
+    "emailSave": "Kemas kini e-mel",
+    "emailInvalid": "Masukkan alamat e-mel yang sah.",
+    "emailSame": "Itu sudah menjadi e-mel semasa anda.",
+    "emailSent": "Semak peti masuk anda untuk mengesahkan e-mel baharu.",
+    "dangerTitle": "Padam akaun",
+    "dangerDescription": "Padam akaun, kunci API, log sembang, dan rekod pengebilan anda secara kekal. Tindakan ini tidak boleh dibatalkan.",
+    "deleteButton": "Padam akaun saya",
+    "deleteConfirmTitle": "Padam akaun anda?",
+    "deleteConfirmBody": "Ini akan memadam akaun anda dan semua data berkaitan secara kekal. Tindakan ini tidak boleh dibatalkan.",
+    "deleteConfirmCta": "Ya, padam akaun saya",
+    "deleteError": "Tidak dapat memadam akaun anda. Sila cuba lagi."
   }
 }

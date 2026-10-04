@@ -62,5 +62,16 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/demo", "/login", "/signup", "/verify-email"],
+  matcher: [
+    "/dashboard/:path*",
+    // Only the dashboard-facing API routes need the Supabase session refresh.
+    // Matching all of /api adds a getUser() round-trip to public/cron/chat
+    // routes and slows them down.
+    "/api/knowledge/:path*",
+    "/api/playground/:path*",
+    "/demo",
+    "/login",
+    "/signup",
+    "/verify-email",
+  ],
 };

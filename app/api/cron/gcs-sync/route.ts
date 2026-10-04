@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { getGcsSyncStatus, syncKnowledgeFromGcs } from "@/lib/gcs-sync";
+import {
+  getGcsSyncStatus,
+  reapStaleSyncRuns,
+  syncKnowledgeFromGcs,
+} from "@/lib/gcs-sync";
 import { drainEmbedJobs } from "@/lib/knowledge-embed-jobs";
 import { logError } from "@/lib/logger";
 
@@ -27,6 +31,7 @@ export async function GET(request: Request) {
   }
 
   try {
+    await reapStaleSyncRuns();
     const result = await syncKnowledgeFromGcs({
       maxFiles: Number(process.env.GCS_SYNC_MAX_FILES ?? 20),
     });
