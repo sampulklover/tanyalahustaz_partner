@@ -17,6 +17,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Native/runtime packages that must not be bundled: the canvas module loads a
+  // platform binary, and unpdf ships its own pdf.js worker.
+  serverExternalPackages: ["@napi-rs/canvas", "unpdf"],
   async headers() {
     return [
       {

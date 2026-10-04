@@ -824,6 +824,10 @@
     "reembed": {
       "reembedding": "Sedang membenamkan semula…",
       "reembedAll": "Benamkan semula semua diterbitkan"
+    },
+    "ocr": {
+      "running": "Menjalankan OCR…",
+      "run": "OCR {count} fail imbasan"
     }
   },
   "docs": {
@@ -1043,6 +1047,9 @@
     "adminAccessRequired": "Akses admin diperlukan.",
     "reembedFailed": "Pembenaman semula gagal.",
     "reembedSuccess": "Pembenaman semula {articles} artikel dan {chunks} petikan selesai dengan kos {cost}.",
+    "ocrNone": "Tiada fail imbasan menunggu OCR.",
+    "ocrFailed": "OCR gagal.",
+    "ocrSuccess": "OCR selesai: {processed} fail ditranskripsi, {failed} gagal, kos {cost}.",
     "adminAssignOnly": "Hanya pentadbir pengetahuan boleh menetapkan peranan.",
     "emailRequired": "E-mel diperlukan.",
     "invalidRole": "Pilih peranan yang sah.",

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { KnowledgeActivity } from "@/components/knowledge-activity";
 import { KnowledgeNav } from "@/components/knowledge-nav";
+import { KnowledgeOcrButton } from "@/components/knowledge-ocr-button";
 import { KnowledgeReembedButton } from "@/components/knowledge-reembed-button";
 import { KnowledgeSourcePicker } from "@/components/knowledge-source-picker";
 import { KnowledgeSourcesTabs } from "@/components/knowledge-sources-tabs";
@@ -16,6 +17,7 @@ import { formatBytes } from "@/lib/format-bytes";
 import { listGcsChildren, searchGcsObjects } from "@/lib/gcs";
 import { getGcsSyncStatus } from "@/lib/gcs-sync";
 import { getPendingEmbedJobCount } from "@/lib/knowledge-embed-jobs";
+import { countOcrPending } from "@/lib/ocr-queue";
 import { logError } from "@/lib/logger";
 import { sanitizeIlikeQuery } from "@/lib/sanitize";
 import { createClient } from "@/lib/supabase/server";
@@ -147,6 +149,7 @@ export default async function KnowledgeSourcesPage({
     { data: mirroredPaths },
     pendingEmbedJobs,
     { count: filteredCount },
+    ocrPending,
   ] = await Promise.all([
     supabase
       .from("knowledge_sync_runs")
@@ -168,6 +171,7 @@ export default async function KnowledgeSourcesPage({
       .limit(1000),
     getPendingEmbedJobCount(),
     libraryCountQuery,
+    countOcrPending(),
   ]);
 
   const syncedPaths = ((mirroredPaths ?? []) as { source_path: string }[]).map(
@@ -246,7 +250,12 @@ export default async function KnowledgeSourcesPage({
                 {t("knowledge.library.description")}
               </p>
             </div>
-            {knowledge.canEditKnowledge && <KnowledgeReembedButton />}
+            {knowledge.canEditKnowledge && (
+              <div className="flex flex-wrap items-center gap-2">
+                <KnowledgeOcrButton pending={ocrPending} />
+                <KnowledgeReembedButton />
+              </div>
+            )}
           </div>
 
       <div className="mb-12 mt-4 overflow-hidden rounded-xl border border-border bg-card shadow-sm">

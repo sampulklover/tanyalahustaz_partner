@@ -23,7 +23,7 @@ import {
   type GcsObject,
 } from "@/lib/gcs";
 import { createEmbedJob } from "@/lib/knowledge-embed-jobs";
-import { extractDocumentText, isSyncableDocument } from "@/lib/knowledge-extract";
+import { documentKindFromFilename, extractDocumentText, isSyncableDocument } from "@/lib/knowledge-extract";
 import { generateKnowledgeFields } from "@/lib/knowledge-ai";
 import {
   makeUniqueSlug,
@@ -286,11 +286,31 @@ async function gatherSelectedObjects(
 }
 
 /** Turn one bucket object into a validated import row. */
-async function buildRowFromObject(object: GcsObject, publish: boolean): Promise<KnowledgeImportRow> {
+async function buildRowFromObject(
+  object: GcsObject,
+  publish: boolean,
+): Promise<{ row: KnowledgeImportRow; scanned: boolean }> {
   const buffer = await downloadGcsObject(object.name);
   const text = await extractDocumentText(object.name, buffer, { maxBytes: MAX_SYNC_BYTES });
 
+  // A PDF with almost no extractable text is a scan: flag it for OCR instead of
+  // failing the file. Other empty types are genuine errors.
   if (text.length < MIN_TEXT_LENGTH) {
+    if (documentKindFromFilename(object.name) === "pdf") {
+      const filename = object.name.split("/").pop() ?? object.name;
+      return {
+        row: {
+          title: filename.replace(/\.pdf$/i, ""),
+          slug: slugify(filename.replace(/\.pdf$/i, "")) || "scanned-document",
+          category: categoryFromPath(object.name, "general"),
+          summary: "Scanned document awaiting OCR.",
+          content: "This scanned PDF has no text layer yet. Run OCR to make it searchable.",
+          tags: tagsFromPath(object.name),
+          published: publish,
+        },
+        scanned: true,
+      };
+    }
     throw new Error("No readable text found in this file.");
   }
 
@@ -306,7 +326,7 @@ async function buildRowFromObject(object: GcsObject, publish: boolean): Promise<
       );
 
       if (parsed.row) {
-        return parsed.row;
+        return { row: parsed.row, scanned: false };
       }
     } catch (error) {
       logError("GCS sync AI structuring failed, deriving fields instead", error, {
@@ -322,9 +342,12 @@ async function buildRowFromObject(object: GcsObject, publish: boolean): Promise<
   }
 
   return {
-    ...derived.row,
-    category: categoryFromPath(object.name, derived.row.category),
-    tags: tagsFromPath(object.name),
+    row: {
+      ...derived.row,
+      category: categoryFromPath(object.name, derived.row.category),
+      tags: tagsFromPath(object.name),
+    },
+    scanned: false,
   };
 }
 
@@ -530,12 +553,13 @@ export async function syncKnowledgeFromGcs(
       });
 
       try {
-        const row = await buildRowFromObject(object, existing?.published ?? publish);
+        const { row, scanned } = await buildRowFromObject(object, existing?.published ?? publish);
         const article = await upsertArticle(admin, {
           row,
           object,
           existing,
           usedSlugs,
+          scanned,
         });
 
         if (existing) {
@@ -618,11 +642,13 @@ async function upsertArticle(
     object,
     existing,
     usedSlugs,
+    scanned = false,
   }: {
     row: KnowledgeImportRow;
     object: GcsObject;
     existing?: MirroredRow;
     usedSlugs: Set<string>;
+    scanned?: boolean;
   },
 ): Promise<KnowledgeArticle> {
   const payload = {
@@ -637,6 +663,8 @@ async function upsertArticle(
     source_etag: object.generation || null,
     source_synced_at: new Date().toISOString(),
     source_size: object.size,
+    // A scan is pending OCR; a text file clears any stale flag.
+    ocr_status: scanned ? "pending" : null,
   };
 
   if (existing) {
