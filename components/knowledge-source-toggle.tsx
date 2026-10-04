@@ -16,11 +16,18 @@ export function KnowledgeSourceToggle({
   kind,
   selected,
   variant = "checkbox",
+  locked = false,
 }: {
   path: string;
   kind: "file" | "folder";
   selected: boolean;
   variant?: "checkbox" | "remove";
+  /**
+   * Row is already mirrored. Locked rows stay ticked so the selection still
+   * covers them (unticking would drop them and trigger a deletion on the next
+   * sync), but they cannot be toggled off by accident.
+   */
+  locked?: boolean;
 }) {
   const { t } = useI18n();
   const { error: toastError } = useToast();
@@ -30,7 +37,7 @@ export function KnowledgeSourceToggle({
   // once a background refresh confirms it.
   const [override, setOverride] = useState<boolean | null>(null);
   const [, startTransition] = useTransition();
-  const checked = override ?? selected;
+  const checked = locked || (override ?? selected);
 
   if (override !== null && selected === override) {
     setOverride(null);
@@ -40,16 +47,18 @@ export function KnowledgeSourceToggle({
   useEffect(() => {
     return onSourceSelection((event) => {
       if (event.type === "clear") {
-        setOverride(false);
+        if (!locked) setOverride(false);
         return;
       }
       if (event.type === "set" && event.path === path) {
+        if (locked && !event.selected) return;
         setOverride(event.selected);
       }
     });
-  }, [path]);
+  }, [path, locked]);
 
   function toggle() {
+    if (locked) return;
     const next = !checked;
     setOverride(next);
     emitSourceSelection({ type: "set", path, kind, selected: next });
@@ -76,11 +85,25 @@ export function KnowledgeSourceToggle({
       <button
         type="button"
         onClick={toggle}
+        disabled={locked}
+        title={locked ? t("knowledge.sources.picker.syncedLocked") : undefined}
         aria-label={t("knowledge.sources.picker.remove")}
-        className="rounded-md px-1.5 py-0.5 text-xs font-medium text-red-600 transition hover:bg-red-50 active:scale-95 dark:text-red-400 dark:hover:bg-red-950/40"
+        className="rounded-md px-1.5 py-0.5 text-xs font-medium text-red-600 transition hover:bg-red-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 dark:text-red-400 dark:hover:bg-red-950/40"
       >
         ✕
       </button>
+    );
+  }
+
+  if (locked) {
+    return (
+      <span
+        title={t("knowledge.sources.picker.syncedLocked")}
+        aria-label={t("knowledge.sources.picker.syncedLocked")}
+        className="flex h-5 w-5 shrink-0 cursor-not-allowed items-center justify-center rounded-md border border-emerald-600 bg-emerald-600 text-[11px] font-bold text-white"
+      >
+        ✓
+      </span>
     );
   }
 

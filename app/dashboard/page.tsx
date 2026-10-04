@@ -8,6 +8,9 @@ import { QuickStartSnippet } from "@/components/dashboard/quick-start";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { createClient } from "@/lib/supabase/server";
 import type { ApiUsageEntry } from "@/lib/types";
+import { getCreditBalanceCents } from "@/lib/credit";
+import { formatMyr } from "@/lib/billing";
+import { getUsageSinceIso } from "@/lib/usage";
 import { getDashboardContext } from "@/lib/dashboard";
 import { getTranslations } from "@/lib/i18n/server";
 
@@ -40,12 +43,13 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser();
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const monthAgo = getUsageSinceIso(30);
 
   const [
     { data: profile },
     { count: activeKeys },
-    { count: chatCount },
-    { count: knowledgeCount },
+    { count: requests30d },
+    balanceCents,
     { data: recentUsage },
   ] = await Promise.all([
     supabase.from("profiles").select("company_name, created_at").eq("id", user!.id).single(),
@@ -55,13 +59,10 @@ export default async function DashboardPage() {
       .eq("user_id", user!.id)
       .is("revoked_at", null),
     supabase
-      .from("partner_chat_logs")
+      .from("api_usage")
       .select("*", { count: "exact", head: true })
-      .eq("partner_id", user!.id),
-    supabase
-      .from("knowledge_articles")
-      .select("*", { count: "exact", head: true })
-      .eq("published", true),
+      .gte("created_at", monthAgo),
+    getCreditBalanceCents(user!.id),
     supabase
       .from("api_usage")
       .select("id, endpoint, method, status_code, created_at, api_key_id")
@@ -83,14 +84,12 @@ export default async function DashboardPage() {
         title={welcomeTitle}
         description={t("pages.overview.description")}
         actions={
-          context?.isTeamMember ? (
-            <Link
-              href="/dashboard/playground"
-              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
-            >
-              {t("pages.overview.tryItLive")}
-            </Link>
-          ) : undefined
+          <Link
+            href="/dashboard/playground"
+            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
+          >
+            {t("pages.overview.tryItLive")}
+          </Link>
         }
       />
 
@@ -113,35 +112,35 @@ export default async function DashboardPage() {
           }
         />
         <StatCard
-          label={t("pages.overview.chatRequests")}
-          value={chatCount ?? 0}
-          href="/dashboard/chat"
-          linkLabel={t("pages.overview.viewLogs")}
+          label={t("pages.overview.requests30d")}
+          value={(requests30d ?? 0).toLocaleString()}
+          href="/dashboard/usage"
+          linkLabel={t("pages.overview.viewUsage")}
           icon={
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              <line x1="4" y1="20" x2="20" y2="20" />
+              <rect x="6" y="10" width="3" height="6" rx="0.5" />
+              <rect x="11" y="6" width="3" height="10" rx="0.5" />
+              <rect x="16" y="13" width="3" height="3" rx="0.5" />
             </svg>
           }
         />
         <StatCard
-          label={t("pages.overview.knowledgeArticles")}
-          value={knowledgeCount ?? 0}
-          href={context?.knowledge.canViewKnowledge ? "/dashboard/knowledge" : "/docs/endpoints"}
-          linkLabel={
-            context?.knowledge.canViewKnowledge
-              ? t("pages.overview.manage")
-              : t("pages.overview.apiDocs")
-          }
+          label={t("pages.overview.creditBalance")}
+          value={formatMyr(balanceCents, { decimals: true })}
+          href="/dashboard/top-up"
+          linkLabel={t("pages.overview.topUp")}
           icon={
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v14H6.5A2.5 2.5 0 0 0 4 19.5V5.5ZM4 19.5A2.5 2.5 0 0 0 6.5 22H20" />
+              <rect x="2" y="5" width="20" height="14" rx="2" />
+              <line x1="2" y1="10" x2="22" y2="10" />
             </svg>
           }
         />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <QuickStartSnippet baseUrl={baseUrl} isTeamMember={context?.isTeamMember ?? false} />
+        <QuickStartSnippet baseUrl={baseUrl} />
 
         <Panel
           title={t("pages.overview.recentApiActivity")}

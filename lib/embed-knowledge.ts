@@ -1,11 +1,13 @@
 import { chunkArticleText } from "@/lib/chunking";
-import { embedTexts } from "@/lib/embeddings";
+import { embedTexts, getEmbeddingModelId } from "@/lib/embeddings";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { KnowledgeArticle } from "@/lib/types";
 
 export type EmbedKnowledgeResult = {
   articlesProcessed: number;
   chunksWritten: number;
+  promptTokens: number;
+  costUsd: number;
 };
 
 /** Insert this many chunk rows per request (vectors are large). */
@@ -16,20 +18,27 @@ const CHUNK_INSERT_BATCH_SIZE = Math.max(
 
 export async function embedKnowledgeArticles(
   articles: KnowledgeArticle[],
-): Promise<{ articlesProcessed: number; chunksWritten: number }> {
+): Promise<EmbedKnowledgeResult> {
   let chunksWritten = 0;
+  let promptTokens = 0;
+  let costUsd = 0;
 
   for (const article of articles) {
     if (!article.published) {
       await removeArticleEmbeddings(article.id);
       continue;
     }
-    chunksWritten += await embedKnowledgeArticle(article);
+    const result = await embedKnowledgeArticle(article);
+    chunksWritten += result.chunksWritten;
+    promptTokens += result.promptTokens;
+    costUsd += result.costUsd;
   }
 
   return {
     articlesProcessed: articles.length,
     chunksWritten,
+    promptTokens,
+    costUsd,
   };
 }
 
@@ -56,18 +65,24 @@ export async function embedAllKnowledgeArticles(
 
   const list = (articles ?? []) as KnowledgeArticle[];
   let chunksWritten = 0;
+  let promptTokens = 0;
+  let costUsd = 0;
 
   for (let index = 0; index < list.length; index += 1) {
     const article = list[index];
     console.log(`[${index + 1}/${list.length}] ${article.title}`);
 
-    const written = await embedKnowledgeArticle(article);
-    chunksWritten += written;
+    const result = await embedKnowledgeArticle(article);
+    chunksWritten += result.chunksWritten;
+    promptTokens += result.promptTokens;
+    costUsd += result.costUsd;
   }
 
   return {
     articlesProcessed: list.length,
     chunksWritten,
+    promptTokens,
+    costUsd,
   };
 }
 
@@ -91,10 +106,18 @@ export async function syncArticleEmbeddings(article: KnowledgeArticle) {
     return embedKnowledgeArticle(article);
   }
   await removeArticleEmbeddings(article.id);
-  return 0;
+  return { chunksWritten: 0, promptTokens: 0, costUsd: 0 };
 }
 
-export async function embedKnowledgeArticle(article: KnowledgeArticle) {
+export type EmbedArticleResult = {
+  chunksWritten: number;
+  promptTokens: number;
+  costUsd: number;
+};
+
+export async function embedKnowledgeArticle(
+  article: KnowledgeArticle,
+): Promise<EmbedArticleResult> {
   const admin = createAdminClient();
   const chunks = chunkArticleText({
     title: article.title,
@@ -102,7 +125,7 @@ export async function embedKnowledgeArticle(article: KnowledgeArticle) {
     content: article.content,
   });
 
-  const embeddings = await embedTexts(chunks);
+  const { embeddings, usage } = await embedTexts(chunks);
 
   await admin.from("knowledge_chunks").delete().eq("article_id", article.id);
 
@@ -126,5 +149,21 @@ export async function embedKnowledgeArticle(article: KnowledgeArticle) {
     }
   }
 
-  return rows.length;
+  // Record what this file cost to make searchable.
+  await admin
+    .from("knowledge_articles")
+    .update({
+      embed_cost_usd: usage.costUsd,
+      embed_prompt_tokens: usage.promptTokens,
+      embed_chunks: rows.length,
+      embed_model: getEmbeddingModelId(),
+      embed_updated_at: new Date().toISOString(),
+    })
+    .eq("id", article.id);
+
+  return {
+    chunksWritten: rows.length,
+    promptTokens: usage.promptTokens,
+    costUsd: usage.costUsd,
+  };
 }

@@ -12,7 +12,7 @@ const CANDIDATE_MULTIPLIER = 4;
 /** At most this many chunks from a single article. */
 const MAX_CHUNKS_PER_ARTICLE = Number(process.env.RAG_MAX_CHUNKS_PER_ARTICLE ?? 2);
 /** Chunks weaker than this are not used (avoids citing unrelated content). */
-const SIMILARITY_THRESHOLD = Number(process.env.RAG_SIMILARITY_THRESHOLD ?? 0.5);
+const SIMILARITY_THRESHOLD = Number(process.env.RAG_SIMILARITY_THRESHOLD ?? 0.35);
 /** Hard caps so one huge document can never blow up the prompt (and the bill). */
 const MAX_CHUNK_CONTEXT_CHARS = 1200;
 const MAX_TOTAL_CONTEXT_CHARS = 12000;
@@ -62,6 +62,9 @@ type VectorMatchRow = {
   category: string;
   content: string;
   similarity: number;
+  keyword_rank?: number | null;
+  vector_rank?: number | null;
+  fused_score?: number;
 };
 
 function normalizeCategory(category?: string) {
@@ -70,13 +73,14 @@ function normalizeCategory(category?: string) {
   return value;
 }
 
-async function vectorSearch(message: string, category?: string) {
+async function hybridSearch(message: string, category?: string) {
   const admin = createAdminClient();
   const queryEmbedding = await embedText(message);
   const filterCategory = normalizeCategory(category);
 
-  const { data, error } = await admin.rpc("match_knowledge_chunks", {
+  const { data, error } = await admin.rpc("match_knowledge_chunks_hybrid", {
     query_embedding: queryEmbedding,
+    query_text: message,
     match_count: MAX_CONTEXT_CHUNKS * CANDIDATE_MULTIPLIER,
     filter_category: filterCategory,
     similarity_threshold: SIMILARITY_THRESHOLD,
@@ -97,7 +101,8 @@ async function vectorSearch(message: string, category?: string) {
     title: row.article_title,
     category: row.category,
     content: row.content.slice(0, MAX_CHUNK_CONTEXT_CHARS),
-    similarity: row.similarity,
+    // Keep the presentation clean: literal-only hits have no vector similarity.
+    similarity: row.vector_rank ? row.similarity : undefined,
   }));
 }
 
@@ -183,9 +188,8 @@ export async function findRelevantKnowledge(message: string, category?: string) 
     const chunksAvailable = await hasEmbeddedChunks();
 
     if (chunksAvailable) {
-      // Trust the vector search: return what matched (possibly nothing) rather
-      // than falling back to unrelated recent articles.
-      return await vectorSearch(message, category);
+      // Hybrid retrieval: vector similarity + full-text, fused in the database.
+      return await hybridSearch(message, category);
     }
   } catch {
     // Embeddings unavailable — fall through to keyword search.

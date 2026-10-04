@@ -95,3 +95,24 @@ export async function signOut() {
   await supabase.auth.signOut();
   redirect("/");
 }
+
+export async function signInWithGoogle(): Promise<{ error: string } | void> {
+  const supabase = await createClient();
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${appUrl}/auth/callback`,
+      queryParams: { prompt: "select_account" },
+    },
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  if (data.url) {
+    redirect(data.url);
+  }
+}

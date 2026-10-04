@@ -21,7 +21,7 @@ export async function GET(request: Request) {
   const { data, error } = await client
     .from("knowledge_sync_runs")
     .select(
-      "id, status, files_seen, created_count, updated_count, removed_count, skipped_count, deferred_count, current_path, error, started_at, finished_at, embed_job_id",
+      "id, status, files_seen, created_count, updated_count, removed_count, skipped_count, deferred_count, current_path, error, started_at, finished_at, embed_job_id, embed_cost_usd, embed_prompt_tokens",
     )
     .eq("id", runId)
     .maybeSingle();

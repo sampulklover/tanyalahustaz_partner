@@ -1,7 +1,5 @@
 "use client";
 
-import { useTransition } from "react";
-import { setLocale } from "@/app/actions/locale";
 import {
   locales,
   localeShortLabels,
@@ -52,6 +50,7 @@ function LanguageToggle({
   return (
     <div
       role="group"
+      aria-busy={isPending}
       className="inline-flex items-center rounded-lg border border-border bg-background-subtle/60 p-0.5"
     >
       {locales.map((value) => {
@@ -61,7 +60,6 @@ function LanguageToggle({
           <button
             key={value}
             type="button"
-            disabled={isPending}
             aria-pressed={active}
             onClick={() => onChange(value)}
             className={
@@ -82,17 +80,10 @@ export function LanguageSwitcher({
   className = "",
   variant = "header",
 }: LanguageSwitcherProps) {
-  const { locale, t } = useI18n();
-  const [isPending, startTransition] = useTransition();
+  const { locale, t, setLocale, isSwitching } = useI18n();
 
   function handleChange(nextLocale: Locale) {
-    if (nextLocale === locale || isPending) {
-      return;
-    }
-
-    startTransition(async () => {
-      await setLocale(nextLocale);
-    });
+    setLocale(nextLocale);
   }
 
   if (variant === "sidebar") {
@@ -107,7 +98,7 @@ export function LanguageSwitcher({
           </span>
           <LanguageToggle
             locale={locale}
-            isPending={isPending}
+            isPending={isSwitching}
             onChange={handleChange}
             size="md"
           />
@@ -128,7 +119,7 @@ export function LanguageSwitcher({
           </span>
           <LanguageToggle
             locale={locale}
-            isPending={isPending}
+            isPending={isSwitching}
             onChange={handleChange}
             size="md"
           />
@@ -145,7 +136,7 @@ export function LanguageSwitcher({
     >
       <LanguageToggle
         locale={locale}
-        isPending={isPending}
+        isPending={isSwitching}
         onChange={handleChange}
         size="sm"
       />

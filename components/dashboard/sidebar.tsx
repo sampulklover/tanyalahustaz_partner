@@ -3,10 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
-import { signOut } from "@/app/actions/auth";
 import { Logo, LogoMark } from "@/components/brand";
+import { SignOutButton } from "@/components/dashboard/sign-out-button";
 import { LanguageSwitcher } from "@/components/language-switcher";
-import { SubmitButton } from "@/components/submit-button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useI18n } from "@/lib/i18n/client";
 
@@ -97,6 +96,16 @@ function SidebarContent({
       ),
     },
     {
+      href: "/dashboard/playground",
+      label: t("dashboard.playground"),
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 17l6-6-6-6" />
+          <path d="M12 19h8" />
+        </svg>
+      ),
+    },
+    {
       href: "/dashboard/prompt",
       label: t("dashboard.prompt"),
       icon: (
@@ -140,6 +149,16 @@ function SidebarContent({
       icon: (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        </svg>
+      ),
+    },
+    {
+      href: "/dashboard/settings",
+      label: t("dashboard.settings"),
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
         </svg>
       ),
     },
@@ -242,11 +261,7 @@ function SidebarContent({
         <p className="truncate text-xs text-[color:var(--muted)]" title={email}>
           {email}
         </p>
-        <form action={signOut} className="mt-2">
-          <SubmitButton className="inline-flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-[color:var(--muted)] transition hover:bg-background-subtle hover:text-foreground disabled:opacity-60">
-            {t("dashboard.signOut")}
-          </SubmitButton>
-        </form>
+        <SignOutButton />
       </div>
     </div>
   );

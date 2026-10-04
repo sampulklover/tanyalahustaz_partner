@@ -12,6 +12,8 @@ export type KnowledgeEmbedJob = {
   articles_total: number;
   articles_processed: number;
   chunks_written: number;
+  embed_cost_usd: number;
+  embed_prompt_tokens: number;
   error: string | null;
   created_at: string;
   updated_at: string;
@@ -51,6 +53,19 @@ export async function getEmbedJob(jobId: string): Promise<KnowledgeEmbedJob | nu
   }
 
   return (data as KnowledgeEmbedJob | null) ?? null;
+}
+
+/** Copy the job's running cost totals onto the sync run that created it. */
+async function updateLinkedSyncRunCost(
+  jobId: string,
+  costUsd: number,
+  promptTokens: number,
+) {
+  const admin = createAdminClient();
+  await admin
+    .from("knowledge_sync_runs")
+    .update({ embed_cost_usd: costUsd, embed_prompt_tokens: promptTokens })
+    .eq("embed_job_id", jobId);
 }
 
 async function loadArticlesByIds(ids: string[]) {
@@ -102,6 +117,9 @@ export async function processEmbedJob(
     const embedResult = await embedKnowledgeArticles(articles);
     const articlesProcessed = job.articles_processed + batchIds.length;
     const chunksWritten = job.chunks_written + embedResult.chunksWritten;
+    const embedCostUsd = Number(job.embed_cost_usd ?? 0) + embedResult.costUsd;
+    const embedPromptTokens =
+      Number(job.embed_prompt_tokens ?? 0) + embedResult.promptTokens;
     const isComplete = articlesProcessed >= job.articles_total;
 
     const { data: updated, error: updateError } = await admin
@@ -110,6 +128,8 @@ export async function processEmbedJob(
         status: isComplete ? "completed" : "processing",
         articles_processed: articlesProcessed,
         chunks_written: chunksWritten,
+        embed_cost_usd: embedCostUsd,
+        embed_prompt_tokens: embedPromptTokens,
         error: null,
       })
       .eq("id", jobId)
@@ -119,6 +139,10 @@ export async function processEmbedJob(
     if (updateError) {
       throw new Error(updateError.message);
     }
+
+    // Reflect the running cost onto the sync run that queued this job, so the
+    // history shows what a mirror cost to make searchable.
+    await updateLinkedSyncRunCost(jobId, embedCostUsd, embedPromptTokens);
 
     return updated as KnowledgeEmbedJob;
   } catch (error) {

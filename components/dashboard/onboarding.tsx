@@ -5,7 +5,7 @@ import { useI18n } from "@/lib/i18n/client";
 
 const stepMeta = [
   { href: "/dashboard/api-keys", adminOnly: false },
-  { href: "/dashboard/playground", adminOnly: true },
+  { href: "/dashboard/playground", adminOnly: false },
   { href: "/docs/endpoints", adminOnly: false },
 ];
 

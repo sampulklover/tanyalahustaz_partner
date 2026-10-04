@@ -4,6 +4,7 @@ import { KnowledgeSelectedSources } from "@/components/knowledge-selected-source
 import { KnowledgeSourceToggle } from "@/components/knowledge-source-toggle";
 import { formatBytes } from "@/lib/format-bytes";
 import { getTranslations } from "@/lib/i18n/server";
+import { isPathSynced, syncedCountUnder } from "@/lib/sync-path";
 
 export type SourceSelection = { path: string; kind: "file" | "folder" };
 export type SourceFolder = { name: string; path: string };
@@ -49,6 +50,17 @@ function FileIcon() {
       <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
       <path d="M14 3v5h5" />
     </svg>
+  );
+}
+
+function SyncedPill({ label }: { label: string }) {
+  return (
+    <span className="flex h-5 shrink-0 items-center gap-1 rounded-full bg-emerald-100 px-2 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d="M20 6 9 17l-5-5" />
+      </svg>
+      {label}
+    </span>
   );
 }
 
@@ -102,12 +114,20 @@ export async function KnowledgeSourcePicker({
 
   /** How many already-synced files live under this folder. */
   function syncedCountFor(folderPath: string) {
-    const prefix = `${folderPath}/`;
-    let count = 0;
-    for (const path of syncedPaths) {
-      if (path.startsWith(prefix)) count += 1;
-    }
-    return count;
+    return syncedCountUnder(folderPath, syncedPaths);
+  }
+
+  /**
+   * A path is mirrored if it is itself synced, or sits under a synced ancestor
+   * folder. Mirrored rows show a badge instead of a checkbox.
+   */
+  function isSynced(path: string) {
+    return isPathSynced(path, syncedSet);
+  }
+
+  /** Direct link to view the real bucket file (opens in a new tab). */
+  function fileHref(path: string) {
+    return `/api/knowledge/sources/file?path=${encodeURIComponent(path)}`;
   }
 
   function browseHref(path: string | null) {
@@ -182,25 +202,31 @@ export async function KnowledgeSourcePicker({
                 <ul className="min-h-0 flex-1 divide-y divide-border overflow-y-auto pb-1">
                   {searchResults.map((file) => {
                     const selected = selectedPaths.has(file.path);
+                    const synced = isSynced(file.path);
                     return (
                       <li
                         key={file.path}
                         className={`flex items-center gap-3 px-3 py-2.5 transition hover:bg-background-subtle ${
-                          selected ? selectedRowBase : ""
+                          selected && !synced ? selectedRowBase : ""
                         }`}
                       >
-                        <KnowledgeSourceToggle path={file.path} kind="file" selected={selected} />
-                        <div className="flex min-w-0 flex-1 items-center gap-2">
+                        {synced ? (
+                          <SyncedPill label={t("knowledge.sources.picker.syncedBadge")} />
+                        ) : (
+                          <KnowledgeSourceToggle path={file.path} kind="file" selected={selected} />
+                        )}
+                        <a
+                          href={fileHref(file.path)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title={t("knowledge.sources.picker.openFile")}
+                          className="group flex min-w-0 flex-1 items-center gap-2"
+                        >
                           <FileIcon />
-                          <span className="truncate font-mono text-xs" title={file.path}>
+                          <span className="truncate font-mono text-xs group-hover:underline" title={file.path}>
                             {file.path}
                           </span>
-                        </div>
-                        {syncedSet.has(file.path) && (
-                          <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
-                            {t("knowledge.sources.picker.syncedBadge")}
-                          </span>
-                        )}
+                        </a>
                         <span className="shrink-0 rounded-full bg-background-subtle px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[color:var(--muted)]">
                           {formatBytes(file.size)}
                         </span>
@@ -290,7 +316,9 @@ export async function KnowledgeSourcePicker({
                 <KnowledgeSelectAll
                   items={[
                     ...folders.map((folder) => ({ path: folder.path, kind: "folder" as const })),
-                    ...files.map((file) => ({ path: file.path, kind: "file" as const })),
+                    ...files
+                      .filter((file) => !isSynced(file.path))
+                      .map((file) => ({ path: file.path, kind: "file" as const })),
                   ]}
                 />
               </div>
@@ -349,18 +377,24 @@ export async function KnowledgeSourcePicker({
                   })}
                   {files.map((file) => {
                     const selected = selectedPaths.has(file.path);
+                    const synced = isSynced(file.path);
                     return (
-                      <li key={file.path} className={`${rowBase} ${selected ? selectedRowBase : ""}`}>
-                        <KnowledgeSourceToggle path={file.path} kind="file" selected={selected} />
-                        <div className="flex min-w-0 flex-1 items-center gap-2">
-                          <FileIcon />
-                          <span className="truncate text-sm">{file.name}</span>
-                        </div>
-                        {syncedSet.has(file.path) && (
-                          <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
-                            {t("knowledge.sources.picker.syncedBadge")}
-                          </span>
+                      <li key={file.path} className={`${rowBase} ${selected && !synced ? selectedRowBase : ""}`}>
+                        {synced ? (
+                          <SyncedPill label={t("knowledge.sources.picker.syncedBadge")} />
+                        ) : (
+                          <KnowledgeSourceToggle path={file.path} kind="file" selected={selected} />
                         )}
+                        <a
+                          href={fileHref(file.path)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title={t("knowledge.sources.picker.openFile")}
+                          className="group flex min-w-0 flex-1 items-center gap-2"
+                        >
+                          <FileIcon />
+                          <span className="truncate text-sm group-hover:underline">{file.name}</span>
+                        </a>
                         <span className="shrink-0 rounded-full bg-background-subtle px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[color:var(--muted)]">
                           {formatBytes(file.size)}
                         </span>
@@ -383,6 +417,7 @@ export async function KnowledgeSourcePicker({
       <aside className="h-full lg:col-span-2">
         <KnowledgeSelectedSources
           initialSelections={selections}
+          syncedPaths={syncedPaths}
           canEdit={canEdit}
           configured={configured}
         />

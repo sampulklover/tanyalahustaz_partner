@@ -22,6 +22,7 @@ export async function reembedAllKnowledge(): Promise<ActionResult> {
       success: t("actionErrors.reembedSuccess", {
         articles: result.articlesProcessed,
         chunks: result.chunksWritten,
+        cost: `$${result.costUsd.toFixed(4)}`,
       }),
     };
   } catch (error) {

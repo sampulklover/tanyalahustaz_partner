@@ -31,7 +31,6 @@ export function KnowledgeNav({ knowledge, active }: KnowledgeNavProps) {
   const tabs = [
     { href: "/dashboard/knowledge/sources", id: "sources" as const, badge: null as string | null },
     { href: "/dashboard/knowledge/prompt", id: "prompt" as const, badge: null as string | null },
-    { href: "/dashboard/playground", id: "playground" as const, badge: null as string | null },
     ...(knowledge.canManageTeam
       ? [
           { href: "/dashboard/knowledge/pricing", id: "pricing" as const, badge: t("common.adminBadge") },

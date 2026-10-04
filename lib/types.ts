@@ -69,6 +69,12 @@ export type KnowledgeArticle = {
   source_synced_at?: string | null;
   /** Source file size in bytes (mirrored articles only). */
   source_size?: number | null;
+  /** OpenRouter embedding cost in USD to make this article searchable. */
+  embed_cost_usd?: number | null;
+  embed_prompt_tokens?: number | null;
+  embed_chunks?: number | null;
+  embed_model?: string | null;
+  embed_updated_at?: string | null;
 };
 
 export type KnowledgeSyncFailure = { path: string; error: string };
@@ -86,6 +92,9 @@ export type KnowledgeSyncRun = {
   failed: KnowledgeSyncFailure[];
   error: string | null;
   embed_job_id: string | null;
+  /** Total OpenRouter embedding cost (USD) for the files this run queued. */
+  embed_cost_usd?: number | null;
+  embed_prompt_tokens?: number | null;
   created_by: string | null;
   started_at: string;
   finished_at: string | null;

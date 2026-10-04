@@ -3,11 +3,19 @@ import { describe, it } from "node:test";
 import { validateChatMessage } from "./chat";
 
 describe("validateChatMessage", () => {
-  it("rejects messages shorter than 3 characters", () => {
+  it("accepts short greetings like 'hi'", () => {
     const result = validateChatMessage("hi");
+    assert.equal(result.ok, true);
+    if (result.ok) {
+      assert.equal(result.message, "hi");
+    }
+  });
+
+  it("rejects empty or whitespace-only messages", () => {
+    const result = validateChatMessage("   ");
     assert.equal(result.ok, false);
     if (!result.ok) {
-      assert.match(result.error, /at least 3/i);
+      assert.match(result.error, /empty/i);
     }
   });
 

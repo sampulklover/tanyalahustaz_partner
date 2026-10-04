@@ -3,7 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { DEVELOPER_PORTAL_NAME } from "@/lib/brand";
 import { I18nProvider } from "@/lib/i18n/client";
-import { getLocale, getMessages, getTranslations } from "@/lib/i18n/server";
+import { getLocale, getTranslations } from "@/lib/i18n/server";
+import en from "@/messages/en.json";
+import ms from "@/messages/ms.json";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ToastProvider } from "@/components/toast";
@@ -64,7 +66,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const locale = await getLocale();
-  const messages = await getMessages(locale);
 
   return (
     <html
@@ -77,7 +78,7 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <I18nProvider locale={locale} messages={messages}>
+        <I18nProvider locale={locale} messagesByLocale={{ en, ms }}>
           <ToastProvider>
             <ThemeProvider>{children}</ThemeProvider>
           </ToastProvider>
