@@ -14,6 +14,7 @@ import { DashboardPage as DashboardShell } from "@/components/dashboard/page";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { getDashboardContext } from "@/lib/dashboard";
 import { formatBytes } from "@/lib/format-bytes";
+import { formatUsd } from "@/lib/format-usd";
 import { listGcsChildren, searchGcsObjects } from "@/lib/gcs";
 import { getGcsSyncStatus } from "@/lib/gcs-sync";
 import { getPendingEmbedJobCount } from "@/lib/knowledge-embed-jobs";
@@ -482,12 +483,14 @@ export default async function KnowledgeSourcesPage({
                     <th className="px-4 py-3 font-medium">{t("knowledge.sources.startedAt")}</th>
                     <th className="px-4 py-3 font-medium">{t("common.status")}</th>
                     <th className="px-4 py-3 font-medium">{t("knowledge.sources.colResult")}</th>
+                    <th className="px-4 py-3 font-medium">{t("knowledge.sources.colCost")}</th>
                     <th className="px-4 py-3 font-medium">{t("knowledge.sources.colErrors")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {runItems.map((run) => {
                     const failedCount = Array.isArray(run.failed) ? run.failed.length : 0;
+                    const cost = Number(run.embed_cost_usd ?? 0);
                     return (
                       <tr key={run.id}>
                         <td className="px-4 py-3 tabular-nums text-[color:var(--muted)]">
@@ -514,6 +517,18 @@ export default async function KnowledgeSourcesPage({
                             skipped: run.skipped_count,
                             deferred: run.deferred_count,
                           })}
+                        </td>
+                        <td
+                          className="px-4 py-3 tabular-nums text-[color:var(--muted)]"
+                          title={
+                            run.embed_prompt_tokens
+                              ? t("knowledge.sources.runCostTitle", {
+                                  tokens: Number(run.embed_prompt_tokens).toLocaleString(),
+                                })
+                              : undefined
+                          }
+                        >
+                          {cost > 0 ? formatUsd(cost) : "—"}
                         </td>
                         <td className="px-4 py-3">
                           {run.error ? (

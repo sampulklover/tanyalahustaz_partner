@@ -29,6 +29,27 @@ export function getEmbeddingModelId() {
   return getEmbeddingModel();
 }
 
+/**
+ * Rough USD price per 1M prompt tokens for the embedding model, used only to
+ * estimate a sync's cost before it runs. Override with EMBED_PRICE_PER_MILLION.
+ * Default matches openai/text-embedding-3-small ($0.02 / 1M tokens).
+ */
+export function getEmbeddingPricePerMillion(): number {
+  return Number(process.env.EMBED_PRICE_PER_MILLION ?? 0.02);
+}
+
+/**
+ * Estimate embedding cost from the total source bytes of a set of files.
+ * Bytes ≈ characters for extracted text; ~4 chars ≈ 1 token; chunks carry a
+ * little overlap, so we pad the token count slightly. Only ever an estimate.
+ */
+export function estimateEmbedCost(bytes: number): number {
+  const CHARS_PER_TOKEN = 4;
+  const OVERLAP_PADDING = 1.15;
+  const tokens = (bytes / CHARS_PER_TOKEN) * OVERLAP_PADDING;
+  return (tokens / 1_000_000) * getEmbeddingPricePerMillion();
+}
+
 /** Token/cost usage reported by OpenRouter on an embeddings request. */
 export type EmbeddingUsage = {
   promptTokens: number;

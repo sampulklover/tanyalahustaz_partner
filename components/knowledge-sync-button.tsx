@@ -16,6 +16,8 @@ export function KnowledgeSyncButton({
   hasSelections,
   additions = null,
   removals = null,
+  perRun = null,
+  estimatedCostUsd = null,
   previewLoading = false,
   fullWidth = false,
 }: {
@@ -24,6 +26,8 @@ export function KnowledgeSyncButton({
   hasSelections: boolean;
   additions?: number | null;
   removals?: number | null;
+  perRun?: number | null;
+  estimatedCostUsd?: number | null;
   previewLoading?: boolean;
   fullWidth?: boolean;
 }) {
@@ -137,13 +141,34 @@ export function KnowledgeSyncButton({
               title={previewSummary ?? undefined}
               className="rounded-full bg-white/20 px-2 py-0.5 text-[11px] font-semibold tabular-nums"
             >
-              {additions ? `+${additions}` : null}
+              {perRun != null && additions != null
+                ? `+${Math.min(additions, perRun)}`
+                : additions
+                  ? `+${additions}`
+                  : null}
               {additions && removals ? " " : null}
               {removals ? `−${removals}` : null}
             </span>
           ) : null}
         </button>
       </form>
+
+      {!isPending && perRun != null && additions != null && additions > perRun ? (
+        <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-800 dark:border-amber-900 dark:bg-amber-900/20 dark:text-amber-200">
+          {t("knowledge.sources.syncCapNote", {
+            thisRun: perRun,
+            total: additions,
+          })}
+        </p>
+      ) : null}
+
+      {!isPending && estimatedCostUsd != null && estimatedCostUsd > 0 ? (
+        <p className="mt-2 text-xs text-[color:var(--muted)]">
+          {t("knowledge.sources.estimatedCostNote", {
+            cost: `$${estimatedCostUsd.toFixed(4)}`,
+          })}
+        </p>
+      ) : null}
 
       {error && (
         <p className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">

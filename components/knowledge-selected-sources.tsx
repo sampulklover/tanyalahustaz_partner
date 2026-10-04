@@ -95,7 +95,12 @@ export function KnowledgeSelectedSources({
   }, []);
 
   // Fetch what the next sync would change, on demand (never during navigation).
-  const [preview, setPreview] = useState<{ additions: number; removals: number } | null>(null);
+  const [preview, setPreview] = useState<{
+    additions: number;
+    removals: number;
+    perRun: number;
+    estimatedCostUsd: number;
+  } | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const selectionSignature = items
     .map((item) => `${item.kind}:${item.path}`)
@@ -119,7 +124,14 @@ export function KnowledgeSelectedSources({
       try {
         const response = await fetch("/api/knowledge/sources/preview");
         const payload = (await response.json().catch(() => null)) as
-          | { preview?: { additions: number; removals: number } | null }
+          | {
+              preview?: {
+                additions: number;
+                removals: number;
+                perRun: number;
+                estimatedCostUsd: number;
+              } | null;
+            }
           | null;
         if (!cancelled) setPreview(payload?.preview ?? null);
       } catch {
@@ -254,6 +266,8 @@ export function KnowledgeSelectedSources({
           hasSelections={items.length > 0}
           additions={preview?.additions ?? null}
           removals={preview?.removals ?? null}
+          perRun={preview?.perRun ?? null}
+          estimatedCostUsd={preview?.estimatedCostUsd ?? null}
           previewLoading={previewLoading}
           fullWidth
         />
