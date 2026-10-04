@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { onSyncFinished } from "@/lib/activity-events";
 import { useI18n } from "@/lib/i18n/client";
 
 // Folder-pending requests are batched: the first badge to mount kicks off one
@@ -34,9 +35,15 @@ function requestPending(paths: string[]): Promise<void> {
   return promise;
 }
 
+function invalidateFolderPending() {
+  pendingCache.clear();
+  inFlight.clear();
+}
+
 /**
  * "N to sync" badge for one folder. Counts are fetched after mount so listing
- * the bucket never delays the page's first paint.
+ * the bucket never delays the page's first paint, and refreshed when a sync
+ * finishes so the numbers stay honest.
  */
 export function FolderPendingBadge({
   path,
@@ -48,17 +55,27 @@ export function FolderPendingBadge({
 }) {
   const { t } = useI18n();
   const [count, setCount] = useState<number | null>(pendingCache.get(path) ?? null);
+  const [tick, setTick] = useState(0);
+  const signature = siblingPaths.slice().sort().join(",");
+
+  // Re-fetch once a run finishes, so "to sync" reflects the new library.
+  useEffect(() => {
+    return onSyncFinished(() => {
+      invalidateFolderPending();
+      setTick((value) => value + 1);
+    });
+  }, []);
 
   useEffect(() => {
-    if (pendingCache.has(path)) return;
+    if (!signature) return;
     let cancelled = false;
-    void requestPending(siblingPaths).then(() => {
+    void requestPending(signature.split(",")).then(() => {
       if (!cancelled) setCount(pendingCache.get(path) ?? 0);
     });
     return () => {
       cancelled = true;
     };
-  }, [path, siblingPaths]);
+  }, [path, signature, tick]);
 
   if (count === null || count <= 0) return null;
 

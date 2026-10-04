@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Spinner } from "@/components/spinner";
 import { useI18n } from "@/lib/i18n/client";
 import { onSyncStarted } from "@/lib/activity-events";
+import { emitSyncFinished } from "@/lib/activity-events";
 import { createClient } from "@/lib/supabase/client";
 
 type RunStatus = {
@@ -113,12 +114,14 @@ export function KnowledgeActivity({
           if (payload.run.status !== "running") {
             if (timerRef.current) clearInterval(timerRef.current);
             setSyncing(false);
+            emitSyncFinished();
             router.refresh();
           }
         } catch (error) {
           if (timerRef.current) clearInterval(timerRef.current);
           setSyncing(false);
           setSyncError(error instanceof Error ? error.message : t("knowledge.sources.syncFailed"));
+          emitSyncFinished();
           router.refresh();
         }
       }, 1500);
