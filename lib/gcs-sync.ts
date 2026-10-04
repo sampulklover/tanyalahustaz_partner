@@ -13,6 +13,7 @@
 //   5. Queues embeddings for changed published articles.
 
 import { removeArticleEmbeddings } from "@/lib/embed-knowledge";
+import { estimateEmbedCost } from "@/lib/embeddings";
 import {
   downloadGcsObject,
   getGcsBucketName,
@@ -98,6 +99,10 @@ export type SyncPreview = {
   additions: number;
   /** Mirrored articles whose source file is no longer selected. */
   removals: number;
+  /** How many files a single sync run will process (the per-run cap). */
+  perRun: number;
+  /** Rough USD cost to embed the new files (whole selection, not just this run). */
+  estimatedCostUsd: number;
 };
 
 const PREVIEW_CACHE_TTL_MS = 30_000;
@@ -115,8 +120,11 @@ export function clearSyncPreviewCache() {
 export async function getSyncPreview(): Promise<SyncPreview | null> {
   if (!isGcsConfigured()) return null;
 
+  const perRun = syncRunCap();
   const selections = await loadSourceSelections();
-  if (selections.length === 0) return { additions: 0, removals: 0 };
+  if (selections.length === 0) {
+    return { additions: 0, removals: 0, perRun, estimatedCostUsd: 0 };
+  }
 
   const key = selections
     .map((selection) => `${selection.kind}:${selection.path}`)
@@ -157,18 +165,27 @@ export async function getSyncPreview(): Promise<SyncPreview | null> {
     if (mirroredPaths.length >= 20_000) return null;
 
     const mirroredSet = new Set(mirroredPaths);
-    const additions = syncable.filter((object) => !mirroredSet.has(object.name)).length;
+    const newObjects = syncable.filter((object) => !mirroredSet.has(object.name));
+    const additions = newObjects.length;
     // Mirror is only pruned on an explicit request, so don't advertise removals
     // a normal sync won't perform.
     const removals = 0;
+    const estimatedCostUsd = estimateEmbedCost(
+      newObjects.reduce((sum, object) => sum + (object.size || 0), 0),
+    );
 
-    const preview = { additions, removals };
+    const preview = { additions, removals, perRun, estimatedCostUsd };
     previewCache = { at: Date.now(), key, preview };
     return preview;
   } catch (error) {
     logError("Could not build the sync preview", error);
     return null;
   }
+}
+
+/** How many files one sync run will process (the per-run cap). */
+export function syncRunCap(): number {
+  return Number(process.env.GCS_SYNC_MAX_FILES ?? 10);
 }
 
 /** Optional allow-list of file types, e.g. GCS_SYNC_EXTENSIONS=.pdf */
@@ -216,6 +233,53 @@ export function getGcsSyncStatus(): GcsSyncStatus {
     bucket: getGcsBucketName(),
     prefix: getGcsPrefix(),
   };
+}
+
+/**
+ * How many bucket files under each given folder are not mirrored yet, so the
+ * picker can show "N left" per folder. Lists each folder once (cached), so this
+ * is cheap on repeat loads. Returns a map of folder path -> pending count.
+ */
+export async function countPendingUnderFolders(
+  folderPaths: string[],
+): Promise<Record<string, number>> {
+  const result: Record<string, number> = {};
+  if (folderPaths.length === 0) return result;
+
+  const admin = createAdminClient();
+  const { data: mirrored } = await admin
+    .from("knowledge_articles")
+    .select("source_path")
+    .eq("source_provider", GCS_SOURCE_PROVIDER)
+    .not("source_path", "is", null)
+    .limit(20_000);
+
+  const mirroredSet = new Set(
+    ((mirrored ?? []) as { source_path: string }[]).map((row) => row.source_path),
+  );
+
+  const excluded = new Set(excludedFolders());
+  const allowed = getAllowedExtensions();
+
+  await Promise.all(
+    folderPaths.map(async (folderPath) => {
+      try {
+        const objects = await listGcsObjects(folderPath);
+        result[folderPath] = objects.filter(
+          (object) =>
+            !mirroredSet.has(object.name) &&
+            !isExcluded(object.name, excluded) &&
+            isSyncableDocument(object.name) &&
+            (allowed.length === 0 ||
+              allowed.some((extension) => object.name.toLowerCase().endsWith(extension))),
+        ).length;
+      } catch (error) {
+        logError("Could not count pending files under folder", error, { folderPath });
+      }
+    }),
+  );
+
+  return result;
 }
 
 async function loadSourceSelections(): Promise<KnowledgeSourceSelection[]> {

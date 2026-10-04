@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FolderPendingBadge } from "@/components/folder-pending-counts";
 import { KnowledgeSelectAll } from "@/components/knowledge-select-all";
 import { KnowledgeSelectedSources } from "@/components/knowledge-selected-sources";
 import { KnowledgeSourceToggle } from "@/components/knowledge-source-toggle";
@@ -141,6 +142,8 @@ export async function KnowledgeSourcePicker({
   const breadcrumbs = prefix ? prefix.split("/") : [];
   const up = parentPath(prefix);
   const searching = search.trim().length >= 2;
+  // One request covers every folder row on screen.
+  const visibleFolderPaths = folders.map((folder) => folder.path);
   const rowBase = "flex items-center gap-3 px-3 py-2.5 transition hover:bg-background-subtle";
   const selectedRowBase = "bg-brand-50 dark:bg-brand-900/20";
 
@@ -367,6 +370,10 @@ export async function KnowledgeSourcePicker({
                                 </span>
                               ) : null;
                             })()}
+                            <FolderPendingBadge
+                              path={folder.path}
+                              siblingPaths={visibleFolderPaths}
+                            />
                             <span className="text-[color:var(--muted)] opacity-0 transition group-hover:opacity-100">
                               <ChevronRight />
                             </span>

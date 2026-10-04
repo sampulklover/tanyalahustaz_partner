@@ -1,7 +1,7 @@
 import { NextResponse, after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { requireKnowledgeEditor } from "@/lib/dashboard";
-import { createSyncRun, getGcsSyncStatus, syncKnowledgeFromGcs } from "@/lib/gcs-sync";
+import { createSyncRun, getGcsSyncStatus, syncKnowledgeFromGcs, syncRunCap } from "@/lib/gcs-sync";
 import { drainEmbedJobs } from "@/lib/knowledge-embed-jobs";
 import { logError } from "@/lib/logger";
 
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
       await syncKnowledgeFromGcs({
         runId,
         createdBy: admin.userId,
-        maxFiles: Number(process.env.GCS_SYNC_MAX_FILES ?? 10),
+        maxFiles: syncRunCap(),
         prune,
       });
       await drainEmbedJobs({ deadlineMs: 180_000 });
