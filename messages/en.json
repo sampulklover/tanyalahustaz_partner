@@ -823,6 +823,10 @@
     "reembed": {
       "reembedding": "Re-embedding…",
       "reembedAll": "Re-embed all published"
+    },
+    "ocr": {
+      "running": "Running OCR…",
+      "run": "OCR {count} scanned file(s)"
     }
   },
   "docs": {
@@ -1042,6 +1046,9 @@
     "adminAccessRequired": "Admin access required.",
     "reembedFailed": "Re-embed failed.",
     "reembedSuccess": "Re-embedded {articles} article(s) and {chunks} chunk(s) for {cost}.",
+    "ocrNone": "No scanned files are waiting for OCR.",
+    "ocrFailed": "OCR failed.",
+    "ocrSuccess": "OCR finished: {processed} file(s) transcribed, {failed} failed, costing {cost}.",
     "adminAssignOnly": "Only knowledge admins can assign roles.",
     "emailRequired": "Email is required.",
     "invalidRole": "Choose a valid role.",
