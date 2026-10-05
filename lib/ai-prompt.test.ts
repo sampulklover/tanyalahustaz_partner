@@ -35,4 +35,29 @@ describe("composeSystemPrompt", () => {
 
     assert.ok(result.includes(DEFAULT_SYSTEM_PROMPT.slice(0, 40)));
   });
+
+  it("injects the selected modules between the base and the knowledge block", () => {
+    const result = composeSystemPrompt("Base rules.", "REF", ["fiqh"]);
+
+    const baseAt = result.indexOf("Base rules.");
+    const moduleAt = result.indexOf("MODULE: FIQH RESEARCH");
+    const knowledgeAt = result.indexOf("KNOWLEDGE REFERENCE MATERIAL:");
+
+    assert.ok(baseAt >= 0 && moduleAt > baseAt && knowledgeAt > moduleAt);
+  });
+
+  it("omits modules when none are selected", () => {
+    const result = composeSystemPrompt("Base rules.", "REF", []);
+
+    assert.ok(!result.includes("MODULE:"));
+  });
+
+  it("uses admin-provided module text when given", () => {
+    const result = composeSystemPrompt("Base rules.", "REF", ["fiqh"], {
+      fiqh: "CUSTOM FIQH BODY",
+    });
+
+    assert.ok(result.includes("CUSTOM FIQH BODY"));
+    assert.ok(!result.includes("MODULE: FIQH RESEARCH"));
+  });
 });

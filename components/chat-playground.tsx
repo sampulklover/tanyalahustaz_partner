@@ -14,7 +14,7 @@ import {
   writeStoredPlaygroundApiKey,
   writeStoredPlaygroundSessionId,
 } from "@/lib/playground-storage";
-import { parsePlaygroundStreamChunk, type PlaygroundStreamEvent } from "@/lib/playground-stream";
+import { parseChatStreamChunk, type ChatStreamEvent } from "@/lib/chat-stream";
 import type { KnowledgeSource } from "@/lib/types";
 
 type MessageStatus = "complete" | "streaming" | "cancelled" | "error";
@@ -274,7 +274,7 @@ export function ChatPlayground() {
         const decoder = new TextDecoder();
         let buffer = "";
 
-        const handleEvent = (event: PlaygroundStreamEvent) => {
+        const handleEvent = (event: ChatStreamEvent) => {
           if (event.type === "meta") {
             persistSessionId(event.session_id);
             updateMessage(assistantId, { sources: event.sources });
@@ -305,7 +305,7 @@ export function ChatPlayground() {
           if (done) break;
 
           buffer += decoder.decode(value, { stream: true });
-          buffer = parsePlaygroundStreamChunk(buffer, handleEvent);
+          buffer = parseChatStreamChunk(buffer, handleEvent);
         }
 
         updateMessage(assistantId, (message) => ({

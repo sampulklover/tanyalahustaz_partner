@@ -1,15 +1,11 @@
 import { authenticateApiRequest, recordApiUsage } from "@/lib/api-auth";
-import { getCachedAnswer, storeCachedAnswer } from "@/lib/answer-cache";
 import { resolveRequestId } from "@/lib/api/errors";
-import { persistChatExchange, prepareChatContext } from "@/lib/chat";
-import type { ChatUsage } from "@/lib/openrouter";
+import { streamChat } from "@/lib/chat";
 import {
   getActionTranslations,
   translateChatError,
   translateRateLimitError,
 } from "@/lib/i18n/actions";
-import { streamChatReply } from "@/lib/openrouter";
-import { createPlaygroundSseStream } from "@/lib/playground-stream";
 import { checkApiKeyRateLimit } from "@/lib/rate-limit";
 
 export const maxDuration = 60;
@@ -21,9 +17,12 @@ type PlaygroundChatBody = {
 };
 
 /**
- * Streaming chat for the "Try it live" playground. Unlike the dashboard-only
- * version, this authenticates with the user's own API key so what they test is
- * exactly what their product will call.
+ * Streaming chat for the "Try it live" playground. Authenticates with the
+ * user's own API key so what they test is exactly what their product calls.
+ *
+ * The actual work is delegated to `streamChat` — the same core the public
+ * /api/v1/chat endpoint uses — so the playground and the real API can never
+ * drift apart. Only the error messages are localised here.
  */
 export async function POST(request: Request) {
   const t = await getActionTranslations();
@@ -66,97 +65,18 @@ export async function POST(request: Request) {
       ? body.category.trim()
       : undefined;
 
-  const prepared = await prepareChatContext({
+  const result = await streamChat({
     message,
     sessionId,
     category,
     partnerId: context.userId,
+    apiKeyId: context.apiKeyId,
+    signal: request.signal,
   });
 
-  if (!prepared.ok) {
-    return Response.json({ error: translateChatError(t, prepared.error) }, { status: 400 });
+  if (!result.ok) {
+    return Response.json({ error: translateChatError(t, result.error) }, { status: 400 });
   }
-
-  const { message: userMessage, sessionId: resolvedSessionId, knowledgeContext, history, sources } =
-    prepared.data;
-
-  const stream = createPlaygroundSseStream(async (send) => {
-    send({ type: "meta", session_id: resolvedSessionId, sources });
-
-    // First message of a session: try a cached answer before calling the model.
-    // Follow-ups depend on prior turns, so they are never served from cache.
-    if (history.length === 0) {
-      const cached = await getCachedAnswer({
-        question: userMessage,
-        partnerId: context.userId,
-      });
-
-      if (cached && cached.answer) {
-        send({ type: "meta", session_id: resolvedSessionId, sources: cached.sources });
-        send({ type: "text", content: cached.answer });
-        // A cache hit costs the partner nothing, so nothing is billed here.
-        send({ type: "done" });
-        return;
-      }
-    }
-
-    let usage: ChatUsage | null = null;
-
-    const { model, stream: tokenStream } = await streamChatReply({
-      userMessage,
-      knowledgeContext,
-      history,
-      signal: request.signal,
-      partnerId: context.userId,
-      onUsage: (value) => {
-        usage = value;
-      },
-    });
-
-    const reader = tokenStream.getReader();
-    let reply = "";
-
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        reply += value;
-        send({ type: "text", content: value });
-      }
-    } finally {
-      reader.releaseLock();
-    }
-
-    const trimmedReply = reply.trim();
-    if (!trimmedReply) {
-      throw new Error("OpenRouter returned an empty response.");
-    }
-
-    await persistChatExchange({
-      partnerId: context.userId,
-      apiKeyId: context.apiKeyId,
-      sessionId: resolvedSessionId,
-      userMessage,
-      assistantMessage: trimmedReply,
-      model,
-      sources,
-      usage,
-    });
-
-    // Cache first-turn answers only, so the next identical question is instant.
-    if (history.length === 0) {
-      void storeCachedAnswer({
-        question: userMessage,
-        partnerId: context.userId,
-        category,
-        answer: trimmedReply,
-        sources,
-      });
-    }
-
-    send({ type: "done" });
-  });
 
   void recordApiUsage(
     { ...context, requestId: resolveRequestId(request) },
@@ -164,7 +84,7 @@ export async function POST(request: Request) {
     200,
   );
 
-  return new Response(stream, {
+  return new Response(result.stream, {
     headers: {
       "Content-Type": "text/event-stream; charset=utf-8",
       "Cache-Control": "no-cache, no-transform",

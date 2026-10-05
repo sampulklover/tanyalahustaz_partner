@@ -1,11 +1,28 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { parsePlaygroundStreamChunk } from "./playground-stream";
+import { encodeChatStreamEvent, parseChatStreamChunk } from "./chat-stream";
 
-describe("parsePlaygroundStreamChunk", () => {
+describe("encodeChatStreamEvent", () => {
+  it("encodes text events as SSE data frames", () => {
+    assert.equal(
+      encodeChatStreamEvent({ type: "text", content: "Salam" }),
+      'data: {"type":"text","content":"Salam"}\n\n',
+    );
+  });
+
+  it("encodes meta and terminal events", () => {
+    assert.equal(
+      encodeChatStreamEvent({ type: "meta", session_id: "s1", sources: [] }),
+      'data: {"type":"meta","session_id":"s1","sources":[]}\n\n',
+    );
+    assert.equal(encodeChatStreamEvent({ type: "done" }), 'data: {"type":"done"}\n\n');
+  });
+});
+
+describe("parseChatStreamChunk", () => {
   it("parses complete SSE events and returns the leftover buffer", () => {
     const events: Array<{ type: string }> = [];
-    const remainder = parsePlaygroundStreamChunk(
+    const remainder = parseChatStreamChunk(
       'data: {"type":"meta","session_id":"abc","sources":[]}\n\ndata: {"type":"text","content":"Hel"}\n\n',
       (event) => events.push(event),
     );
@@ -18,7 +35,7 @@ describe("parsePlaygroundStreamChunk", () => {
 
   it("keeps partial chunks in the buffer", () => {
     const events: Array<{ type: string }> = [];
-    const remainder = parsePlaygroundStreamChunk(
+    const remainder = parseChatStreamChunk(
       'data: {"type":"text","content":"Hel',
       (event) => events.push(event),
     );

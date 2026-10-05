@@ -1,6 +1,6 @@
 import { apiError, apiSuccess, withApiAuth } from "@/lib/api/handler";
 import { ApiErrorCode, mapChatError } from "@/lib/api/errors";
-import { executeChat } from "@/lib/chat";
+import { executeChat, streamChat } from "@/lib/chat";
 import type { ChatRequestBody } from "@/lib/types";
 
 export const maxDuration = 60;
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { message, session_id, category } = body as ChatRequestBody;
+    const { message, session_id, category, stream } = body as ChatRequestBody;
 
     if (typeof message !== "string") {
       return apiError(
@@ -58,13 +58,45 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = await executeChat({
+    if (stream !== undefined && typeof stream !== "boolean") {
+      return apiError(
+        ApiErrorCode.VALIDATION_ERROR,
+        "Field 'stream' must be a boolean.",
+        400,
+        { requestId: context.requestId },
+      );
+    }
+
+    const chatInput = {
       message,
       sessionId: session_id,
       category,
       partnerId: context.userId,
       apiKeyId: context.apiKeyId,
-    });
+    };
+
+    // Streaming: return server-sent events so clients can render tokens live.
+    if (stream === true) {
+      const result = await streamChat({ ...chatInput, signal: request.signal });
+
+      if (!result.ok) {
+        const mapped = mapChatError(result.error);
+        return apiError(mapped.code, result.error, mapped.status, {
+          requestId: context.requestId,
+        });
+      }
+
+      return new Response(result.stream, {
+        headers: {
+          "Content-Type": "text/event-stream; charset=utf-8",
+          "Cache-Control": "no-cache, no-transform",
+          Connection: "keep-alive",
+          "X-Request-Id": context.requestId,
+        },
+      });
+    }
+
+    const result = await executeChat(chatInput);
 
     if (!result.ok) {
       const mapped = mapChatError(result.error);
