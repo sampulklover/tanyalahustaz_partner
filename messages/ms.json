@@ -929,7 +929,13 @@
         }
       ],
       "errorResponse": "Respons ralat",
-      "errorExample": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Field 'message' is required.\",\n    \"request_id\": \"req_abc123def456\"\n  }\n}"
+      "errorExample": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Field 'message' is required.\",\n    \"request_id\": \"req_abc123def456\"\n  }\n}",
+      "streamingTitle": "Respons penstriman",
+      "streamingDescription": "Tambah \"stream\": true pada POST /chat untuk menerima balasan sebagai server-sent events (SSE) tanpa menunggu JSON penuh. Event pertama membawa session_id dan sumber; event teks menyusul apabila token tiba. Ini cara disyorkan supaya UI anda terasa pantas.",
+      "streamingEventsTitle": "Bentuk event",
+      "streamingEventsExample": "data: {\"type\":\"meta\",\"session_id\":\"...\",\"sources\":[...]}\ndata: {\"type\":\"text\",\"content\":\"Pelawat \"}\ndata: {\"type\":\"text\",\"content\":\"boleh jamak...\"}\ndata: {\"type\":\"done\"}",
+      "streamingClientTitle": "Contoh pelayar",
+      "streamingClientHint": "Baca strim dan tambah setiap cebisan teks:"
     },
     "errors": {
       "title": "Ralat & had kadar",

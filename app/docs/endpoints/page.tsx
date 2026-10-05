@@ -31,7 +31,14 @@ const endpointExamples: Record<
   "reply": "Travelers may combine Dhuhr with Asr...",
   "session_id": "your-user-session-id",
   "sources": [{ "slug": "jamak-solat-musafir", "title": "...", "category": "fiqh" }]
-}`,
+}
+
+// Stream tokens as they arrive (text/event-stream):
+//   { "message": "...", "stream": true }
+data: {"type":"meta","session_id":"...","sources":[...]}
+data: {"type":"text","content":"Travelers "}
+data: {"type":"text","content":"may combine..."}
+data: {"type":"done"}`,
   },
   "GET /chat/sessions": {
     auth: true,
@@ -100,6 +107,36 @@ export default async function EndpointsDocsPage() {
   const endpoints = messages.docs.endpoints.endpoints;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
+  const clientExample = `const response = await fetch("${baseUrl}/api/v1/chat", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: "Bearer tlh_live_...",
+  },
+  body: JSON.stringify({ message: "Can a traveler combine prayers?", stream: true }),
+});
+
+const reader = response.body!.getReader();
+const decoder = new TextDecoder();
+let buffer = "";
+
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+  buffer += decoder.decode(value, { stream: true });
+
+  const parts = buffer.split("\\n\\n");
+  buffer = parts.pop() ?? "";
+
+  for (const part of parts) {
+    const line = part.split("\\n").find((entry) => entry.startsWith("data:"));
+    if (!line) continue;
+    const event = JSON.parse(line.slice(5).trim());
+    if (event.type === "text") appendToUi(event.content);
+    if (event.type === "done") finish();
+  }
+}`;
+
   return (
     <article className="not-prose space-y-8">
       <div>
@@ -154,6 +191,32 @@ export default async function EndpointsDocsPage() {
           </section>
         );
       })}
+
+      <section className="rounded-2xl border border-border bg-card p-6">
+        <h2 className="text-xl font-semibold tracking-tight">
+          {t("docs.endpoints.streamingTitle")}
+        </h2>
+        <p className="mt-3 text-sm text-[color:var(--muted)]">
+          {t("docs.endpoints.streamingDescription")}
+        </p>
+
+        <p className="mt-5 text-xs font-medium uppercase tracking-wide text-[color:var(--muted)]">
+          {t("docs.endpoints.streamingEventsTitle")}
+        </p>
+        <pre className="mt-2 overflow-x-auto rounded-lg border border-border bg-background-subtle p-4 text-xs">
+          {t("docs.endpoints.streamingEventsExample")}
+        </pre>
+
+        <p className="mt-5 text-xs font-medium uppercase tracking-wide text-[color:var(--muted)]">
+          {t("docs.endpoints.streamingClientTitle")}
+        </p>
+        <p className="mt-2 text-sm text-[color:var(--muted)]">
+          {t("docs.endpoints.streamingClientHint")}
+        </p>
+        <pre className="mt-2 overflow-x-auto rounded-lg border border-border bg-background-subtle p-4 text-xs">
+          {clientExample}
+        </pre>
+      </section>
     </article>
   );
 }

@@ -12,19 +12,9 @@ import {
   streamChatReply,
   type ChatUsage,
 } from "@/lib/openrouter";
+import { createChatSseStream } from "@/lib/chat-stream";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { ChatResponse, KnowledgeSource } from "@/lib/types";
-
-/** Server-sent events emitted on the streaming chat endpoint. */
-export type ChatStreamEvent =
-  | { type: "meta"; session_id: string; sources: KnowledgeSource[] }
-  | { type: "text"; content: string }
-  | { type: "done" }
-  | { type: "error"; message: string };
-
-export function encodeChatStreamEvent(event: ChatStreamEvent) {
-  return `data: ${JSON.stringify(event)}\n\n`;
-}
 
 export type ExecuteChatInput = {
   message: string;
@@ -271,92 +261,78 @@ export async function streamChat(
   }
 
   const { message, sessionId, knowledgeContext, history, sources } = prepared.data;
-  const encoder = new TextEncoder();
 
-  const stream = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      const send = (event: ChatStreamEvent) => {
-        controller.enqueue(encoder.encode(encodeChatStreamEvent(event)));
-      };
+  const stream = createChatSseStream(async (send) => {
+    send({ type: "meta", session_id: sessionId, sources });
 
-      try {
-        send({ type: "meta", session_id: sessionId, sources });
+    // First turn of a session: a cached answer skips the model entirely.
+    if (history.length === 0) {
+      const cached = await getCachedAnswer({
+        question: message,
+        partnerId: input.partnerId,
+      });
 
-        // First turn of a session: a cached answer skips the model entirely.
-        if (history.length === 0) {
-          const cached = await getCachedAnswer({
-            question: message,
-            partnerId: input.partnerId,
-          });
-
-          if (cached && cached.answer) {
-            send({ type: "meta", session_id: sessionId, sources: cached.sources });
-            send({ type: "text", content: cached.answer });
-            send({ type: "done" });
-            return;
-          }
-        }
-
-        let usage: ChatUsage | null = null;
-        const { model, stream: tokenStream } = await streamChatReply({
-          userMessage: message,
-          knowledgeContext,
-          history,
-          signal: input.signal,
-          partnerId: input.partnerId,
-          onUsage: (value) => {
-            usage = value;
-          },
-        });
-
-        const reader = tokenStream.getReader();
-        let reply = "";
-
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            reply += value;
-            send({ type: "text", content: value });
-          }
-        } finally {
-          reader.releaseLock();
-        }
-
-        const trimmedReply = reply.trim();
-        if (!trimmedReply) {
-          throw new Error("OpenRouter returned an empty response.");
-        }
-
-        await persistChatExchange({
-          partnerId: input.partnerId,
-          apiKeyId: input.apiKeyId,
-          sessionId,
-          userMessage: message,
-          assistantMessage: trimmedReply,
-          model,
-          sources,
-          usage,
-        });
-
-        if (history.length === 0) {
-          void storeCachedAnswer({
-            question: message,
-            partnerId: input.partnerId,
-            category: input.category,
-            answer: trimmedReply,
-            sources,
-          });
-        }
-
+      if (cached && cached.answer) {
+        send({ type: "meta", session_id: sessionId, sources: cached.sources });
+        send({ type: "text", content: cached.answer });
         send({ type: "done" });
-      } catch (error) {
-        const message = error instanceof Error ? error.message : "Failed to generate AI response.";
-        send({ type: "error", message });
-      } finally {
-        controller.close();
+        return;
       }
-    },
+    }
+
+    let usage: ChatUsage | null = null;
+    const { model, stream: tokenStream } = await streamChatReply({
+      userMessage: message,
+      knowledgeContext,
+      history,
+      signal: input.signal,
+      partnerId: input.partnerId,
+      onUsage: (value) => {
+        usage = value;
+      },
+    });
+
+    const reader = tokenStream.getReader();
+    let reply = "";
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        reply += value;
+        send({ type: "text", content: value });
+      }
+    } finally {
+      reader.releaseLock();
+    }
+
+    const trimmedReply = reply.trim();
+    if (!trimmedReply) {
+      throw new Error("OpenRouter returned an empty response.");
+    }
+
+    await persistChatExchange({
+      partnerId: input.partnerId,
+      apiKeyId: input.apiKeyId,
+      sessionId,
+      userMessage: message,
+      assistantMessage: trimmedReply,
+      model,
+      sources,
+      usage,
+    });
+
+    if (history.length === 0) {
+      void storeCachedAnswer({
+        question: message,
+        partnerId: input.partnerId,
+        category: input.category,
+        answer: trimmedReply,
+        sources,
+      });
+    }
+
+    send({ type: "done" });
   });
 
   return { ok: true, stream };

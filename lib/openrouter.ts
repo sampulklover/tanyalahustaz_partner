@@ -53,7 +53,7 @@ export function normalizeChatUsage(raw: unknown): ChatUsage | null {
 }
 
 export function getOpenRouterModel() {
-  return process.env.OPENROUTER_MODEL ?? "google/gemini-2.0-flash-001";
+  return process.env.OPENROUTER_MODEL ?? "google/gemini-2.5-flash";
 }
 
 /**

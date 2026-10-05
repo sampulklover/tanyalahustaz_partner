@@ -928,7 +928,13 @@
         }
       ],
       "errorResponse": "Error response",
-      "errorExample": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Field 'message' is required.\",\n    \"request_id\": \"req_abc123def456\"\n  }\n}"
+      "errorExample": "{\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Field 'message' is required.\",\n    \"request_id\": \"req_abc123def456\"\n  }\n}",
+      "streamingTitle": "Streaming responses",
+      "streamingDescription": "Add \"stream\": true to POST /chat to receive the reply as server-sent events (SSE) instead of waiting for the full JSON. The first event carries the session_id and sources; text events follow as tokens arrive. This is the recommended way to make your UI feel fast.",
+      "streamingEventsTitle": "Event shapes",
+      "streamingEventsExample": "data: {\"type\":\"meta\",\"session_id\":\"...\",\"sources\":[...]}\ndata: {\"type\":\"text\",\"content\":\"Travelers \"}\ndata: {\"type\":\"text\",\"content\":\"may combine...\"}\ndata: {\"type\":\"done\"}",
+      "streamingClientTitle": "Browser example",
+      "streamingClientHint": "Read the stream and append each text chunk:"
     },
     "errors": {
       "title": "Errors & rate limits",
