@@ -42,6 +42,8 @@ export const GCS_SOURCE_PROVIDER = "gcs";
 const DEFAULT_MAX_FILES = Number(process.env.GCS_SYNC_MAX_FILES ?? 10);
 const MAX_SYNC_BYTES = Number(process.env.GCS_SYNC_MAX_BYTES ?? 100 * 1024 * 1024);
 const MIN_TEXT_LENGTH = 20;
+/** Matches the importer's minimum summary length (lib/knowledge-import.ts). */
+const MIN_SUMMARY_LENGTH = 10;
 const DEFAULT_EXCLUDED_FOLDERS = ["cover-image", "cover", "covers"];
 
 /** Cap on file paths stored per run for the history view (display only). */
@@ -70,6 +72,32 @@ function tagsFromPath(path: string): string[] {
   }
 
   return tags.slice(0, 8);
+}
+
+/** Turn a bucket filename into a readable title (no extension, words cased). */
+function titleFromObjectName(filename: string): string {
+  const base = filename.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim();
+  return base
+    .split(/\s+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+/**
+ * A longer summary for files whose first paragraph is too short to pass the
+ * importer's summary rule. Falls back to the first stretch of readable text.
+ */
+function cleanSummaryFallback(text: string): string {
+  const collapsed = text
+    .split(/\n\s*\n/)
+    .map((part) => part.replace(/\s+/g, " ").trim())
+    .filter((part) => part.length >= MIN_SUMMARY_LENGTH);
+
+  if (collapsed.length > 0) {
+    return collapsed.join(" ").slice(0, 280);
+  }
+
+  return text.replace(/\s+/g, " ").trim().slice(0, 280);
 }
 
 export type GcsSyncFailure = { path: string; error: string };
@@ -447,6 +475,31 @@ async function buildRowFromObject(
   // Derive fields from the document and its folder path (no model calls).
   const derived = parseMarkdownImport(text, filename, publish);
   if (!derived.row) {
+    // Files whose first paragraph is too short (a bare heading, a fragment)
+    // fail the summary rule. Fall back to a longer slice of the body so the
+    // file still syncs instead of being reported as a failure every run.
+    const fallbackSummary = cleanSummaryFallback(text);
+    if (fallbackSummary.length >= MIN_SUMMARY_LENGTH) {
+      const fallbackTitle = titleFromObjectName(filename);
+      const retry = validateImportRow(
+        {
+          title: fallbackTitle,
+          slug: slugify(fallbackTitle),
+          category: categoryFromPath(object.name, "general"),
+          summary: fallbackSummary,
+          content: text,
+          tags: tagsFromPath(object.name),
+          published: publish,
+        },
+        1,
+        { defaultPublished: publish, source: filename },
+      );
+
+      if (retry.row) {
+        return { row: retry.row, scanned: false };
+      }
+    }
+
     throw new Error(derived.error ?? "Could not process the file.");
   }
 
@@ -633,6 +686,8 @@ export async function syncKnowledgeFromGcs(
     const mirroredByPath = new Map<string, MirroredRow>(
       ((mirrored ?? []) as MirroredRow[]).map((row) => [row.source_path, row]),
     );
+    // Seed with every slug already in the table (not just mirrored ones) so a
+    // new file can never collide with an article another process created.
     const usedSlugs = new Set((allSlugs ?? []).map((row) => row.slug as string));
 
     let processed = 0;
@@ -791,7 +846,9 @@ async function upsertArticle(
   };
 
   if (existing) {
-    // Keep the existing slug so source citations stay stable across re-syncs.
+    // Reserve the existing slug so no new file picks it, then keep it so source
+    // citations stay stable across re-syncs.
+    usedSlugs.add(existing.slug);
     const { data, error } = await admin
       .from("knowledge_articles")
       .update(payload)
@@ -803,13 +860,23 @@ async function upsertArticle(
     return data as KnowledgeArticle;
   }
 
-  const slug = makeUniqueSlug(row.slug, usedSlugs);
-  const { data, error } = await admin
-    .from("knowledge_articles")
-    .insert({ ...payload, slug })
-    .select("*")
-    .single();
+  // Two bucket files can slugify to the same value. `usedSlugs` pre-reserves
+  // every known slug, but a race or a stale snapshot can still hit the unique
+  // index, so retry with a suffixed slug before giving up on the file.
+  let lastError: Error | null = null;
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const slug = makeUniqueSlug(row.slug, usedSlugs);
+    const { data, error } = await admin
+      .from("knowledge_articles")
+      .insert({ ...payload, slug })
+      .select("*")
+      .single();
 
-  if (error) throw new Error(error.message);
-  return data as KnowledgeArticle;
+    if (!error) return data as KnowledgeArticle;
+
+    lastError = new Error(error.message);
+    if (error.code !== "23505") break;
+  }
+
+  throw lastError ?? new Error("Could not insert the article.");
 }
