@@ -1,4 +1,5 @@
 import { authenticateApiRequest, recordApiUsage } from "@/lib/api-auth";
+import { getCachedAnswer, storeCachedAnswer } from "@/lib/answer-cache";
 import { resolveRequestId } from "@/lib/api/errors";
 import { persistChatExchange, prepareChatContext } from "@/lib/chat";
 import type { ChatUsage } from "@/lib/openrouter";
@@ -82,6 +83,23 @@ export async function POST(request: Request) {
   const stream = createPlaygroundSseStream(async (send) => {
     send({ type: "meta", session_id: resolvedSessionId, sources });
 
+    // First message of a session: try a cached answer before calling the model.
+    // Follow-ups depend on prior turns, so they are never served from cache.
+    if (history.length === 0) {
+      const cached = await getCachedAnswer({
+        question: userMessage,
+        partnerId: context.userId,
+      });
+
+      if (cached && cached.answer) {
+        send({ type: "meta", session_id: resolvedSessionId, sources: cached.sources });
+        send({ type: "text", content: cached.answer });
+        // A cache hit costs the partner nothing, so nothing is billed here.
+        send({ type: "done" });
+        return;
+      }
+    }
+
     let usage: ChatUsage | null = null;
 
     const { model, stream: tokenStream } = await streamChatReply({
@@ -125,6 +143,17 @@ export async function POST(request: Request) {
       sources,
       usage,
     });
+
+    // Cache first-turn answers only, so the next identical question is instant.
+    if (history.length === 0) {
+      void storeCachedAnswer({
+        question: userMessage,
+        partnerId: context.userId,
+        category,
+        answer: trimmedReply,
+        sources,
+      });
+    }
 
     send({ type: "done" });
   });

@@ -1,5 +1,6 @@
 import { NextResponse, after } from "next/server";
 import { revalidatePath } from "next/cache";
+import { clearAnswerCache } from "@/lib/answer-cache";
 import { requireKnowledgeEditor } from "@/lib/dashboard";
 import {
   clearSyncPreviewCache,
@@ -70,8 +71,9 @@ export async function POST(request: Request) {
     } catch (error) {
       logError("GCS sync run failed", error, { runId });
     } finally {
-      // The library changed, so any cached preview is now wrong.
+      // The library changed, so cached answers and the preview are now stale.
       clearSyncPreviewCache();
+      void clearAnswerCache();
       revalidatePath("/dashboard/knowledge/sources");
     }
   });
