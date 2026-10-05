@@ -687,10 +687,17 @@
       "resetDone": "Prompt reset to the built-in default.",
       "useDefault": "Load the default into the editor",
       "emptyHint": "Leave empty to use the default.",
-      "composedTitle": "How the prompt is composed",
-      "composedHint": "Preview with an example question. Use {placeholder} to control where the reference material is inserted; otherwise it is appended at the end.",
-      "defaultTitle": "Built-in default prompt",
-      "defaultHint": "Shown for reference. The knowledge block and the no-material guard are added automatically."
+      "charCounter": "characters",
+      "modulesTitle": "Specialty modules",
+      "modulesHint": "The prompt is split into modules. Questions are routed automatically to the relevant module, so each answer carries only the rules it needs. Your instructions above are shared by every module.",
+      "moduleCustom": "Customised",
+      "moduleBuiltIn": "Built-in",
+      "moduleEdit": "Edit",
+      "moduleCollapse": "Close",
+      "moduleReset": "Load built-in text",
+      "moduleSaved": "Module saved.",
+      "composedTitle": "Preview (fiqh example)",
+      "composedHint": "An example of how your prompt is composed for a fiqh question. Use {placeholder} to control where the reference material is inserted; otherwise it is appended at the end."
     },
     "pricing": {
       "currentLabel": "Current markup",

@@ -1,8 +1,14 @@
 import Link from "next/link";
-import { resetSystemPrompt, updateSystemPrompt } from "@/app/actions/knowledge-prompt";
+import {
+  resetSystemPrompt,
+  updateModulePrompt,
+  updateSystemPrompt,
+} from "@/app/actions/knowledge-prompt";
 import { ActionButton } from "@/components/action-button";
 import { ActionForm } from "@/components/action-form";
 import { SubmitButton } from "@/components/submit-button";
+import { PromptTextarea } from "@/components/prompt-textarea";
+import { ModuleEditor } from "@/components/module-editor";
 import { KnowledgeNav } from "@/components/knowledge-nav";
 import { DashboardPage as DashboardShell } from "@/components/dashboard/page";
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -10,8 +16,14 @@ import {
   composeSystemPrompt,
   DEFAULT_SYSTEM_PROMPT,
   KNOWLEDGE_PLACEHOLDER,
+  PROMPT_MAX_CHARS,
 } from "@/lib/ai-prompt";
-import { getSystemPromptSettings } from "@/lib/ai-settings";
+import { PROMPT_MODULES, PROMPT_MODULE_IDS } from "@/lib/prompts/modules";
+import {
+  getModulePromptSettings,
+  getSystemPromptSettings,
+  getModulePrompts,
+} from "@/lib/ai-settings";
 import { getDashboardContext } from "@/lib/dashboard";
 import { getTranslations } from "@/lib/i18n/server";
 
@@ -33,6 +45,8 @@ export default async function KnowledgePromptPage({
   const context = await getDashboardContext();
   const knowledge = context!.knowledge;
   const settings = await getSystemPromptSettings();
+  const moduleSettings = await getModulePromptSettings();
+  const modulePrompts = await getModulePrompts();
   const canEdit = knowledge.canEditKnowledge;
 
   const usingTemplate = params.template === "default";
@@ -40,7 +54,17 @@ export default async function KnowledgePromptPage({
   const preview = composeSystemPrompt(
     editorValue || settings.customPrompt || DEFAULT_SYSTEM_PROMPT,
     SAMPLE_CONTEXT,
+    ["fiqh"],
+    modulePrompts,
   );
+
+  const moduleRows = PROMPT_MODULE_IDS.map((id) => ({
+    id,
+    label: PROMPT_MODULES[id].label,
+    value: moduleSettings.customPrompts[id] ?? "",
+    defaultText: PROMPT_MODULES[id].text,
+    isCustom: Boolean(moduleSettings.customPrompts[id]),
+  }));
 
   return (
     <DashboardShell>
@@ -116,14 +140,14 @@ export default async function KnowledgePromptPage({
           className="space-y-4 p-5"
           successMessage={t("knowledge.prompt.saved")}
         >
-          <textarea
+          <PromptTextarea
             name="systemPrompt"
             defaultValue={editorValue}
+            maxLength={PROMPT_MAX_CHARS}
             rows={16}
             disabled={!canEdit}
-            spellCheck={false}
             placeholder={DEFAULT_SYSTEM_PROMPT}
-            className="w-full rounded-lg border border-border bg-background-subtle p-4 font-mono text-xs leading-relaxed outline-none transition focus:border-brand-500 focus:bg-card disabled:opacity-60"
+            counterLabel={t("knowledge.prompt.charCounter")}
           />
           <div className="flex flex-wrap items-center gap-3">
             {canEdit && (
@@ -149,6 +173,39 @@ export default async function KnowledgePromptPage({
 
       <section className="mb-8 overflow-hidden rounded-xl border border-border bg-card shadow-sm">
         <div className="border-b border-border px-5 py-4">
+          <h2 className="font-semibold">{t("knowledge.prompt.modulesTitle")}</h2>
+          <p className="mt-1 text-xs leading-relaxed text-[color:var(--muted)]">
+            {t("knowledge.prompt.modulesHint")}
+          </p>
+        </div>
+        <div className="space-y-4 p-5">
+          {moduleRows.map((row) => (
+            <ModuleEditor
+              key={row.id}
+              moduleId={row.id}
+              label={row.label}
+              value={row.value}
+              defaultText={row.defaultText}
+              isCustom={row.isCustom}
+              canEdit={canEdit}
+              maxLength={PROMPT_MAX_CHARS}
+              action={updateModulePrompt}
+              labels={{
+                custom: t("knowledge.prompt.moduleCustom"),
+                builtIn: t("knowledge.prompt.moduleBuiltIn"),
+                edit: t("knowledge.prompt.moduleEdit"),
+                collapse: t("knowledge.prompt.moduleCollapse"),
+                save: t("knowledge.prompt.save"),
+                reset: t("knowledge.prompt.moduleReset"),
+                counter: t("knowledge.prompt.charCounter"),
+              }}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="mb-8 overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="border-b border-border px-5 py-4">
           <h2 className="font-semibold">{t("knowledge.prompt.composedTitle")}</h2>
           <p className="mt-1 text-xs leading-relaxed text-[color:var(--muted)]">
             {t("knowledge.prompt.composedHint", { placeholder: KNOWLEDGE_PLACEHOLDER })}
@@ -156,18 +213,6 @@ export default async function KnowledgePromptPage({
         </div>
         <pre className="max-h-96 overflow-auto whitespace-pre-wrap p-5 font-mono text-xs leading-relaxed text-[color:var(--muted)]">
           {preview}
-        </pre>
-      </section>
-
-      <section className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-        <div className="border-b border-border px-5 py-4">
-          <h2 className="font-semibold">{t("knowledge.prompt.defaultTitle")}</h2>
-          <p className="mt-1 text-xs leading-relaxed text-[color:var(--muted)]">
-            {t("knowledge.prompt.defaultHint")}
-          </p>
-        </div>
-        <pre className="max-h-96 overflow-auto whitespace-pre-wrap p-5 font-mono text-xs leading-relaxed">
-          {DEFAULT_SYSTEM_PROMPT}
         </pre>
       </section>
     </DashboardShell>

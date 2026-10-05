@@ -1,6 +1,8 @@
 import { randomUUID } from "crypto";
 import { composeSystemPrompt } from "@/lib/ai-prompt";
-import { getEffectiveSystemPrompt } from "@/lib/ai-settings";
+import { getEffectiveSystemPrompt, getModulePrompts } from "@/lib/ai-settings";
+import { routePromptModules } from "@/lib/prompts/router";
+import type { PromptModuleId } from "@/lib/prompts/modules";
 import type { ChatHistoryMessage } from "@/lib/chat-history";
 import { isSmallTalk } from "@/lib/small-talk";
 
@@ -106,17 +108,31 @@ export function buildChatMessages({
   knowledgeContext,
   history = [],
   systemPrompt,
+  modulePrompts,
   promptCache = false,
 }: {
   userMessage: string;
   knowledgeContext: string;
   history?: ChatHistoryMessage[];
   systemPrompt?: string;
+  /** Admin-resolved module text. Omitting it uses the built-in modules. */
+  modulePrompts?: Partial<Record<PromptModuleId, string>>;
   promptCache?: boolean;
 }): ChatMessage[] {
+  // Pick the specialty module(s) for this question. Small talk (greetings) has
+  // no inquiry to route, so it uses the shared base only.
+  const routed = isSmallTalk(userMessage)
+    ? { modules: [] as PromptModuleId[] }
+    : routePromptModules(userMessage);
+
   const systemMessage: ChatMessage = {
     role: "system",
-    content: composeSystemPrompt(systemPrompt ?? "", knowledgeContext),
+    content: composeSystemPrompt(
+      systemPrompt ?? "",
+      knowledgeContext,
+      routed.modules,
+      modulePrompts,
+    ),
     // The fixed instructions are the stable prefix shared across requests, so
     // providers can reuse their cached computation and cut time-to-first-token.
     ...(promptCache ? { cache_control: { type: "ephemeral" as const } } : {}),
@@ -152,11 +168,13 @@ export async function generateChatReply({
   const model = selectChatModel(userMessage);
   const resolvedPrompt =
     systemPrompt ?? (await getEffectiveSystemPrompt(partnerId));
+  const modulePrompts = await getModulePrompts();
   const messages = buildChatMessages({
     userMessage,
     knowledgeContext,
     history,
     systemPrompt: resolvedPrompt,
+    modulePrompts,
     promptCache: isPromptCacheEnabled(),
   });
 
@@ -211,11 +229,13 @@ export async function streamChatReply({
   const model = selectChatModel(userMessage);
   const resolvedPrompt =
     systemPrompt ?? (await getEffectiveSystemPrompt(partnerId));
+  const modulePrompts = await getModulePrompts();
   const messages = buildChatMessages({
     userMessage,
     knowledgeContext,
     history,
     systemPrompt: resolvedPrompt,
+    modulePrompts,
     promptCache: isPromptCacheEnabled(),
   });
 

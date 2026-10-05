@@ -687,10 +687,17 @@
       "resetDone": "Prompt ditetapkan semula kepada lalai terbina.",
       "useDefault": "Muatkan lalai ke dalam editor",
       "emptyHint": "Biarkan kosong untuk menggunakan lalai.",
-      "composedTitle": "Cara prompt digabungkan",
-      "composedHint": "Pratonton dengan contoh soalan. Gunakan {placeholder} untuk mengawal di mana bahan rujukan dimasukkan; jika tidak ia ditambah di hujung.",
-      "defaultTitle": "Prompt lalai terbina",
-      "defaultHint": "Dipaparkan sebagai rujukan. Blok pengetahuan dan peraturan tiada bahan ditambah secara automatik."
+      "charCounter": "aksara",
+      "modulesTitle": "Modul kepakaran",
+      "modulesHint": "Prompt dibahagikan kepada modul. Soalan dihalakan secara automatik kepada modul yang berkaitan, jadi setiap jawapan hanya membawa peraturan yang perlu. Arahan anda di atas dikongsi oleh semua modul.",
+      "moduleCustom": "Disesuaikan",
+      "moduleBuiltIn": "Terbina",
+      "moduleEdit": "Sunting",
+      "moduleCollapse": "Tutup",
+      "moduleReset": "Muat teks terbina",
+      "moduleSaved": "Modul disimpan.",
+      "composedTitle": "Pratonton (contoh fiqh)",
+      "composedHint": "Contoh cara prompt anda digabungkan untuk satu soalan fiqh. Gunakan {placeholder} untuk mengawal di mana bahan rujukan dimasukkan; jika tidak ia ditambah di hujung."
     },
     "pricing": {
       "currentLabel": "Markup semasa",
