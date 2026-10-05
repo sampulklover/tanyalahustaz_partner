@@ -213,16 +213,18 @@ export async function getSyncPreview(): Promise<SyncPreview | null> {
       );
 
     const admin = createAdminClient();
-    const { data: mirrored } = await admin
-      .from("knowledge_articles")
-      .select("source_path")
-      .eq("source_provider", GCS_SOURCE_PROVIDER)
-      .not("source_path", "is", null)
-      .limit(20_000);
-
-    const mirroredPaths = ((mirrored ?? []) as { source_path: string }[]).map(
-      (row) => row.source_path,
+    // Paged: an unpaginated select stops at the PostgREST row cap, which would
+    // make already-mirrored files look like additions.
+    const mirrored = await fetchAllPages<{ source_path: string }>(() =>
+      admin
+        .from("knowledge_articles")
+        .select("source_path")
+        .eq("source_provider", GCS_SOURCE_PROVIDER)
+        .not("source_path", "is", null)
+        .order("id", { ascending: true }),
     );
+
+    const mirroredPaths = mirrored.map((row) => row.source_path);
 
     // Too many rows to reason about reliably — skip the preview.
     if (mirroredPaths.length >= 20_000) return null;
@@ -320,16 +322,18 @@ export async function countPendingUnderFolders(
   if (folderPaths.length === 0) return result;
 
   const admin = createAdminClient();
-  const { data: mirrored } = await admin
-    .from("knowledge_articles")
-    .select("source_path")
-    .eq("source_provider", GCS_SOURCE_PROVIDER)
-    .not("source_path", "is", null)
-    .limit(20_000);
-
-  const mirroredSet = new Set(
-    ((mirrored ?? []) as { source_path: string }[]).map((row) => row.source_path),
+  // Paged for the same reason as the preview: an unpaginated select caps out
+  // and makes mirrored files count as pending.
+  const mirrored = await fetchAllPages<{ source_path: string }>(() =>
+    admin
+      .from("knowledge_articles")
+      .select("source_path")
+      .eq("source_provider", GCS_SOURCE_PROVIDER)
+      .not("source_path", "is", null)
+      .order("id", { ascending: true }),
   );
+
+  const mirroredSet = new Set(mirrored.map((row) => row.source_path));
 
   const excluded = new Set(excludedFolders());
   const allowed = getAllowedExtensions();
@@ -367,6 +371,43 @@ async function loadSourceSelections(): Promise<KnowledgeSourceSelection[]> {
   }
 
   return (data ?? []) as KnowledgeSourceSelection[];
+}
+
+/**
+ * Page size for reads of the whole knowledge table. PostgREST caps responses
+ * (1000 rows by default), so an unpaginated select silently truncates. Any
+ * query that must see *every* row has to page or it will miss the tail — which
+ * made the sync re-insert rows that already existed and trip the source index.
+ */
+const PAGE_SIZE = 1000;
+/** Hard stop so a runaway table can't spin the sync forever. */
+const MAX_PAGES = 100;
+
+/**
+ * Read every row matching a query builder, one page at a time. The builder is a
+ * function so each page gets a fresh query (PostgREST builders are single-use).
+ */
+async function fetchAllPages<T>(
+  build: () => {
+    range: (
+      from: number,
+      to: number,
+    ) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>;
+  },
+): Promise<T[]> {
+  const rows: T[] = [];
+
+  for (let page = 0; page < MAX_PAGES; page += 1) {
+    const from = page * PAGE_SIZE;
+    const { data, error } = await build().range(from, from + PAGE_SIZE - 1);
+    if (error) throw new Error(error.message);
+
+    const batch = data ?? [];
+    rows.push(...batch);
+    if (batch.length < PAGE_SIZE) break;
+  }
+
+  return rows;
 }
 
 /**
@@ -671,24 +712,25 @@ export async function syncKnowledgeFromGcs(
 
     base.considered = syncable.length;
 
-    const [{ data: mirrored, error: mirroredError }, { data: allSlugs, error: slugsError }] =
-      await Promise.all([
+    const [mirrored, allSlugs] = await Promise.all([
+      fetchAllPages<MirroredRow>(() =>
         admin
           .from("knowledge_articles")
           .select("id, slug, source_path, source_etag, published")
-          .eq("source_provider", GCS_SOURCE_PROVIDER),
-        admin.from("knowledge_articles").select("slug"),
-      ]);
-
-    if (mirroredError) throw new Error(mirroredError.message);
-    if (slugsError) throw new Error(slugsError.message);
+          .eq("source_provider", GCS_SOURCE_PROVIDER)
+          .order("id", { ascending: true }),
+      ),
+      fetchAllPages<{ slug: string }>(() =>
+        admin.from("knowledge_articles").select("slug").order("id", { ascending: true }),
+      ),
+    ]);
 
     const mirroredByPath = new Map<string, MirroredRow>(
-      ((mirrored ?? []) as MirroredRow[]).map((row) => [row.source_path, row]),
+      mirrored.map((row) => [row.source_path, row]),
     );
     // Seed with every slug already in the table (not just mirrored ones) so a
     // new file can never collide with an article another process created.
-    const usedSlugs = new Set((allSlugs ?? []).map((row) => row.slug as string));
+    const usedSlugs = new Set(allSlugs.map((row) => row.slug as string));
 
     let processed = 0;
     const changedArticleIds: string[] = [];
