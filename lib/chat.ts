@@ -3,11 +3,8 @@ import { getMarkupPercent } from "@/lib/billing-settings";
 import { loadChatHistory } from "@/lib/chat-history";
 import { maybeSendLowBalanceAlert } from "@/lib/credit-alerts";
 import { recordUsageCharge } from "@/lib/credit";
-import {
-  buildKnowledgeContext,
-  dedupeSources,
-  findRelevantKnowledge,
-} from "@/lib/knowledge";
+import { buildKnowledgeContext, dedupeSources, findRelevantKnowledge } from "@/lib/knowledge";
+import { createTimer } from "@/lib/logger";
 import { createSessionId, generateChatReply, type ChatUsage } from "@/lib/openrouter";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { ChatResponse, KnowledgeSource } from "@/lib/types";
@@ -57,10 +54,13 @@ export async function prepareChatContext(
 
   try {
     const sessionId = createSessionId(input.sessionId);
+    const timer = createTimer("prepare");
     const [retrievedKnowledge, history] = await Promise.all([
       findRelevantKnowledge(validation.message, input.category?.trim()),
       loadChatHistory({ partnerId: input.partnerId, sessionId }),
     ]);
+    timer.mark("retrieval+history");
+    timer.done({ sessionId });
 
     return {
       ok: true,
@@ -165,12 +165,15 @@ export async function executeChat(input: ExecuteChatInput): Promise<ExecuteChatR
 
   try {
     const { message, sessionId, knowledgeContext, history, sources } = prepared.data;
+    const timer = createTimer("chat");
     const { reply, model, usage } = await generateChatReply({
       userMessage: message,
       knowledgeContext,
       history,
       partnerId: input.partnerId,
     });
+    timer.mark("llm");
+    timer.done({ sessionId, model });
 
     await persistChatExchange({
       partnerId: input.partnerId,

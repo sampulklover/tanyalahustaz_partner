@@ -1,4 +1,4 @@
-import { embedText } from "@/lib/embeddings";
+import { embedQuery } from "@/lib/embeddings";
 import { NO_KNOWLEDGE_CONTEXT } from "@/lib/rag-context";
 import { selectDiverseChunks } from "@/lib/retrieval";
 import { isSmallTalk } from "@/lib/small-talk";
@@ -75,7 +75,7 @@ function normalizeCategory(category?: string) {
 
 async function hybridSearch(message: string, category?: string) {
   const admin = createAdminClient();
-  const queryEmbedding = await embedText(message);
+  const queryEmbedding = await embedQuery(message);
   const filterCategory = normalizeCategory(category);
 
   const { data, error } = await admin.rpc("match_knowledge_chunks_hybrid", {
@@ -166,16 +166,19 @@ async function keywordFallback(message: string, category?: string) {
 
 async function hasEmbeddedChunks() {
   const admin = createAdminClient();
-  const { count, error } = await admin
+  // A single row is enough to know embeddings exist and is far cheaper than an
+  // exact count over the whole (tens of thousands of rows) chunk table.
+  const { data, error } = await admin
     .from("knowledge_chunks")
-    .select("*", { count: "exact", head: true })
-    .not("embedding", "is", null);
+    .select("id")
+    .not("embedding", "is", null)
+    .limit(1);
 
   if (error) {
     return false;
   }
 
-  return (count ?? 0) > 0;
+  return (data ?? []).length > 0;
 }
 
 export async function findRelevantKnowledge(message: string, category?: string) {

@@ -204,3 +204,37 @@ export async function embedText(text: string) {
   const [embedding] = embeddings;
   return embedding;
 }
+
+// Query embeddings are cached because the same question (or a greeting) is
+// asked repeatedly, and each miss costs an OpenRouter round-trip (~200-500ms).
+const QUERY_CACHE_MAX = 500;
+const queryEmbeddingCache = new Map<string, number[]>();
+
+function queryCacheKey(text: string) {
+  return text.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+/**
+ * Embed a search query, reusing a recent embedding for the same text. Safe:
+ * identical text always produces an identical vector, so results are unchanged.
+ */
+export async function embedQuery(text: string): Promise<number[]> {
+  const key = queryCacheKey(text);
+  const cached = queryEmbeddingCache.get(key);
+  if (cached) {
+    // Refresh recency for the simple LRU eviction below.
+    queryEmbeddingCache.delete(key);
+    queryEmbeddingCache.set(key, cached);
+    return cached;
+  }
+
+  const embedding = await embedText(text);
+
+  queryEmbeddingCache.set(key, embedding);
+  if (queryEmbeddingCache.size > QUERY_CACHE_MAX) {
+    const oldest = queryEmbeddingCache.keys().next().value;
+    if (oldest !== undefined) queryEmbeddingCache.delete(oldest);
+  }
+
+  return embedding;
+}
