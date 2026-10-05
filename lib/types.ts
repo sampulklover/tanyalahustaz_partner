@@ -131,6 +131,8 @@ export type ChatRequestBody = {
   message: string;
   session_id?: string;
   category?: string;
+  /** When true, the reply is delivered as server-sent events (SSE). */
+  stream?: boolean;
 };
 
 export type ChatResponse = {

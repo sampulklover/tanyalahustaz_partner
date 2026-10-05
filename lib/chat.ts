@@ -1,13 +1,30 @@
 import { computeChargeCents, getUsdMyrRate } from "@/lib/billing";
 import { getMarkupPercent } from "@/lib/billing-settings";
+import { getCachedAnswer, storeCachedAnswer } from "@/lib/answer-cache";
 import { loadChatHistory } from "@/lib/chat-history";
 import { maybeSendLowBalanceAlert } from "@/lib/credit-alerts";
 import { recordUsageCharge } from "@/lib/credit";
 import { buildKnowledgeContext, dedupeSources, findRelevantKnowledge } from "@/lib/knowledge";
 import { createTimer } from "@/lib/logger";
-import { createSessionId, generateChatReply, type ChatUsage } from "@/lib/openrouter";
+import {
+  createSessionId,
+  generateChatReply,
+  streamChatReply,
+  type ChatUsage,
+} from "@/lib/openrouter";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { ChatResponse, KnowledgeSource } from "@/lib/types";
+
+/** Server-sent events emitted on the streaming chat endpoint. */
+export type ChatStreamEvent =
+  | { type: "meta"; session_id: string; sources: KnowledgeSource[] }
+  | { type: "text"; content: string }
+  | { type: "done" }
+  | { type: "error"; message: string };
+
+export function encodeChatStreamEvent(event: ChatStreamEvent) {
+  return `data: ${JSON.stringify(event)}\n\n`;
+}
 
 export type ExecuteChatInput = {
   message: string;
@@ -166,6 +183,28 @@ export async function executeChat(input: ExecuteChatInput): Promise<ExecuteChatR
   try {
     const { message, sessionId, knowledgeContext, history, sources } = prepared.data;
     const timer = createTimer("chat");
+
+    // First turn of a session: a near-duplicate question may already have an
+    // answer cached, which skips retrieval and the model entirely.
+    if (history.length === 0) {
+      const cached = await getCachedAnswer({
+        question: message,
+        partnerId: input.partnerId,
+      });
+
+      if (cached && cached.answer) {
+        timer.done({ sessionId, cached: true });
+        return {
+          ok: true,
+          data: {
+            reply: cached.answer,
+            session_id: sessionId,
+            sources: cached.sources,
+          },
+        };
+      }
+    }
+
     const { reply, model, usage } = await generateChatReply({
       userMessage: message,
       knowledgeContext,
@@ -186,6 +225,17 @@ export async function executeChat(input: ExecuteChatInput): Promise<ExecuteChatR
       usage,
     });
 
+    // Cache first-turn answers only, so the next identical question is instant.
+    if (history.length === 0) {
+      void storeCachedAnswer({
+        question: message,
+        partnerId: input.partnerId,
+        category: input.category,
+        answer: reply,
+        sources,
+      });
+    }
+
     return {
       ok: true,
       data: {
@@ -198,4 +248,116 @@ export async function executeChat(input: ExecuteChatInput): Promise<ExecuteChatR
     const message = error instanceof Error ? error.message : "Failed to generate AI response.";
     return { ok: false, error: message };
   }
+}
+
+export type StreamChatResult =
+  | { ok: true; stream: ReadableStream<Uint8Array> }
+  | { ok: false; error: string };
+
+/**
+ * Streaming variant of `executeChat` for the public API when the caller sends
+ * `stream: true`. Emits SSE events so the client can render tokens as they
+ * arrive instead of waiting for the full reply. Behaviour matches the
+ * non-streaming path: cached answers are served instantly and new first-turn
+ * answers are cached and billed the same way.
+ */
+export async function streamChat(
+  input: ExecuteChatInput & { signal?: AbortSignal },
+): Promise<StreamChatResult> {
+  const prepared = await prepareChatContext(input);
+
+  if (!prepared.ok) {
+    return { ok: false, error: prepared.error };
+  }
+
+  const { message, sessionId, knowledgeContext, history, sources } = prepared.data;
+  const encoder = new TextEncoder();
+
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const send = (event: ChatStreamEvent) => {
+        controller.enqueue(encoder.encode(encodeChatStreamEvent(event)));
+      };
+
+      try {
+        send({ type: "meta", session_id: sessionId, sources });
+
+        // First turn of a session: a cached answer skips the model entirely.
+        if (history.length === 0) {
+          const cached = await getCachedAnswer({
+            question: message,
+            partnerId: input.partnerId,
+          });
+
+          if (cached && cached.answer) {
+            send({ type: "meta", session_id: sessionId, sources: cached.sources });
+            send({ type: "text", content: cached.answer });
+            send({ type: "done" });
+            return;
+          }
+        }
+
+        let usage: ChatUsage | null = null;
+        const { model, stream: tokenStream } = await streamChatReply({
+          userMessage: message,
+          knowledgeContext,
+          history,
+          signal: input.signal,
+          partnerId: input.partnerId,
+          onUsage: (value) => {
+            usage = value;
+          },
+        });
+
+        const reader = tokenStream.getReader();
+        let reply = "";
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            reply += value;
+            send({ type: "text", content: value });
+          }
+        } finally {
+          reader.releaseLock();
+        }
+
+        const trimmedReply = reply.trim();
+        if (!trimmedReply) {
+          throw new Error("OpenRouter returned an empty response.");
+        }
+
+        await persistChatExchange({
+          partnerId: input.partnerId,
+          apiKeyId: input.apiKeyId,
+          sessionId,
+          userMessage: message,
+          assistantMessage: trimmedReply,
+          model,
+          sources,
+          usage,
+        });
+
+        if (history.length === 0) {
+          void storeCachedAnswer({
+            question: message,
+            partnerId: input.partnerId,
+            category: input.category,
+            answer: trimmedReply,
+            sources,
+          });
+        }
+
+        send({ type: "done" });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Failed to generate AI response.";
+        send({ type: "error", message });
+      } finally {
+        controller.close();
+      }
+    },
+  });
+
+  return { ok: true, stream };
 }

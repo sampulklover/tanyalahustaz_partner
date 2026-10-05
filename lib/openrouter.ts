@@ -2,13 +2,27 @@ import { randomUUID } from "crypto";
 import { composeSystemPrompt } from "@/lib/ai-prompt";
 import { getEffectiveSystemPrompt } from "@/lib/ai-settings";
 import type { ChatHistoryMessage } from "@/lib/chat-history";
+import { isSmallTalk } from "@/lib/small-talk";
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 type ChatMessage = {
   role: "system" | "user" | "assistant";
   content: string;
+  /** OpenRouter/Anthropic prompt-cache marker. Kept on the stable prefix only. */
+  cache_control?: { type: "ephemeral" };
 };
+
+/** Cap reply length so answers finish sooner and cost less. 0 disables the cap. */
+export function getChatMaxTokens(): number | undefined {
+  const raw = Number(process.env.CHAT_MAX_TOKENS ?? 1200);
+  return Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : undefined;
+}
+
+/** Whether to mark the stable system prompt for provider-side prompt caching. */
+export function isPromptCacheEnabled(): boolean {
+  return process.env.CHAT_PROMPT_CACHE !== "false";
+}
 
 /** Token usage and cost reported by OpenRouter on every completion. */
 export type ChatUsage = {
@@ -40,6 +54,22 @@ export function normalizeChatUsage(raw: unknown): ChatUsage | null {
 
 export function getOpenRouterModel() {
   return process.env.OPENROUTER_MODEL ?? "google/gemini-2.0-flash-001";
+}
+
+/**
+ * The fast model used for greetings and other small talk, where a light model
+ * answers just as well but much sooner. Falls back to the main model when unset.
+ */
+export function getOpenRouterFastModel() {
+  return process.env.OPENROUTER_MODEL_FAST ?? getOpenRouterModel();
+}
+
+/**
+ * Pick the model for a chat turn. Greetings/pleasantries route to the fast
+ * model; everything else uses the main (stronger) model.
+ */
+export function selectChatModel(message: string) {
+  return isSmallTalk(message) ? getOpenRouterFastModel() : getOpenRouterModel();
 }
 
 export function getOpenRouterApiKey() {
@@ -76,15 +106,20 @@ export function buildChatMessages({
   knowledgeContext,
   history = [],
   systemPrompt,
+  promptCache = false,
 }: {
   userMessage: string;
   knowledgeContext: string;
   history?: ChatHistoryMessage[];
   systemPrompt?: string;
+  promptCache?: boolean;
 }): ChatMessage[] {
   const systemMessage: ChatMessage = {
     role: "system",
     content: composeSystemPrompt(systemPrompt ?? "", knowledgeContext),
+    // The fixed instructions are the stable prefix shared across requests, so
+    // providers can reuse their cached computation and cut time-to-first-token.
+    ...(promptCache ? { cache_control: { type: "ephemeral" as const } } : {}),
   };
 
   return [
@@ -114,7 +149,7 @@ export async function generateChatReply({
   partnerId?: string | null;
 }) {
   const apiKey = getOpenRouterApiKey();
-  const model = getOpenRouterModel();
+  const model = selectChatModel(userMessage);
   const resolvedPrompt =
     systemPrompt ?? (await getEffectiveSystemPrompt(partnerId));
   const messages = buildChatMessages({
@@ -122,6 +157,7 @@ export async function generateChatReply({
     knowledgeContext,
     history,
     systemPrompt: resolvedPrompt,
+    promptCache: isPromptCacheEnabled(),
   });
 
   const response = await fetch(OPENROUTER_URL, {
@@ -131,6 +167,7 @@ export async function generateChatReply({
       model,
       messages,
       temperature: 0.3,
+      max_tokens: getChatMaxTokens(),
     }),
   });
 
@@ -171,7 +208,7 @@ export async function streamChatReply({
   onUsage?: (usage: ChatUsage) => void;
 }) {
   const apiKey = getOpenRouterApiKey();
-  const model = getOpenRouterModel();
+  const model = selectChatModel(userMessage);
   const resolvedPrompt =
     systemPrompt ?? (await getEffectiveSystemPrompt(partnerId));
   const messages = buildChatMessages({
@@ -179,6 +216,7 @@ export async function streamChatReply({
     knowledgeContext,
     history,
     systemPrompt: resolvedPrompt,
+    promptCache: isPromptCacheEnabled(),
   });
 
   const response = await fetch(OPENROUTER_URL, {
@@ -188,6 +226,7 @@ export async function streamChatReply({
       model,
       messages,
       temperature: 0.3,
+      max_tokens: getChatMaxTokens(),
       stream: true,
     }),
     signal,

@@ -14,7 +14,7 @@ import type { AuthenticatedApiContext } from "@/lib/types";
 export type AuthenticatedHandler = (
   request: Request,
   context: AuthenticatedApiContext,
-) => Promise<NextResponse>;
+) => Promise<NextResponse | Response>;
 
 type WithApiAuthOptions = {
   rateLimit?: Extract<RateLimitTier, "chat" | "api">;
@@ -24,7 +24,7 @@ export async function withApiAuth(
   request: Request,
   handler: AuthenticatedHandler,
   options: WithApiAuthOptions = {},
-): Promise<NextResponse> {
+): Promise<NextResponse | Response> {
   const requestId = resolveRequestId(request);
   const auth = await authenticateApiRequest(request);
 

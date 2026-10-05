@@ -108,6 +108,11 @@ export function getOpenApiSpec(baseUrl: string) {
               type: "string",
               description: "Optional topic filter such as fiqh, ibadah, aqidah, or akhlak.",
             },
+            stream: {
+              type: "boolean",
+              description:
+                "When true, the reply is streamed as server-sent events (text/event-stream) instead of returned as JSON. Each event is `data: {type, ...}` where type is meta, text, done, or error.",
+            },
           },
         },
         KnowledgeSource: {
@@ -367,7 +372,8 @@ export function getOpenApiSpec(baseUrl: string) {
           },
           responses: {
             "200": {
-              description: "AI reply with cited sources",
+              description:
+                "AI reply with cited sources. Returns JSON, or a `text/event-stream` of SSE events when the request sets `stream: true`.",
               headers: {
                 "X-Request-Id": { schema: { type: "string" } },
                 "X-RateLimit-Remaining-Minute": { schema: { type: "integer" } },
@@ -376,6 +382,13 @@ export function getOpenApiSpec(baseUrl: string) {
               content: {
                 "application/json": {
                   schema: { $ref: "#/components/schemas/ChatResponse" },
+                },
+                "text/event-stream": {
+                  schema: {
+                    type: "string",
+                    description:
+                      "SSE events: `data: {\"type\":\"meta\",\"session_id\":\"…\",\"sources\":[…]}` then repeated `data: {\"type\":\"text\",\"content\":\"…\"}`, ending with `data: {\"type\":\"done\"}` or `data: {\"type\":\"error\",\"message\":\"…\"}`.",
+                  },
                 },
               },
             },
