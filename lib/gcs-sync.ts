@@ -44,6 +44,9 @@ const MAX_SYNC_BYTES = Number(process.env.GCS_SYNC_MAX_BYTES ?? 100 * 1024 * 102
 const MIN_TEXT_LENGTH = 20;
 const DEFAULT_EXCLUDED_FOLDERS = ["cover-image", "cover", "covers"];
 
+/** Cap on file paths stored per run for the history view (display only). */
+const MAX_TRACKED_PATHS = 200;
+
 /** AI structuring is off by default; set GCS_AI_STRUCTURING=true to re-enable. */
 function aiStructuringEnabled() {
   return process.env.GCS_AI_STRUCTURING?.trim().toLowerCase() === "true";
@@ -101,9 +104,41 @@ export type SyncPreview = {
   removals: number;
   /** How many files a single sync run will process (the per-run cap). */
   perRun: number;
-  /** Rough USD cost to embed the new files (whole selection, not just this run). */
+  /** Rough USD cost to embed the files this run will process (the capped batch). */
   estimatedCostUsd: number;
+  /** Rough USD cost to embed the whole selection, across several runs. */
+  estimatedCostUsdTotal: number;
 };
+
+/**
+ * Rough text-characters-per-file-byte ratio, by document kind. PDFs and DOCX
+ * are compressed containers, so their on-disk size badly overstates the text
+ * we actually extract and embed. Plain text/markdown is close to 1:1. These are
+ * deliberately conservative guesses — the estimate only needs the right order
+ * of magnitude, and the real cost is recorded from OpenRouter afterwards.
+ */
+const TEXT_RATIO_BY_KIND: Record<string, number> = {
+  pdf: 0.12,
+  docx: 0.12,
+  html: 0.6,
+  markdown: 0.9,
+  text: 0.9,
+};
+
+const DEFAULT_TEXT_RATIO = 0.15;
+
+function textRatioForPath(path: string): number {
+  const kind = documentKindFromFilename(path);
+  return (kind && TEXT_RATIO_BY_KIND[kind]) ?? DEFAULT_TEXT_RATIO;
+}
+
+/** Rough USD to embed a set of bucket objects, scaling file bytes to text. */
+function estimateForObjects(objects: { name: string; size?: number | null }[]): number {
+  return objects.reduce(
+    (sum, object) => sum + estimateEmbedCost(object.size || 0, textRatioForPath(object.name)),
+    0,
+  );
+}
 
 const PREVIEW_CACHE_TTL_MS = 30_000;
 const PREVIEW_MAX_OBJECTS = 10_000;
@@ -123,7 +158,7 @@ export async function getSyncPreview(): Promise<SyncPreview | null> {
   const perRun = syncRunCap();
   const selections = await loadSourceSelections();
   if (selections.length === 0) {
-    return { additions: 0, removals: 0, perRun, estimatedCostUsd: 0 };
+    return { additions: 0, removals: 0, perRun, estimatedCostUsd: 0, estimatedCostUsdTotal: 0 };
   }
 
   const key = selections
@@ -165,16 +200,26 @@ export async function getSyncPreview(): Promise<SyncPreview | null> {
     if (mirroredPaths.length >= 20_000) return null;
 
     const mirroredSet = new Set(mirroredPaths);
-    const newObjects = syncable.filter((object) => !mirroredSet.has(object.name));
+    // Same order the sync loop uses, so "this run" matches what actually runs.
+    const newObjects = syncable
+      .filter((object) => !mirroredSet.has(object.name))
+      .sort((a, b) => a.name.localeCompare(b.name));
     const additions = newObjects.length;
     // Mirror is only pruned on an explicit request, so don't advertise removals
     // a normal sync won't perform.
     const removals = 0;
-    const estimatedCostUsd = estimateEmbedCost(
-      newObjects.reduce((sum, object) => sum + (object.size || 0), 0),
-    );
+    // Cost for the batch this run will actually process (capped), plus the whole
+    // selection so the UI can say how much the full mirror will cost in total.
+    const estimatedCostUsd = estimateForObjects(newObjects.slice(0, perRun));
+    const estimatedCostUsdTotal = estimateForObjects(newObjects);
 
-    const preview = { additions, removals, perRun, estimatedCostUsd };
+    const preview = {
+      additions,
+      removals,
+      perRun,
+      estimatedCostUsd,
+      estimatedCostUsdTotal,
+    };
     previewCache = { at: Date.now(), key, preview };
     return preview;
   } catch (error) {
@@ -527,6 +572,11 @@ export async function syncKnowledgeFromGcs(
   const selections = await loadSourceSelections();
   const runId = options.runId ?? (await createRun(options.createdBy ?? null));
 
+  // Path lists for the history view. Capped so a huge run can't bloat the row.
+  const createdPaths: string[] = [];
+  const updatedPaths: string[] = [];
+  const removedPaths: string[] = [];
+
   const base = {
     runId,
     status: "completed" as const,
@@ -628,8 +678,10 @@ export async function syncKnowledgeFromGcs(
 
         if (existing) {
           base.updated += 1;
+          if (updatedPaths.length < MAX_TRACKED_PATHS) updatedPaths.push(object.name);
         } else {
           base.created += 1;
+          if (createdPaths.length < MAX_TRACKED_PATHS) createdPaths.push(object.name);
         }
 
         // Include unpublished too: the embed job clears stale chunks for them.
@@ -654,6 +706,7 @@ export async function syncKnowledgeFromGcs(
         const { error } = await admin.from("knowledge_articles").delete().eq("id", row.id);
         if (error) throw new Error(error.message);
         base.removed += 1;
+        if (removedPaths.length < MAX_TRACKED_PATHS) removedPaths.push(path);
       } catch (error) {
         const message = error instanceof Error ? error.message : "Could not remove article.";
         base.failed.push({ path, error: message });
@@ -675,6 +728,9 @@ export async function syncKnowledgeFromGcs(
       skipped_count: base.skipped,
       deferred_count: base.deferred,
       failed: base.failed,
+      created_paths: createdPaths,
+      updated_paths: updatedPaths,
+      removed_paths: removedPaths,
       embed_job_id: embedJobId ?? null,
     });
 
@@ -692,6 +748,9 @@ export async function syncKnowledgeFromGcs(
       skipped_count: base.skipped,
       deferred_count: base.deferred,
       failed: base.failed,
+      created_paths: createdPaths,
+      updated_paths: updatedPaths,
+      removed_paths: removedPaths,
       error: message,
     });
 

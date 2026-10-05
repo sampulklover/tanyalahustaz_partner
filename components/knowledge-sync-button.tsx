@@ -18,6 +18,7 @@ export function KnowledgeSyncButton({
   removals = null,
   perRun = null,
   estimatedCostUsd = null,
+  estimatedCostUsdTotal = null,
   previewLoading = false,
   fullWidth = false,
 }: {
@@ -28,6 +29,7 @@ export function KnowledgeSyncButton({
   removals?: number | null;
   perRun?: number | null;
   estimatedCostUsd?: number | null;
+  estimatedCostUsdTotal?: number | null;
   previewLoading?: boolean;
   fullWidth?: boolean;
 }) {
@@ -167,8 +169,22 @@ export function KnowledgeSyncButton({
           {t("knowledge.sources.estimatedCostNote", {
             cost: `$${estimatedCostUsd.toFixed(4)}`,
           })}
+          {estimatedCostUsdTotal != null &&
+          additions != null &&
+          additions > (perRun ?? 0) &&
+          estimatedCostUsdTotal > estimatedCostUsd
+            ? ` ${t("knowledge.sources.estimatedCostTotalNote", {
+                cost: `$${estimatedCostUsdTotal.toFixed(4)}`,
+              })}`
+            : null}
         </p>
       ) : null}
+
+      {!isPending && estimatedCostUsd != null && estimatedCostUsd > 0 && (
+        <p className="mt-1 text-[11px] leading-relaxed text-[color:var(--muted)]">
+          {t("knowledge.sources.estimatedCostFootnote")}
+        </p>
+      )}
 
       {error && (
         <p className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">

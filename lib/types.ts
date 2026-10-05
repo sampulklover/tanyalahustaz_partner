@@ -95,6 +95,10 @@ export type KnowledgeSyncRun = {
   /** Total OpenRouter embedding cost (USD) for the files this run queued. */
   embed_cost_usd?: number | null;
   embed_prompt_tokens?: number | null;
+  /** Source paths of files this run created/updated/removed (capped, display). */
+  created_paths?: string[] | null;
+  updated_paths?: string[] | null;
+  removed_paths?: string[] | null;
   created_by: string | null;
   started_at: string;
   finished_at: string | null;
