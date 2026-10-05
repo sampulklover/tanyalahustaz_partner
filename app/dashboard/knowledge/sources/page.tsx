@@ -517,6 +517,58 @@ export default async function KnowledgeSourcesPage({
                             skipped: run.skipped_count,
                             deferred: run.deferred_count,
                           })}
+                          {(() => {
+                            const created = run.created_paths ?? [];
+                            const updated = run.updated_paths ?? [];
+                            const removed = run.removed_paths ?? [];
+                            const groups: { key: string; label: string; paths: string[] }[] = [
+                              {
+                                key: "created",
+                                label: t("knowledge.sources.pathsCreated"),
+                                paths: created,
+                              },
+                              {
+                                key: "updated",
+                                label: t("knowledge.sources.pathsUpdated"),
+                                paths: updated,
+                              },
+                              {
+                                key: "removed",
+                                label: t("knowledge.sources.pathsRemoved"),
+                                paths: removed,
+                              },
+                            ].filter((group) => group.paths.length > 0);
+
+                            if (groups.length === 0) return null;
+
+                            const total = created.length + updated.length + removed.length;
+                            return (
+                              <details className="group mt-1">
+                                <summary className="cursor-pointer list-none text-xs text-brand-600 hover:underline dark:text-brand-500">
+                                  {t("knowledge.sources.showFiles", { count: total })}
+                                </summary>
+                                <div className="mt-2 max-h-64 space-y-2 overflow-y-auto text-xs">
+                                  {groups.map((group) => (
+                                    <div key={group.key}>
+                                      <p className="font-medium text-foreground">
+                                        {group.label}
+                                      </p>
+                                      <ul className="mt-0.5 space-y-0.5">
+                                        {group.paths.map((path) => (
+                                          <li
+                                            key={`${group.key}-${path}`}
+                                            className="break-all font-mono text-[11px] text-[color:var(--muted)]"
+                                          >
+                                            {path}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  ))}
+                                </div>
+                              </details>
+                            );
+                          })()}
                         </td>
                         <td
                           className="px-4 py-3 tabular-nums text-[color:var(--muted)]"

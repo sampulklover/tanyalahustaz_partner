@@ -42,11 +42,17 @@ export function getEmbeddingPricePerMillion(): number {
  * Estimate embedding cost from the total source bytes of a set of files.
  * Bytes ≈ characters for extracted text; ~4 chars ≈ 1 token; chunks carry a
  * little overlap, so we pad the token count slightly. Only ever an estimate.
+ *
+ * `textRatio` scales raw file bytes down to an estimate of how many characters
+ * of text they actually contain. Plain text/markdown is ~1:1, but PDFs and
+ * DOCX are compressed containers whose byte size far exceeds their text, so the
+ * preview passes a per-format ratio (see estimateForObjects in lib/gcs-sync.ts).
  */
-export function estimateEmbedCost(bytes: number): number {
+export function estimateEmbedCost(bytes: number, textRatio = 1): number {
   const CHARS_PER_TOKEN = 4;
   const OVERLAP_PADDING = 1.15;
-  const tokens = (bytes / CHARS_PER_TOKEN) * OVERLAP_PADDING;
+  const textChars = bytes * Math.min(1, Math.max(0, textRatio));
+  const tokens = (textChars / CHARS_PER_TOKEN) * OVERLAP_PADDING;
   return (tokens / 1_000_000) * getEmbeddingPricePerMillion();
 }
 

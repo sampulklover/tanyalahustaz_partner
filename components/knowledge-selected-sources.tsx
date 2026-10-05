@@ -101,6 +101,7 @@ export function KnowledgeSelectedSources({
     removals: number;
     perRun: number;
     estimatedCostUsd: number;
+    estimatedCostUsdTotal: number;
   } | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   // Bumped when a sync finishes so the preview re-fetches for the new state.
@@ -137,6 +138,7 @@ export function KnowledgeSelectedSources({
                 removals: number;
                 perRun: number;
                 estimatedCostUsd: number;
+                estimatedCostUsdTotal: number;
               } | null;
             }
           | null;
@@ -275,6 +277,7 @@ export function KnowledgeSelectedSources({
           removals={preview?.removals ?? null}
           perRun={preview?.perRun ?? null}
           estimatedCostUsd={preview?.estimatedCostUsd ?? null}
+          estimatedCostUsdTotal={preview?.estimatedCostUsdTotal ?? null}
           previewLoading={previewLoading}
           fullWidth
         />
