@@ -5,9 +5,10 @@
 -- hundreds of thousands of rows to sort, which blows past the statement timeout
 -- and makes the app return "no context" for answerable questions.
 --
--- Fix: keep each branch bounded and materialized, and fuse by a plain UNION ALL
--- scored in one place. This mirrors a hand-written query that runs in ~20ms on
--- 860k chunks, versus ~8s for the previous multi-CTE/websearch form.
+-- Fix: keep each branch bounded, fuse by UNION ALL, and score once. A SQL
+-- function with a vector parameter re-planned badly here (multi-second), so we
+-- use plpgsql with p_-prefixed parameters and fully qualified columns to avoid
+-- variable/column ambiguity.
 
 create or replace function public.match_knowledge_chunks_hybrid(
   query_embedding vector,
@@ -33,10 +34,11 @@ stable
 security definer
 set search_path = public
 as $$
+#variable_conflict use_column
 begin
   return query
   with vector_hits as (
-    select kc.id
+    select kc.id as hit_id
     from public.knowledge_chunks kc
     inner join public.knowledge_articles ka on ka.id = kc.article_id
     where kc.embedding is not null
@@ -47,7 +49,7 @@ begin
     limit greatest(match_count * 4, 40)
   ),
   keyword_hits as (
-    select kc.id
+    select kc.id as hit_id
     from public.knowledge_chunks kc
     inner join public.knowledge_articles ka on ka.id = kc.article_id
     where ka.published = true
@@ -59,34 +61,34 @@ begin
     limit greatest(match_count * 4, 40)
   ),
   candidates as (
-    select v.id as id, 1 as v_hit, 0 as k_hit from vector_hits v
+    select v.hit_id, 1 as v_hit, 0 as k_hit from vector_hits v
     union all
-    select k.id, 0, 1 from keyword_hits k
+    select k.hit_id, 0, 1 from keyword_hits k
   ),
   scored as (
     select
-      c.id,
+      c.hit_id,
       sum(c.v_hit) as v_hit,
       sum(c.k_hit) as k_hit,
-      sum(c.v_hit + c.k_hit)::float as fused_score
+      sum(c.v_hit + c.k_hit)::float as score
     from candidates c
-    group by c.id
+    group by c.hit_id
   )
   select
     kc.id,
     kc.article_id,
     ka.slug as article_slug,
     ka.title as article_title,
-    ka.category,
-    kc.content,
+    ka.category as category,
+    kc.content as content,
     (1 - (kc.embedding <=> query_embedding))::float as similarity,
-    nullif(s.k_hit, 0) as keyword_rank,
-    nullif(s.v_hit, 0) as vector_rank,
-    s.fused_score
+    nullif(s.k_hit, 0)::int as keyword_rank,
+    nullif(s.v_hit, 0)::int as vector_rank,
+    s.score as fused_score
   from scored s
-  inner join public.knowledge_chunks kc on kc.id = s.id
+  inner join public.knowledge_chunks kc on kc.id = s.hit_id
   inner join public.knowledge_articles ka on ka.id = kc.article_id
-  order by s.fused_score desc, kc.embedding <=> query_embedding asc
+  order by s.score desc, kc.embedding <=> query_embedding asc
   limit match_count;
 end;
 $$;

@@ -1,14 +1,18 @@
 import { embedQuery } from "@/lib/embeddings";
+import { expandQuery } from "@/lib/query-expansion";
 import { NO_KNOWLEDGE_CONTEXT } from "@/lib/rag-context";
 import { selectDiverseChunks } from "@/lib/retrieval";
 import { isSmallTalk } from "@/lib/small-talk";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { KnowledgeArticle, KnowledgeSource, RetrievedKnowledge } from "@/lib/types";
 
-const MAX_CONTEXT_CHUNKS = 6;
+// Retrieval breadth. With a large corpus (800k+ chunks) a handful of candidates
+// is not enough: generic matches ("hukum minum X") crowd out the topical ones.
+// Pull more candidates so the diverse picker has room to find the right article.
+const MAX_CONTEXT_CHUNKS = Number(process.env.RAG_MAX_CONTEXT_CHUNKS ?? 10);
 const KEYWORD_FALLBACK_LIMIT = 4;
 /** Fetch extra candidates so one article can't monopolise the results. */
-const CANDIDATE_MULTIPLIER = 4;
+const CANDIDATE_MULTIPLIER = Number(process.env.RAG_CANDIDATE_MULTIPLIER ?? 8);
 /** At most this many chunks from a single article. */
 const MAX_CHUNKS_PER_ARTICLE = Number(process.env.RAG_MAX_CHUNKS_PER_ARTICLE ?? 2);
 /** Chunks weaker than this are not used (avoids citing unrelated content). */
@@ -75,12 +79,15 @@ function normalizeCategory(category?: string) {
 
 async function hybridSearch(message: string, category?: string) {
   const admin = createAdminClient();
-  const queryEmbedding = await embedQuery(message);
+  // Expand the query with topical synonyms so the embedding and the keyword
+  // branch can find the right material, not just the same phrasing.
+  const expanded = expandQuery(message);
+  const queryEmbedding = await embedQuery(expanded);
   const filterCategory = normalizeCategory(category);
 
   const { data, error } = await admin.rpc("match_knowledge_chunks_hybrid", {
     query_embedding: queryEmbedding,
-    query_text: message,
+    query_text: expanded,
     match_count: MAX_CONTEXT_CHUNKS * CANDIDATE_MULTIPLIER,
     filter_category: filterCategory,
     similarity_threshold: SIMILARITY_THRESHOLD,

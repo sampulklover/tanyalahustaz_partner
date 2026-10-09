@@ -59,6 +59,31 @@ export function getOpenRouterModel() {
 }
 
 /**
+ * Reasoning control for "thinking" models. RAG answers are grounded in the
+ * retrieved evidence, so heavy internal reasoning mostly adds latency (and cost,
+ * since thinking tokens are billed). Gemini 2.5 maps this to `thinkingBudget`,
+ * so a small explicit budget is the most predictable lever.
+ *
+ * Env:
+ *   CHAT_REASONING_EFFORT  = none|minimal|low|medium|high (default "minimal")
+ *   CHAT_REASONING_BUDGET  = token budget, overrides effort (e.g. 0, 128)
+ *   Set CHAT_REASONING_EFFORT=off to omit the field for models that reject it.
+ */
+export function getChatReasoning(): Record<string, unknown> | null {
+  const budgetRaw = process.env.CHAT_REASONING_BUDGET?.trim();
+  if (budgetRaw) {
+    const budget = Number(budgetRaw);
+    if (!Number.isFinite(budget) || budget < 0) return null;
+    return budget === 0 ? { enabled: false } : { max_tokens: budget };
+  }
+
+  const effort = (process.env.CHAT_REASONING_EFFORT ?? "minimal").trim().toLowerCase();
+  if (!effort || effort === "off" || effort === "default") return null;
+  if (effort === "none") return { enabled: false };
+  return { effort };
+}
+
+/**
  * The fast model used for greetings and other small talk, where a light model
  * answers just as well but much sooner. Falls back to the main model when unset.
  */
@@ -193,6 +218,7 @@ export async function generateChatReply({
       messages,
       temperature: 0.3,
       max_tokens: getChatMaxTokens(),
+      ...(getChatReasoning() ? { reasoning: getChatReasoning() } : {}),
     }),
   });
 
@@ -258,6 +284,7 @@ export async function streamChatReply({
       temperature: 0.3,
       max_tokens: getChatMaxTokens(),
       stream: true,
+      ...(getChatReasoning() ? { reasoning: getChatReasoning() } : {}),
     }),
     signal,
   });

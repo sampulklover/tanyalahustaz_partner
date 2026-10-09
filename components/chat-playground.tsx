@@ -41,6 +41,19 @@ function formatMessageTime(timestamp: number) {
   }).format(new Date(timestamp));
 }
 
+/**
+ * A scraped summary is often just leftover site navigation ("BANK SOALAN"),
+ * which is not worth showing above the article. Hide very short, shouty or
+ * menu-like summaries.
+ */
+function looksLikeJunkSummary(summary: string): boolean {
+  const text = summary.trim();
+  if (text.length < 40) return true;
+  const isAllCaps = text === text.toUpperCase() && /[A-Z]/.test(text);
+  const isMenuLike = text.split(/\s+/).length <= 4;
+  return isAllCaps || isMenuLike;
+}
+
 function StreamingCursor() {
   return (
     <span
@@ -63,7 +76,7 @@ function ThinkingIndicator({ label }: { label: string }) {
   );
 }
 
-export function ChatPlayground() {
+export function ChatPlayground({ userId = "" }: { userId?: string }) {
   const { t, messages: i18nMessages } = useI18n();
   const starterPrompts = i18nMessages.playground.starterPrompts;
   const categoryLabels = i18nMessages.playground.categories as Record<string, string>;
@@ -80,6 +93,15 @@ export function ChatPlayground() {
   const [showKey, setShowKey] = useState(false);
   const [rememberKey, setRememberKey] = useState(true);
   const [keyReady, setKeyReady] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [sourceView, setSourceView] = useState<{
+    title: string;
+    loading: boolean;
+    error?: string;
+    content?: string;
+    summary?: string;
+    category?: string;
+  } | null>(null);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -91,8 +113,8 @@ export function ChatPlayground() {
   const persistSessionId = useCallback((nextSessionId: string) => {
     sessionIdRef.current = nextSessionId;
     setSessionId(nextSessionId);
-    writeStoredPlaygroundSessionId(nextSessionId);
-  }, []);
+    writeStoredPlaygroundSessionId(nextSessionId, userId);
+  }, [userId]);
 
   const updateMessage = useCallback((id: string, updater: Partial<PlaygroundMessage> | ((msg: PlaygroundMessage) => Partial<PlaygroundMessage>)) => {
     setMessages((prev) =>
@@ -111,6 +133,60 @@ export function ChatPlayground() {
     container.scrollTo({ top: container.scrollHeight, behavior });
   }, []);
 
+  // Close the settings modal on Escape.
+  useEffect(() => {
+    if (!settingsOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSettingsOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [settingsOpen]);
+
+  // Close the source viewer on Escape.
+  useEffect(() => {
+    if (!sourceView) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSourceView(null);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [sourceView]);
+
+  const openSource = useCallback(
+    async (slug: string, title: string) => {
+      setSourceView({ title, loading: true });
+      try {
+        const response = await fetch(
+          `/api/playground/article?slug=${encodeURIComponent(slug)}`,
+          { headers: { Authorization: `Bearer ${apiKey}` } },
+        );
+        const payload = (await response.json()) as {
+          article?: { title: string; category: string; summary: string; content: string };
+          error?: string;
+        };
+        if (!response.ok || !payload.article) {
+          setSourceView({ title, loading: false, error: payload.error ?? "Not found." });
+          return;
+        }
+        setSourceView({
+          title: payload.article.title,
+          loading: false,
+          content: payload.article.content,
+          summary: payload.article.summary,
+          category: payload.article.category,
+        });
+      } catch (err) {
+        setSourceView({
+          title,
+          loading: false,
+          error: err instanceof Error ? err.message : "Could not load the source.",
+        });
+      }
+    },
+    [apiKey],
+  );
+
   useEffect(() => {
     let cancelled = false;
 
@@ -121,7 +197,7 @@ export function ChatPlayground() {
         setKeyReady(true);
       }
 
-      const storedSessionId = readStoredPlaygroundSessionId();
+      const storedSessionId = readStoredPlaygroundSessionId(userId);
       if (!storedSessionId) {
         if (!cancelled) setIsRestoring(false);
         return;
@@ -131,14 +207,14 @@ export function ChatPlayground() {
       if (cancelled) return;
 
       if (!result.ok) {
-        clearStoredPlaygroundSessionId();
+        clearStoredPlaygroundSessionId(userId);
         setError(result.error);
         setIsRestoring(false);
         return;
       }
 
       if (!result.data.sessionId || result.data.messages.length === 0) {
-        clearStoredPlaygroundSessionId();
+        clearStoredPlaygroundSessionId(userId);
         setIsRestoring(false);
         return;
       }
@@ -163,7 +239,7 @@ export function ChatPlayground() {
     return () => {
       cancelled = true;
     };
-  }, [persistSessionId]);
+  }, [persistSessionId, userId]);
 
   useEffect(() => {
     if (!keyReady) return;
@@ -344,7 +420,7 @@ export function ChatPlayground() {
     if (isStreaming) stopStreaming();
     setMessages([]);
     persistSessionId("");
-    clearStoredPlaygroundSessionId();
+    clearStoredPlaygroundSessionId(userId);
     setError(null);
     setRetryMessage(null);
     inputRef.current?.focus();
@@ -364,119 +440,7 @@ export function ChatPlayground() {
   const showEmptyState = !isRestoring && messages.length === 0;
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-4 lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-5">
-      <aside className="shrink-0 rounded-xl border border-border bg-card p-4 shadow-sm lg:flex lg:h-full lg:min-h-0 lg:flex-col lg:overflow-y-auto lg:p-5">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)]">
-            {t("playground.keyTitle")}
-          </p>
-          <p className="mt-2 text-xs leading-relaxed text-[color:var(--muted)]">
-            {t("playground.keyHelp")}
-          </p>
-          <div className="mt-3 flex items-center gap-2">
-            <input
-              type={showKey ? "text" : "password"}
-              value={apiKey}
-              onChange={(event) => setApiKey(event.target.value)}
-              placeholder={t("playground.keyPlaceholder")}
-              autoComplete="off"
-              spellCheck={false}
-              disabled={isStreaming}
-              className="min-w-0 flex-1 rounded-lg border border-border bg-background px-3 py-2 font-mono text-xs outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 disabled:opacity-60"
-            />
-            <button
-              type="button"
-              onClick={() => setShowKey((value) => !value)}
-              className="shrink-0 rounded-lg border border-border px-2.5 py-2 text-xs font-medium transition hover:bg-background-subtle"
-            >
-              {showKey ? t("playground.hideKey") : t("playground.showKey")}
-            </button>
-          </div>
-          <label className="mt-2.5 flex items-center gap-2 text-xs text-[color:var(--muted)]">
-            <input
-              type="checkbox"
-              checked={rememberKey}
-              onChange={(event) => setRememberKey(event.target.checked)}
-              className="h-3.5 w-3.5 accent-brand-600"
-            />
-            {t("playground.rememberKey")}
-          </label>
-          <Link
-            href="/dashboard/api-keys"
-            className="mt-2 inline-block text-xs font-medium text-brand-600 hover:underline dark:text-brand-500"
-          >
-            {t("playground.createKey")} →
-          </Link>
-        </div>
-
-        <p className="mt-4 border-t border-border pt-4 text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)]">
-          {t("playground.settings")}
-        </p>
-
-        <div className="mt-3 space-y-1.5 lg:mt-4">
-          <label
-            htmlFor="playground-category"
-            className="block text-xs font-medium text-[color:var(--muted)]"
-          >
-            {t("playground.category")}
-          </label>
-          <select
-            id="playground-category"
-            value={category}
-            onChange={(event) => setCategory(event.target.value)}
-            disabled={isStreaming || isRestoring}
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 disabled:opacity-60"
-          >
-            {CATEGORY_ORDER.map((value) => (
-              <option key={value} value={value}>
-                {categoryLabels[value] ?? value}
-              </option>
-            ))}
-          </select>
-          <p className="text-xs text-[color:var(--muted)]">
-            {t("playground.categoryHelp")}
-          </p>
-        </div>
-
-        <div className="mt-3 space-y-2 lg:mt-4">
-            <button
-              type="button"
-              onClick={handleClear}
-              disabled={isStreaming || isRestoring || messages.length === 0}
-              className="flex w-full items-center justify-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium transition hover:bg-background-subtle disabled:opacity-50"
-            >
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-              {t("playground.clearConversation")}
-            </button>
-            {sessionId && (
-              <Link
-                href={buildChatLogsPath("/dashboard/chat", { session: sessionId })}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium transition hover:bg-background-subtle"
-              >
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                </svg>
-                {t("playground.viewLogs")}
-              </Link>
-            )}
-            <Link
-              href="/docs/endpoints"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex w-full items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-brand-600 transition hover:bg-brand-50 dark:text-brand-500 dark:hover:bg-brand-900/20"
-            >
-              {t("playground.apiReference")}
-              <svg className="h-3.5 w-3.5 opacity-60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                <path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                <path d="M15 3h6v6" />
-                <path d="M10 14 21 3" />
-              </svg>
-            </Link>
-        </div>
-      </aside>
-
+    <div className="flex h-full min-h-0 flex-col gap-4">
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm">
         <div className="shrink-0 border-b border-border px-4 py-3 sm:px-5 sm:py-4">
           <div className="flex items-start justify-between gap-3">
@@ -484,15 +448,28 @@ export function ChatPlayground() {
               <p className="font-semibold">{t("playground.title")}</p>
               <p className="text-sm text-[color:var(--muted)]">{t("playground.subtitle")}</p>
             </div>
-            {isStreaming && (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 dark:border-brand-800 dark:bg-brand-900/30 dark:text-brand-200">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-400 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-500" />
+            <div className="flex items-center gap-2">
+              {isStreaming && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 dark:border-brand-800 dark:bg-brand-900/30 dark:text-brand-200">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-400 opacity-75" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-500" />
+                  </span>
+                  {t("playground.live")}
                 </span>
-                {t("playground.live")}
-              </span>
-            )}
+              )}
+              <button
+                type="button"
+                onClick={() => setSettingsOpen(true)}
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-medium transition hover:bg-background-subtle"
+              >
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+                {t("playground.settings")}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -544,7 +521,7 @@ export function ChatPlayground() {
               )}
             </div>
           ) : (
-            <div className="mx-auto max-w-3xl space-y-5">
+            <div className="mx-auto max-w-5xl space-y-5">
               {messages.map((message) => {
                 const isUser = message.role === "user";
                 const isStreamingMessage = message.status === "streaming";
@@ -559,7 +536,7 @@ export function ChatPlayground() {
                     key={message.id}
                     className={`chat-message-enter flex ${isUser ? "justify-end" : "justify-start"}`}
                   >
-                    <article className={`max-w-[88%] space-y-1.5 sm:max-w-[80%] ${isUser ? "items-end" : "items-start"}`}>
+                    <article className={`max-w-[92%] space-y-1.5 sm:max-w-[85%] ${isUser ? "items-end" : "items-start"}`}>
                       <div className={`flex items-center gap-2 ${isUser ? "flex-row-reverse" : ""}`}>
                         <p className="text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)]">
                           {isUser ? t("common.you") : t("playground.assistant")}
@@ -598,12 +575,14 @@ export function ChatPlayground() {
                                 </p>
                                 <div className="flex flex-wrap gap-1.5">
                                   {message.sources!.map((source) => (
-                                    <span
+                                    <button
                                       key={source.slug}
-                                      className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700 dark:bg-brand-900/40 dark:text-brand-200"
+                                      type="button"
+                                      onClick={() => void openSource(source.slug, source.title)}
+                                      className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700 transition hover:bg-brand-100 dark:bg-brand-900/40 dark:text-brand-200 dark:hover:bg-brand-900/60"
                                     >
                                       {source.title}
-                                    </span>
+                                    </button>
                                   ))}
                                 </div>
                               </div>
@@ -645,7 +624,7 @@ export function ChatPlayground() {
               </button>
             </div>
           )}
-          <div className="mx-auto flex max-w-3xl gap-3">
+          <div className="mx-auto flex max-w-5xl gap-3">
             <div className="min-w-0 flex-1">
               <textarea
                 ref={inputRef}
@@ -686,6 +665,204 @@ export function ChatPlayground() {
           </div>
         </div>
       </div>
+
+      {settingsOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={() => setSettingsOpen(false)}
+            className="absolute inset-0 bg-black/50"
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="relative w-full max-w-lg rounded-xl border border-border bg-card p-6 shadow-xl"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-semibold">{t("playground.settings")}</h2>
+                <p className="mt-1 text-sm text-[color:var(--muted)]">{t("playground.keyHelp")}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSettingsOpen(false)}
+                className="rounded-lg p-1.5 text-[color:var(--muted)] transition hover:bg-background-subtle"
+                aria-label="Close"
+              >
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="mt-5">
+              <label className="block text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)]">
+                {t("playground.keyTitle")}
+              </label>
+              <div className="mt-1.5 flex items-center gap-2">
+                <input
+                  type={showKey ? "text" : "password"}
+                  value={apiKey}
+                  onChange={(event) => setApiKey(event.target.value)}
+                  placeholder={t("playground.keyPlaceholder")}
+                  autoComplete="off"
+                  spellCheck={false}
+                  disabled={isStreaming}
+                  className="h-10 min-w-0 flex-1 rounded-lg border border-border bg-background px-3 font-mono text-xs outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 disabled:opacity-60"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowKey((value) => !value)}
+                  className="h-10 shrink-0 rounded-lg border border-border px-3 text-xs font-medium transition hover:bg-background-subtle"
+                >
+                  {showKey ? t("playground.hideKey") : t("playground.showKey")}
+                </button>
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+                <label className="flex items-center gap-2 text-xs text-[color:var(--muted)]">
+                  <input
+                    type="checkbox"
+                    checked={rememberKey}
+                    onChange={(event) => setRememberKey(event.target.checked)}
+                    className="h-3.5 w-3.5 accent-brand-600"
+                  />
+                  {t("playground.rememberKey")}
+                </label>
+                <Link
+                  href="/dashboard/api-keys"
+                  className="text-xs font-medium text-brand-600 hover:underline dark:text-brand-500"
+                >
+                  {t("playground.createKey")} →
+                </Link>
+              </div>
+            </div>
+
+            <div className="mt-5">
+              <label
+                htmlFor="playground-category"
+                className="block text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)]"
+              >
+                {t("playground.category")}
+              </label>
+              <select
+                id="playground-category"
+                value={category}
+                onChange={(event) => setCategory(event.target.value)}
+                disabled={isStreaming || isRestoring}
+                className="mt-1.5 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 disabled:opacity-60"
+              >
+                {CATEGORY_ORDER.map((value) => (
+                  <option key={value} value={value}>
+                    {categoryLabels[value] ?? value}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1.5 text-xs text-[color:var(--muted)]">
+                {t("playground.categoryHelp")}
+              </p>
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  handleClear();
+                  setSettingsOpen(false);
+                }}
+                disabled={isStreaming || isRestoring || messages.length === 0}
+                className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-medium transition hover:bg-background-subtle disabled:opacity-50"
+              >
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+                {t("playground.clearConversation")}
+              </button>
+              {sessionId && (
+                <Link
+                  href={buildChatLogsPath("/dashboard/chat", { session: sessionId })}
+                  className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-medium transition hover:bg-background-subtle"
+                >
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                  {t("playground.viewLogs")}
+                </Link>
+              )}
+              <Link
+                href="/docs/endpoints"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-10 items-center gap-1.5 rounded-lg px-3 text-sm font-medium text-brand-600 transition hover:bg-brand-50 dark:text-brand-500 dark:hover:bg-brand-900/20"
+              >
+                {t("playground.apiReference")}
+                <svg className="h-3.5 w-3.5 opacity-60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                  <path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                  <path d="M15 3h6v6" />
+                  <path d="M10 14 21 3" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {sourceView && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={() => setSourceView(null)}
+            className="absolute inset-0 bg-black/50"
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="relative flex max-h-[85vh] w-full max-w-2xl flex-col rounded-xl border border-border bg-card shadow-xl"
+          >
+            <div className="flex shrink-0 items-start justify-between gap-3 border-b border-border p-5">
+              <div className="min-w-0">
+                <h2 className="truncate text-base font-semibold">{sourceView.title}</h2>
+                {sourceView.category && (
+                  <p className="mt-0.5 text-xs uppercase tracking-wide text-[color:var(--muted)]">
+                    {sourceView.category}
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setSourceView(null)}
+                className="shrink-0 rounded-lg p-1.5 text-[color:var(--muted)] transition hover:bg-background-subtle"
+                aria-label="Close"
+              >
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-5">
+              {sourceView.loading && (
+                <p className="text-sm text-[color:var(--muted)]">
+                  {t("playground.thinking")}
+                </p>
+              )}
+              {sourceView.error && (
+                <p className="text-sm text-red-600 dark:text-red-400">{sourceView.error}</p>
+              )}
+              {sourceView.summary && !looksLikeJunkSummary(sourceView.summary) && (
+                <p className="mb-4 rounded-lg border border-border bg-background-subtle p-3 text-sm leading-relaxed">
+                  {sourceView.summary}
+                </p>
+              )}
+              {sourceView.content && (
+                <div className="mx-auto max-w-prose">
+                  <ChatMarkdown content={sourceView.content} />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

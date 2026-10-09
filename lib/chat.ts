@@ -287,7 +287,16 @@ export async function streamChat(
 
       if (cached && cached.answer) {
         send({ type: "meta", session_id: sessionId, sources: cached.sources });
-        send({ type: "text", content: cached.answer });
+
+        // A cached answer is identical to a streamed one, so replay it in small
+        // chunks. Sending it whole would make cached replies appear instantly
+        // with no typing animation, which looks broken next to live answers.
+        const text = cached.answer;
+        const CHUNK = 24;
+        for (let i = 0; i < text.length; i += CHUNK) {
+          send({ type: "text", content: text.slice(i, i + CHUNK) });
+          await new Promise((resolve) => setTimeout(resolve, 8));
+        }
         send({ type: "done" });
         return;
       }

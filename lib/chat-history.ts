@@ -109,12 +109,14 @@ export async function loadPlaygroundSessionMessages({
 
   const admin = createAdminClient();
 
+  // The playground may save rows with the caller's api_key_id (when it goes
+  // through /api/playground/chat) or with a null api_key_id (older action path).
+  // Match the session for this partner regardless, so history restores either way.
   const { data, error } = await admin
     .from("partner_chat_logs")
     .select("id, user_message, assistant_message, sources, created_at")
     .eq("partner_id", partnerId)
     .eq("session_id", trimmedSessionId)
-    .is("api_key_id", null)
     .order("created_at", { ascending: true })
     .limit(MAX_PLAYGROUND_SESSION_LOGS);
 
