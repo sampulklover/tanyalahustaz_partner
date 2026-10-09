@@ -10,11 +10,55 @@ export type EmbedKnowledgeResult = {
   costUsd: number;
 };
 
-/** Insert this many chunk rows per request (vectors are large). */
+/**
+ * Insert this many chunk rows per request (vectors are large). Kept low by
+ * default: writing hundreds of 1536-dim vectors at once burns Supabase's Disk IO
+ * budget and risks statement timeouts. Raise via CHUNK_INSERT_BATCH_SIZE only if
+ * your plan has headroom.
+ */
 const CHUNK_INSERT_BATCH_SIZE = Math.max(
   1,
-  Number(process.env.CHUNK_INSERT_BATCH_SIZE ?? 200),
+  Number(process.env.CHUNK_INSERT_BATCH_SIZE ?? 100),
 );
+/** Pause between insert batches so writes don't spike Disk IO on small plans. */
+const CHUNK_INSERT_PAUSE_MS = Math.max(
+  0,
+  Number(process.env.CHUNK_INSERT_PAUSE_MS ?? 100),
+);
+
+/**
+ * How many articles to embed at once when embedding in bulk. Articles are
+ * independent, so overlapping them hides both the extraction-to-embed latency
+ * and the per-article DB writes. Kept modest by default; raise it (or set
+ * EMBED_CONCURRENCY higher) for large backfills. Read per call.
+ */
+function embedArticleConcurrency() {
+  return Math.max(1, Number(process.env.EMBED_ARTICLE_CONCURRENCY ?? 4));
+}
+
+/** Run tasks with a fixed max in flight, collecting results in input order. */
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  task: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let next = 0;
+
+  const workers = Array.from(
+    { length: Math.min(concurrency, items.length) },
+    async () => {
+      while (next < items.length) {
+        const index = next;
+        next += 1;
+        results[index] = await task(items[index], index);
+      }
+    },
+  );
+
+  await Promise.all(workers);
+  return results;
+}
 
 export async function embedKnowledgeArticles(
   articles: KnowledgeArticle[],
@@ -67,15 +111,37 @@ export async function embedAllKnowledgeArticles(
   let chunksWritten = 0;
   let promptTokens = 0;
   let costUsd = 0;
+  let failed = 0;
 
-  for (let index = 0; index < list.length; index += 1) {
-    const article = list[index];
-    console.log(`[${index + 1}/${list.length}] ${article.title}`);
+  // Embed several articles at once. A file that throws is logged and skipped so
+  // the rest of the batch still lands.
+  const results = await mapWithConcurrency(
+    list,
+    embedArticleConcurrency(),
+    async (article, index) => {
+      console.log(`[${index + 1}/${list.length}] ${article.title}`);
+      try {
+        return await embedKnowledgeArticle(article);
+      } catch (error) {
+        failed += 1;
+        console.error(
+          `[embed-knowledge] Failed article "${article.title}": ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        );
+        return { chunksWritten: 0, promptTokens: 0, costUsd: 0 };
+      }
+    },
+  );
 
-    const result = await embedKnowledgeArticle(article);
+  for (const result of results) {
     chunksWritten += result.chunksWritten;
     promptTokens += result.promptTokens;
     costUsd += result.costUsd;
+  }
+
+  if (failed > 0) {
+    console.warn(`[embed-knowledge] Skipped ${failed} article(s) after errors.`);
   }
 
   return {
@@ -127,27 +193,68 @@ export async function embedKnowledgeArticle(
 
   const { embeddings, usage } = await embedTexts(chunks);
 
-  await admin.from("knowledge_chunks").delete().eq("article_id", article.id);
+  // A chunk that failed to embed comes back as an empty array; drop it rather
+  // than insert a row with a null vector (which would break search).
+  const rows = chunks
+    .map((content, chunkIndex) => ({
+      article_id: article.id,
+      chunk_index: chunkIndex,
+      content,
+      embedding: embeddings[chunkIndex],
+    }))
+    .filter((row) => Array.isArray(row.embedding) && row.embedding.length > 0);
 
-  const rows = chunks.map((content, chunkIndex) => ({
-    article_id: article.id,
-    article_slug: article.slug,
-    article_title: article.title,
-    category: article.category,
-    chunk_index: chunkIndex,
-    content,
-    embedding: embeddings[chunkIndex],
-  }));
+  if (rows.length < chunks.length) {
+    console.warn(
+      `[embed-knowledge] ${chunks.length - rows.length} chunk(s) skipped for article ${article.id}.`,
+    );
+  }
 
+  // Upsert on (article_id, chunk_index) instead of delete-then-insert. Embedding
+  // now runs in parallel, so two runs of the same article could otherwise race:
+  // both delete, both insert, and the unique index rejects the second. An upsert
+  // is atomic and makes a re-embed idempotent. Transient pooler errors (timeouts,
+  // fetch failed) are retried a couple of times before giving up.
   for (let index = 0; index < rows.length; index += CHUNK_INSERT_BATCH_SIZE) {
-    const { error } = await admin
-      .from("knowledge_chunks")
-      .insert(rows.slice(index, index + CHUNK_INSERT_BATCH_SIZE));
+    const batch = rows.slice(index, index + CHUNK_INSERT_BATCH_SIZE);
 
-    if (error) {
-      throw new Error(error.message);
+    let lastError: string | null = null;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const { error } = await admin
+        .from("knowledge_chunks")
+        .upsert(batch, { onConflict: "article_id,chunk_index" });
+
+      if (!error) {
+        lastError = null;
+        break;
+      }
+
+      lastError = error.message;
+      const transient =
+        !error.message ||
+        /timeout|fetch failed|schema cache|connection/i.test(error.message);
+      if (!transient) break;
+
+      await new Promise((resolve) => setTimeout(resolve, 400 * (attempt + 1)));
+    }
+
+    if (lastError !== null) {
+      throw new Error(lastError);
+    }
+
+    // Space out batches so a big article doesn't spike Disk IO in one burst.
+    if (CHUNK_INSERT_PAUSE_MS > 0 && index + CHUNK_INSERT_BATCH_SIZE < rows.length) {
+      await new Promise((resolve) => setTimeout(resolve, CHUNK_INSERT_PAUSE_MS));
     }
   }
+
+  // A shorter re-embed leaves stale rows behind (chunk count shrank), so drop
+  // any chunk_index beyond what we just wrote.
+  await admin
+    .from("knowledge_chunks")
+    .delete()
+    .eq("article_id", article.id)
+    .gte("chunk_index", rows.length);
 
   // Record what this file cost to make searchable.
   await admin

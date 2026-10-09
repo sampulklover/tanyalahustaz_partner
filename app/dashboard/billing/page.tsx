@@ -43,6 +43,8 @@ function reasonLabel(t: Translator, reason: string) {
       return t("pages.billing.reasonTopup");
     case "usage":
       return t("pages.billing.reasonUsage");
+    case "embedding":
+      return t("pages.billing.reasonEmbedding");
     case "refund":
       return t("pages.billing.reasonRefund");
     case "adjustment":
@@ -121,6 +123,26 @@ export default async function BillingPage() {
   const balanceCents = await getCreditBalanceCents(user!.id);
   const alertSettings = await getLowBalanceSettings(user!.id);
   const emailConfigured = isEmailConfigured();
+
+  // Spend by type across the whole ledger (not just the 50 shown below), so the
+  // summary is accurate. Only negative deltas are charges.
+  const { data: spendData } = await supabase
+    .from("credit_ledger")
+    .select("delta_cents, reason")
+    .eq("user_id", user!.id)
+    .lt("delta_cents", 0);
+
+  const spendByReason = new Map<string, number>();
+  for (const entry of (spendData ?? []) as Array<{ delta_cents: number; reason: string }>) {
+    spendByReason.set(
+      entry.reason,
+      (spendByReason.get(entry.reason) ?? 0) + Math.abs(entry.delta_cents),
+    );
+  }
+
+  const spendRows = [...spendByReason.entries()]
+    .map(([reason, cents]) => ({ reason, cents }))
+    .sort((a, b) => b.cents - a.cents);
 
   return (
     <DashboardShell>
@@ -234,6 +256,34 @@ export default async function BillingPage() {
           </div>
         )}
       </div>
+
+      <section className="mt-6 overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="border-b border-border px-5 py-4">
+          <h2 className="font-semibold">{t("pages.billing.spendTitle")}</h2>
+          <p className="mt-1 text-xs text-[color:var(--muted)]">
+            {t("pages.billing.spendHint")}
+          </p>
+        </div>
+        {spendRows.length === 0 ? (
+          <p className="px-5 py-10 text-center text-sm text-[color:var(--muted)]">
+            {t("pages.billing.spendEmpty")}
+          </p>
+        ) : (
+          <ul className="divide-y divide-border">
+            {spendRows.map((row) => (
+              <li
+                key={row.reason}
+                className="flex items-center justify-between gap-3 px-5 py-3.5 text-sm"
+              >
+                <span>{reasonLabel(t, row.reason)}</span>
+                <span className="font-medium">
+                  {formatMyr(row.cents, { decimals: true })}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <section className="mt-6 overflow-hidden rounded-xl border border-border bg-card shadow-sm">
         <div className="border-b border-border px-5 py-4">

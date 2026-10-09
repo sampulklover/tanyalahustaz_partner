@@ -39,8 +39,8 @@ export async function POST(request: Request) {
     return Response.json(
       {
         error: translateRateLimitError(t, rateLimit.error, {
-          perMinute: Number(process.env.RATE_LIMIT_CHAT_PER_MINUTE ?? 20),
-          perDay: Number(process.env.RATE_LIMIT_CHAT_PER_DAY ?? 500),
+          perMinute: Number(process.env.RATE_LIMIT_CHAT_PER_MINUTE ?? 120),
+          perDay: Number(process.env.RATE_LIMIT_CHAT_PER_DAY ?? 50000),
         }),
       },
       { status: 429 },

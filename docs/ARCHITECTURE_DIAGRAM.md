@@ -66,7 +66,7 @@ API caller (Bearer tlh_live_…)
         lib/api/handler.ts  →  withApiAuth()
         ┌───────────────────────────────────────────────┐
         │ 1. lib/api-auth.ts     hash key → look up api_keys row │
-        │ 2. lib/rate-limit.ts   chat: 20/min, 500/day            │
+        │ 2. lib/rate-limit.ts   chat: 120/min, 50k/day           │
         │ 3. run handler                                          │
         │ 4. lib/api-auth.ts     record api_usage + last_used_at  │
         └───────────────────────┬─────────────────────────────────┘
@@ -86,6 +86,11 @@ API caller (Bearer tlh_live_…)
         │       │   no  → keyword fallback on articles       │   │
         │       └────────────────────────────────────────────┘   │
         │                                                       │
+        │ 2b. findPartnerKnowledge() ── lib/partner-knowledge-  │
+        │       search.ts — the partner's OWN uploaded files    │
+        │       (match_partner_knowledge_chunks_hybrid,         │
+        │        filtered by partner_id; [] if none)            │
+        │                                                       │
         │ 3. loadChatHistory() ── lib/chat-history.ts ──────────┤
         │       last 8 turns for session_id (partner_chat_logs) │
         │                                                       │
@@ -100,6 +105,7 @@ API caller (Bearer tlh_live_…)
         │           ├ prompt modules (lib/prompts/router.ts)    │
         │           ├ PARTNER-SPECIFIC INSTRUCTIONS             │
         │           ├ KNOWLEDGE REFERENCE MATERIAL (chunks)     │
+        │           ├ PARTNER KNOWLEDGE (partner's own files)   │
         │           └ no-material guard (always enforced)       │
         │         model = small talk ? FAST : MAIN              │
         │         call https://openrouter.ai/api/v1/chat/...    │
@@ -176,6 +182,33 @@ Chat time reads only:  knowledge_chunks / knowledge_articles
 
 CLI equivalents: `npm run embed-knowledge`, `npm run search-knowledge`.
 
+### 3b. Partner knowledge (private, per-partner uploads)
+
+A separate, partner-owned library. Never mixed with the shared one.
+
+```
+  Partner (dashboard → My knowledge)
+        │ upload .pdf / .docx / .txt / .md
+        ▼
+  app/actions/partner-knowledge.ts
+        │
+        ▼
+  lib/partner-knowledge.ts
+        ├ extract text (lib/knowledge-extract.ts) — file NOT stored
+        ├ chunk (lib/chunking.ts)
+        ├ embed (lib/embeddings.ts) → vector(1536)
+        ├ write partner_knowledge_chunks
+        └ bill embedding cost → credit_ledger (reason 'embedding',
+              same markup as chat)
+
+  Chat time reads only this partner's rows via
+  match_partner_knowledge_chunks_hybrid(query, p_partner_id, …)
+  → lib/partner-knowledge-search.ts
+```
+
+Storage note: the original file is discarded; only chunks + a short preview
+are kept, so the text is not duplicated.
+
 ---
 
 ## 4. Auth & access (two separate systems)
@@ -210,21 +243,23 @@ Prepaid credits (credit_ledger = source of truth, balance = sum)
   Usage side                              Top-up side
   ──────────                              ───────────
   OpenRouter returns cost (USD)           Partner picks amount
-        │                                       │
-        ▼                                       ▼
-  charge = cost × (1 + markup%)           create ToyyibPay bill
-           × USD→MYR rate                  (billExternalReferenceNo)
-  markup ≥ 30% (DB-enforced)                    │
-        │                                        ▼
-        ▼                                  partner pays (FPX / card)
-  round up to nearest sen                        │
-        │                                        ▼
-        ▼                                  /api/toyyibpay/callback
-  credit_ledger insert (debit)             /api/toyyibpay/return
-        │                                        │
-        ▼                                  re-verify with ToyyibPay
-  balance drops                            API → credit ledger (once,
-        │                                  idempotent)
+  (chat AND partner-file embedding)             │
+        │                                       ▼
+        ▼                                 create ToyyibPay bill
+  charge = cost × (1 + markup%)           (billExternalReferenceNo)
+           × USD→MYR rate                       │
+  markup ≥ 30% (DB-enforced)                    ▼
+        │                                 partner pays (FPX / card)
+        ▼                                       │
+  round up to nearest sen                       ▼
+        │                                 /api/toyyibpay/callback
+        ▼                                 /api/toyyibpay/return
+  credit_ledger insert (debit)                  │
+  reason: 'usage' | 'embedding'           re-verify with ToyyibPay
+        │                                 API → credit ledger (once,
+        ▼                                 idempotent)
+  balance drops
+        │
         ▼
   below threshold? → Resend low-credit email (≤ once / 24h)
 ```
@@ -240,6 +275,7 @@ Prepaid credits (credit_ledger = source of truth, balance = sum)
   ├── /usage           API usage stats (api_usage)
   ├── /playground      test the AI (same pipeline, no key needed)
   ├── /prompt          partner-specific prompt instructions
+  ├── /knowledge-base  partner's OWN uploaded files (private KB)
   ├── /billing         billing overview + low-credit alerts
   ├── /top-up          buy credits via ToyyibPay
   ├── /settings        account
@@ -262,7 +298,6 @@ Public pages: `/` landing, `/docs/*` API docs, `/demo`, `/login`, `/signup`,
 api_keys                 partner keys (hashed) + last_used_at
 api_usage                per-request endpoint log (rate-limit counters)
 profiles                 partner accounts (Supabase Auth)
-partnerships/…           partner data
 
 knowledge_articles       mirrored knowledge (read-only in app)
 knowledge_chunks         vector(1536) chunks + pgvector index
@@ -270,10 +305,14 @@ knowledge_source_*       GCS connection, selections, sizes
 knowledge_embed_jobs     embedding queue
 knowledge_team_members   admin/editor/viewer roles
 
+partner_knowledge_files  partner-owned uploaded files (metadata + preview only)
+partner_knowledge_chunks vector(1536) chunks, scoped to one partner
+
 partner_chat_logs        conversations (memory + dashboard + billing)
 chat_answer_cache        first-turn answer cache
 
 credit_ledger            prepaid balance entries (sum = balance)
+                         reason: topup | usage | embedding | refund | adjustment
 billing_* / toyyibpay_*  top-ups + markup settings
 ai_settings              shared prompt + prompt modules
 ```
@@ -295,4 +334,5 @@ ai_settings              shared prompt + prompt modules
 | `lib/openrouter.ts` | Builds prompts, calls the AI, returns usage/cost |
 | `lib/billing*.ts`, `lib/credit.ts` | Pricing, markup, ledger |
 | `lib/gcs-sync.ts` | GCS → Supabase one-way mirror |
+| `lib/partner-knowledge.ts` + `lib/partner-knowledge-search.ts` | Private per-partner file knowledge base |
 | `lib/embeddings.ts`, `lib/chunking.ts` | Text → vectors |

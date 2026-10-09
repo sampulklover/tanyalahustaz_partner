@@ -49,6 +49,109 @@ const DEFAULT_EXCLUDED_FOLDERS = ["cover-image", "cover", "covers"];
 /** Cap on file paths stored per run for the history view (display only). */
 const MAX_TRACKED_PATHS = 200;
 
+/**
+ * How many files to download, extract and insert at once. Each file is an
+ * independent network round-trip (GCS download + optional AI structuring + DB
+ * writes), so running a few at a time cuts a large sync's wall-clock time
+ * substantially. Kept low by default: Supabase's connection pooler drops
+ * requests and times out on large inserts when too many run at once. Raise it
+ * (GCS_SYNC_CONCURRENCY) only if your database plan can take it.
+ */
+function syncConcurrency() {
+  return Math.max(1, Number(process.env.GCS_SYNC_CONCURRENCY ?? 2));
+}
+
+/**
+ * True when an error means the network is down (DNS failure, connection refused,
+ * offline), as opposed to a problem with one file. On a real outage the sync
+ * should pause and wait, not burn through thousands of files marking them failed.
+ */
+function isNetworkError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return (
+    /ENOTFOUND|EAI_AGAIN|ECONNREFUSED|ECONNRESET|ETIMEDOUT|ENETUNREACH|getaddrinfo/i.test(
+      message,
+    ) || /fetch failed/i.test(message)
+  );
+}
+
+/** Block until a GCS head request succeeds again, or a deadline passes. */
+async function waitForNetwork(maxWaitMs = 15 * 60 * 1000): Promise<boolean> {
+  const deadline = Date.now() + maxWaitMs;
+  let announced = false;
+
+  while (Date.now() < deadline) {
+    try {
+      // A cheap object listing doubles as a connectivity probe.
+      await listGcsObjects(getGcsPrefix());
+      if (announced) console.log("\n  network restored — resuming sync.");
+      return true;
+    } catch {
+      if (!announced) {
+        console.log("\n  network looks down — pausing until it returns…");
+        announced = true;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+    }
+  }
+
+  return false;
+}
+
+/** Run tasks with a fixed max in flight, collecting results in input order. */
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  task: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let next = 0;
+
+  const workers = Array.from(
+    { length: Math.min(concurrency, items.length) },
+    async () => {
+      while (next < items.length) {
+        const index = next;
+        next += 1;
+        results[index] = await task(items[index], index);
+      }
+    },
+  );
+
+  await Promise.all(workers);
+  return results;
+}
+
+/**
+ * Supabase's connection pooler intermittently drops a request under load,
+ * surfacing as an empty message, a schema-cache miss, a bare "fetch failed", or
+ * a statement timeout. Those are transient, so retry a couple of times with a
+ * short backoff before giving up on the file.
+ */
+function isTransientDbError(message: string | undefined): boolean {
+  if (!message) return true; // empty error object
+  const m = message.toLowerCase();
+  return (
+    m.includes("schema cache") ||
+    m.includes("fetch failed") ||
+    m.includes("statement timeout") ||
+    m.includes("connection") ||
+    m.includes("timeout")
+  );
+}
+
+async function withDbRetry<T extends { error: { message?: string } | null }>(
+  run: () => PromiseLike<T>,
+  attempts = 3,
+): Promise<T> {
+  let result = await run();
+  for (let i = 1; i < attempts && result.error && isTransientDbError(result.error.message); i += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 300 * i));
+    result = await run();
+  }
+  return result;
+}
+
 /** AI structuring is off by default; set GCS_AI_STRUCTURING=true to re-enable. */
 function aiStructuringEnabled() {
   return process.env.GCS_AI_STRUCTURING?.trim().toLowerCase() === "true";
@@ -81,6 +184,22 @@ function titleFromObjectName(filename: string): string {
     .split(/\s+/)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+}
+
+/**
+ * A guaranteed-valid slug for a bucket object. Latin titles slugify cleanly, but
+ * Arabic/other non-Latin filenames slugify to an empty string and would fail the
+ * "slug required" rule, so fall back to a stable hash of the full path. The hash
+ * keeps the slug unique per file and stable across re-syncs (no churn).
+ */
+function slugFromObjectPath(path: string, baseSlug: string): string {
+  if (baseSlug.trim().length >= 3) return baseSlug;
+
+  let hash = 0;
+  for (let i = 0; i < path.length; i += 1) {
+    hash = (hash * 31 + path.charCodeAt(i)) | 0;
+  }
+  return `doc-${Math.abs(hash).toString(36)}`;
 }
 
 /**
@@ -525,7 +644,7 @@ async function buildRowFromObject(
       const retry = validateImportRow(
         {
           title: fallbackTitle,
-          slug: slugify(fallbackTitle),
+          slug: slugFromObjectPath(object.name, slugify(fallbackTitle)),
           category: categoryFromPath(object.name, "general"),
           summary: fallbackSummary,
           content: text,
@@ -547,6 +666,8 @@ async function buildRowFromObject(
   return {
     row: {
       ...derived.row,
+      // Non-Latin titles slugify to "" — fall back to a stable path hash.
+      slug: slugFromObjectPath(object.name, derived.row.slug || slugify(derived.row.title)),
       category: categoryFromPath(object.name, derived.row.category),
       tags: tagsFromPath(object.name),
     },
@@ -642,6 +763,41 @@ export type SyncKnowledgeFromGcsOptions = {
    * unticking one file can never silently delete its already-mirrored siblings.
    */
   prune?: boolean;
+  /**
+   * Ignore the saved source selection and mirror the whole bucket (or the
+   * GCS_PREFIX subtree). Used by the local bulk-sync script so syncing thousands
+   * of files doesn't require ticking every folder in the dashboard first.
+   */
+  all?: boolean;
+  /**
+   * Top-level folders to skip (case-insensitive). Used to leave out huge corpora
+   * (e.g. sunnah, quran) that a run doesn't need.
+   */
+  excludeFolders?: string[];
+  /**
+   * If set, sync ONLY these top-level folders (case-insensitive). Useful for
+   * later runs that add one big corpus at a time (e.g. sunnah, quran).
+   */
+  includeFolders?: string[];
+  /**
+   * Skip files whose basename was already mirrored from another folder, so the
+   * same document isn't fetched and embedded twice under two paths.
+   */
+  dedupe?: boolean;
+  /**
+   * Called after each file is processed, for live terminal/UI progress. Kept
+   * optional so server callers pay nothing for it.
+   */
+  onProgress?: (progress: SyncProgress) => void;
+};
+
+export type SyncProgress = {
+  currentPath: string;
+  done: number;
+  total: number;
+  created: number;
+  updated: number;
+  failed: number;
 };
 
 /**
@@ -662,8 +818,9 @@ export async function syncKnowledgeFromGcs(
   const publish = options.publish ?? true;
   const maxFiles = Math.max(1, options.maxFiles ?? DEFAULT_MAX_FILES);
   const prune = options.prune ?? false;
+  const syncAll = options.all ?? false;
 
-  const selections = await loadSourceSelections();
+  const selections = syncAll ? [] : await loadSourceSelections();
   const runId = options.runId ?? (await createRun(options.createdBy ?? null));
 
   // Path lists for the history view. Capped so a huge run can't bloat the row.
@@ -687,11 +844,15 @@ export async function syncKnowledgeFromGcs(
   };
 
   try {
-    if (selections.length === 0) {
+    if (!syncAll && selections.length === 0) {
       throw new Error("No sources selected. Choose folders or files to sync first.");
     }
 
-    const objects = await gatherSelectedObjects(selections);
+    // With `all`, list the whole bucket (or the GCS_PREFIX subtree) instead of
+    // the saved selection.
+    const objects = syncAll
+      ? await listGcsObjects(getGcsPrefix())
+      : await gatherSelectedObjects(selections);
     base.filesSeen = objects.length;
     // Safety valve: never wipe the mirror because of an empty/auth-failed listing.
     if (objects.length === 0) {
@@ -701,15 +862,48 @@ export async function syncKnowledgeFromGcs(
 
     const excluded = new Set(excludedFolders());
     const allowed = getAllowedExtensions();
-    const syncable = objects
+    const excludeTopFolders = new Set(
+      (options.excludeFolders ?? []).map((f) => f.trim().toLowerCase()).filter(Boolean),
+    );
+    const includeTopFolders = new Set(
+      (options.includeFolders ?? []).map((f) => f.trim().toLowerCase()).filter(Boolean),
+    );
+
+    let syncable = objects
       .filter((object) => !isExcluded(object.name, excluded) && isSyncableDocument(object.name))
       .filter(
         (object) =>
           allowed.length === 0 ||
           allowed.some((extension) => object.name.toLowerCase().endsWith(extension)),
-      )
-      .sort((a, b) => a.name.localeCompare(b.name));
+      );
 
+    // Sync ONLY the listed top-level folders when an include list is given.
+    if (includeTopFolders.size > 0) {
+      syncable = syncable.filter((object) =>
+        includeTopFolders.has((object.name.split("/")[0] ?? "").toLowerCase()),
+      );
+    }
+
+    // Skip whole top-level folders (e.g. sunnah, quran) when asked.
+    if (excludeTopFolders.size > 0) {
+      syncable = syncable.filter(
+        (object) => !excludeTopFolders.has((object.name.split("/")[0] ?? "").toLowerCase()),
+      );
+    }
+
+    // Dedupe by basename: keep the first path seen (sorted order = stable) and
+    // drop later copies so the same document isn't embedded twice.
+    if (options.dedupe) {
+      const seenBasenames = new Set<string>();
+      syncable = syncable.filter((object) => {
+        const base = object.name.split("/").pop() ?? object.name;
+        if (seenBasenames.has(base)) return false;
+        seenBasenames.add(base);
+        return true;
+      });
+    }
+
+    syncable.sort((a, b) => a.name.localeCompare(b.name));
     base.considered = syncable.length;
 
     const [mirrored, allSlugs] = await Promise.all([
@@ -735,6 +929,11 @@ export async function syncKnowledgeFromGcs(
     let processed = 0;
     const changedArticleIds: string[] = [];
 
+    // Decide which files to work on, in order, before any network work. This is
+    // cheap and must stay sequential so the maxFiles cap and progress counts are
+    // deterministic.
+    const targets: Array<{ object: GcsObject; existing: MirroredRow | undefined }> = [];
+
     for (const object of syncable) {
       const existing = mirroredByPath.get(object.name);
       const unchanged =
@@ -753,42 +952,95 @@ export async function syncKnowledgeFromGcs(
       }
       processed += 1;
 
-      // Record what we're working on so the UI can show live progress.
-      await updateRunProgress(runId, {
-        current_path: object.name,
-        files_seen: base.filesSeen,
-        created_count: base.created,
-        updated_count: base.updated,
-        skipped_count: base.skipped,
-        deferred_count: base.deferred,
-      });
+      // Reserve the existing slug now, before parallel work begins, so no new
+      // file can grab it mid-flight. New files reserve their slug inside
+      // upsertArticle, synchronously, before its first await.
+      if (existing) usedSlugs.add(existing.slug);
 
-      try {
-        const { row, scanned } = await buildRowFromObject(object, existing?.published ?? publish);
-        const article = await upsertArticle(admin, {
-          row,
-          object,
-          existing,
-          usedSlugs,
-          scanned,
-        });
-
-        if (existing) {
-          base.updated += 1;
-          if (updatedPaths.length < MAX_TRACKED_PATHS) updatedPaths.push(object.name);
-        } else {
-          base.created += 1;
-          if (createdPaths.length < MAX_TRACKED_PATHS) createdPaths.push(object.name);
-        }
-
-        // Include unpublished too: the embed job clears stale chunks for them.
-        changedArticleIds.push(article.id);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : "Sync failed for this file.";
-        base.failed.push({ path: object.name, error: message });
-        logError("GCS sync file failed", error, { path: object.name });
-      }
+      targets.push({ object, existing });
     }
+
+    // Process the selected files a few at a time. Counters are bumped inside the
+    // worker as each file finishes; JS is single-threaded, so the increments and
+    // the progress write that follows stay consistent without a lock.
+    let done = 0;
+    const total = targets.length;
+    const emitProgress = (currentPath: string) => {
+      done += 1;
+      options.onProgress?.({
+        currentPath,
+        done,
+        total,
+        created: base.created,
+        updated: base.updated,
+        failed: base.failed.length,
+      });
+    };
+
+    await mapWithConcurrency(
+      targets,
+      syncConcurrency(),
+      async ({ object, existing }) => {
+        try {
+          // On a network outage, wait for connectivity and retry this same file a
+          // couple of times before giving up. A file that fails for any other
+          // reason falls straight through to the catch below.
+          let attempt = 0;
+          let article: KnowledgeArticle | null = null;
+          for (;;) {
+            try {
+              const { row, scanned } = await buildRowFromObject(
+                object,
+                existing?.published ?? publish,
+              );
+              article = await upsertArticle(admin, {
+                row,
+                object,
+                existing,
+                usedSlugs,
+                scanned,
+              });
+              break;
+            } catch (error) {
+              attempt += 1;
+              if (attempt >= 3 || !isNetworkError(error)) throw error;
+              const restored = await waitForNetwork();
+              if (!restored) throw error;
+            }
+          }
+
+          if (existing) {
+            base.updated += 1;
+            if (updatedPaths.length < MAX_TRACKED_PATHS) updatedPaths.push(object.name);
+          } else {
+            base.created += 1;
+            if (createdPaths.length < MAX_TRACKED_PATHS) createdPaths.push(object.name);
+          }
+
+          // Include unpublished too: the embed job clears stale chunks for them.
+          changedArticleIds.push(article.id);
+
+          await updateRunProgress(runId, {
+            current_path: object.name,
+            created_count: base.created,
+            updated_count: base.updated,
+            skipped_count: base.skipped,
+            deferred_count: base.deferred,
+          });
+
+          emitProgress(object.name);
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : "Sync failed for this file.";
+          base.failed.push({ path: object.name, error: message });
+          logError("GCS sync file failed", error, { path: object.name });
+
+          await updateRunProgress(runId, { current_path: object.name });
+
+          emitProgress(object.name);
+        }
+      },
+    );
 
     // Remove articles whose source object is gone from the bucket. Guarded by
     // `considered > 0` so a filter that matches nothing can never wipe the
@@ -871,7 +1123,7 @@ async function upsertArticle(
     scanned?: boolean;
   },
 ): Promise<KnowledgeArticle> {
-  const payload = {
+  const payload: Record<string, unknown> = {
     title: row.title,
     category: row.category,
     summary: row.summary,
@@ -891,32 +1143,55 @@ async function upsertArticle(
     // Reserve the existing slug so no new file picks it, then keep it so source
     // citations stay stable across re-syncs.
     usedSlugs.add(existing.slug);
-    const { data, error } = await admin
-      .from("knowledge_articles")
-      .update(payload)
-      .eq("id", existing.id)
-      .select("*")
-      .single();
+    const { data, error } = await withDbRetry(() =>
+      admin
+        .from("knowledge_articles")
+        .update(payload)
+        .eq("id", existing.id)
+        .select("*")
+        .single(),
+    );
 
     if (error) throw new Error(error.message);
     return data as KnowledgeArticle;
   }
 
-  // Two bucket files can slugify to the same value. `usedSlugs` pre-reserves
-  // every known slug, but a race or a stale snapshot can still hit the unique
-  // index, so retry with a suffixed slug before giving up on the file.
+  // Two bucket files can slugify to the same value, and two parallel workers can
+  // race to insert the same source_path. `usedSlugs` pre-reserves every known
+  // slug, but a race or a stale snapshot can still hit a unique index — so retry
+  // with a suffixed slug, and on a source_path conflict fall back to updating the
+  // row another worker just created.
   let lastError: Error | null = null;
+  const baseSlug = slugFromObjectPath(object.name, row.slug);
   for (let attempt = 0; attempt < 5; attempt += 1) {
-    const slug = makeUniqueSlug(row.slug, usedSlugs);
-    const { data, error } = await admin
-      .from("knowledge_articles")
-      .insert({ ...payload, slug })
-      .select("*")
-      .single();
+    const slug = makeUniqueSlug(baseSlug, usedSlugs);
+    const { data, error } = await withDbRetry(() =>
+      admin
+        .from("knowledge_articles")
+        .insert({ ...payload, slug })
+        .select("*")
+        .single(),
+    );
 
     if (!error) return data as KnowledgeArticle;
 
     lastError = new Error(error.message);
+
+    // Another worker already inserted this exact source file: update it instead.
+    if (error.code === "23505" && error.message.includes("source_idx")) {
+      const { data: existingRow, error: updateError } = await admin
+        .from("knowledge_articles")
+        .update(payload)
+        .eq("source_provider", GCS_SOURCE_PROVIDER)
+        .eq("source_path", object.name)
+        .select("*")
+        .single();
+
+      if (!updateError) return existingRow as KnowledgeArticle;
+      lastError = new Error(updateError.message);
+      break;
+    }
+
     if (error.code !== "23505") break;
   }
 

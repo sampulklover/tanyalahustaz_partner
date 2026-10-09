@@ -4,7 +4,8 @@ Partner platform for websites that want to offer **Tanyalah Ustaz Islamic AI** t
 
 Built with **Next.js**, **Supabase**, and **OpenRouter**. Partners get API keys and call `/api/v1/chat`. We retrieve relevant knowledge articles, build a grounded prompt, and return AI answers — partners never touch OpenRouter or Supabase directly.
 
-> **Internal:** [System evolution doc](docs/SYSTEM_EVOLUTION.md) — phases, architecture, key concepts.
+> **Internal:** [Architecture doc](docs/ARCHITECTURE.md) — diagrams for the whole system.
+> [System evolution doc](docs/SYSTEM_EVOLUTION.md) — phases, history, key concepts.
 
 ## Architecture
 
@@ -87,6 +88,46 @@ npm run embed-knowledge
 
 Re-run this whenever your content changes, or use **Re-embed all published** on the
 Sources page (`/dashboard/knowledge/sources`).
+
+### Large GCS backfills
+
+The in-app **Sync** button runs inside a 300s serverless limit, so a very large
+mirror finishes over several runs (each resumes where the last stopped). To pull
+a whole bucket in one uninterrupted run from your machine:
+
+```bash
+npm run sync-gcs
+# faster:
+GCS_SYNC_CONCURRENCY=6 EMBED_CONCURRENCY=8 EMBED_ARTICLE_CONCURRENCY=6 npm run sync-gcs
+```
+
+It syncs every selected folder, then drains the embedding queue, in passes until
+nothing is left. Safe to interrupt and re-run — already-mirrored files are
+skipped by etag. Flags: `--max-files=N` (per pass, default 500), `--prune`.
+
+Keep `GCS_SYNC_CONCURRENCY` low (1–3). Supabase's connection pooler drops
+requests (`fetch failed`) and times out large inserts when too many run at once.
+
+To mirror the **whole bucket** without ticking every folder in the dashboard:
+
+```bash
+npm run sync-gcs -- --all
+```
+
+Scope large runs with `--include` / `--exclude` (repeatable, comma-separated) and
+`--dedupe` to skip the same filename mirrored from another folder:
+
+```bash
+# Everything except the huge sunnah + quran corpora, skipping duplicates
+npm run sync-gcs -- --all --exclude=sunnah,quran --dedupe --max-files=2000
+
+# Later: add just those two corpora
+npm run sync-gcs -- --all --include=sunnah,quran --dedupe --max-files=2000
+
+# Only one folder, or several
+npm run sync-gcs -- --all --include=dorar
+npm run sync-gcs -- --all --include=dorar --include=efatwa_penang
+```
 
 ### Changing the embedding model
 
@@ -336,6 +377,7 @@ what was pulled.
 | `GCS_PREFIX` | Optional folder to start browsing from |
 | `GCS_AI_STRUCTURING` | `true` to have the model draft title/summary/tags (costs tokens; default off) |
 | `GCS_SYNC_MAX_FILES` | Max new/changed files per run (default 10) |
+| `GCS_SYNC_CONCURRENCY` | Files processed in parallel (default 4) |
 | `GCS_SYNC_MAX_BYTES` | Max file size to read (default 100 MB) |
 | `GCS_SYNC_EXCLUDE_PREFIXES` | Folder names to skip (default `cover-image,cover,covers`) |
 | `GCS_SYNC_EXTENSIONS` | Limit the sync to certain file types, e.g. `.pdf` (default: all supported) |
@@ -413,7 +455,7 @@ Set `CRON_SECRET` in Vercel — the cron at `/api/cron/embed-jobs` runs once dai
 - `OPENROUTER_API_KEY` and `SUPABASE_SECRET_KEY` are server-only
 - Partner API keys are SHA-256 hashed
 - Knowledge articles are read-only for partners via API
-- Rate limiting is enabled per API key (chat: 20/min, 500/day by default) and playground (10/min, 50/day)
+- Rate limiting is enabled per API key (chat: 120/min, 50,000/day by default) and playground (10/min, 50/day)
 - Email verification is required before dashboard access
 - Partner signup is invite-only by default (`SIGNUP_MODE=invite`)
 - Knowledge articles are only readable by the knowledge team in Supabase; partners use the API

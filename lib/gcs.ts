@@ -48,6 +48,12 @@ export function isGcsConfigured(): boolean {
   return Boolean(getGcsBucketName() && readServiceAccount());
 }
 
+// The GCS client is expensive to build and registers listeners on internal
+// emitters. Rebuilding it per file (the sync downloads hundreds) triggered
+// node's MaxListenersExceededWarning and wasted work, so build it once and reuse.
+let cachedStorage: Storage | null = null;
+let cachedStorageKey: string | null = null;
+
 function getStorage(): Storage {
   const credentials = readServiceAccount();
   if (!credentials) {
@@ -56,11 +62,27 @@ function getStorage(): Storage {
     );
   }
 
-  return new Storage({
+  // Rebuild only if the credentials changed (e.g. a dev edit to .env).
+  const key = `${process.env.GCS_BUCKET_NAME ?? ""}:${JSON.stringify(credentials.project_id ?? "")}`;
+  if (cachedStorage && cachedStorageKey === key) {
+    return cachedStorage;
+  }
+
+  const storage = new Storage({
     credentials,
     projectId:
       typeof credentials.project_id === "string" ? credentials.project_id : undefined,
   });
+
+  // The library registers a listener per concurrent request on shared emitters;
+  // the sync downloads many files in parallel, so lift node's default cap to
+  // stop the benign MaxListenersExceededWarning spam.
+  const emitter = storage as unknown as { setMaxListeners?: (n: number) => void };
+  emitter.setMaxListeners?.(0);
+
+  cachedStorage = storage;
+  cachedStorageKey = key;
+  return storage;
 }
 
 // Full-prefix listings are used by the sync/preview, which re-lists every

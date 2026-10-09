@@ -109,6 +109,7 @@ export function buildChatMessages({
   history = [],
   systemPrompt,
   modulePrompts,
+  partnerKnowledgeContext,
   promptCache = false,
 }: {
   userMessage: string;
@@ -117,6 +118,8 @@ export function buildChatMessages({
   systemPrompt?: string;
   /** Admin-resolved module text. Omitting it uses the built-in modules. */
   modulePrompts?: Partial<Record<PromptModuleId, string>>;
+  /** The partner's own uploaded material, when any matched. */
+  partnerKnowledgeContext?: string;
   promptCache?: boolean;
 }): ChatMessage[] {
   // Pick the specialty module(s) for this question. Small talk (greetings) has
@@ -132,6 +135,7 @@ export function buildChatMessages({
       knowledgeContext,
       routed.modules,
       modulePrompts,
+      partnerKnowledgeContext,
     ),
     // The fixed instructions are the stable prefix shared across requests, so
     // providers can reuse their cached computation and cut time-to-first-token.
@@ -156,12 +160,14 @@ export async function generateChatReply({
   knowledgeContext,
   history = [],
   systemPrompt,
+  partnerKnowledgeContext,
   partnerId,
 }: {
   userMessage: string;
   knowledgeContext: string;
   history?: ChatHistoryMessage[];
   systemPrompt?: string;
+  partnerKnowledgeContext?: string;
   partnerId?: string | null;
 }) {
   const apiKey = getOpenRouterApiKey();
@@ -175,6 +181,7 @@ export async function generateChatReply({
     history,
     systemPrompt: resolvedPrompt,
     modulePrompts,
+    partnerKnowledgeContext,
     promptCache: isPromptCacheEnabled(),
   });
 
@@ -214,6 +221,7 @@ export async function streamChatReply({
   history = [],
   signal,
   systemPrompt,
+  partnerKnowledgeContext,
   partnerId,
   onUsage,
 }: {
@@ -222,6 +230,7 @@ export async function streamChatReply({
   history?: ChatHistoryMessage[];
   signal?: AbortSignal;
   systemPrompt?: string;
+  partnerKnowledgeContext?: string;
   partnerId?: string | null;
   onUsage?: (usage: ChatUsage) => void;
 }) {
@@ -236,6 +245,7 @@ export async function streamChatReply({
     history,
     systemPrompt: resolvedPrompt,
     modulePrompts,
+    partnerKnowledgeContext,
     promptCache: isPromptCacheEnabled(),
   });
 

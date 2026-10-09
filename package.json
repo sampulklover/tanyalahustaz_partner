@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "tsx --test \"lib/**/*.test.ts\"",
     "embed-knowledge": "tsx scripts/embed-knowledge.ts",
+    "sync-gcs": "tsx scripts/sync-gcs.ts",
     "search-knowledge": "tsx scripts/search-knowledge.ts"
   },
   "dependencies": {

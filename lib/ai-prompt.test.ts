@@ -60,4 +60,26 @@ describe("composeSystemPrompt", () => {
     assert.ok(result.includes("CUSTOM FIQH BODY"));
     assert.ok(!result.includes("MODULE: FIQH RESEARCH"));
   });
+
+  it("appends the partner knowledge block after the shared knowledge block", () => {
+    const result = composeSystemPrompt("Base rules.", "SHARED REF", [], undefined, "PARTNER REF");
+
+    const sharedAt = result.indexOf("KNOWLEDGE REFERENCE MATERIAL:");
+    const partnerAt = result.indexOf("PARTNER KNOWLEDGE");
+
+    assert.ok(sharedAt >= 0 && partnerAt > sharedAt);
+    assert.ok(result.includes("PARTNER REF"));
+  });
+
+  it("omits the partner knowledge block when none was provided", () => {
+    const result = composeSystemPrompt("Base rules.", "SHARED REF");
+
+    assert.ok(!result.includes("PARTNER KNOWLEDGE"));
+  });
+
+  it("ignores a blank partner knowledge block", () => {
+    const result = composeSystemPrompt("Base rules.", "SHARED REF", [], undefined, "   ");
+
+    assert.ok(!result.includes("PARTNER KNOWLEDGE"));
+  });
 });

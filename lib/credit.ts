@@ -1,6 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export type CreditReason = "topup" | "usage" | "refund" | "adjustment";
+export type CreditReason = "topup" | "usage" | "embedding" | "refund" | "adjustment";
 
 /** Current credit balance in MYR cents (sum of the ledger). */
 export async function getCreditBalanceCents(userId: string): Promise<number> {
@@ -63,10 +63,13 @@ export async function recordUsageCharge({
   userId,
   chargedCents,
   logId,
+  reason = "usage",
 }: {
   userId: string;
   chargedCents: number;
   logId: string;
+  /** What the charge was for. Defaults to chat usage. */
+  reason?: Extract<CreditReason, "usage" | "embedding">;
 }): Promise<void> {
   if (chargedCents <= 0) return;
 
@@ -75,7 +78,7 @@ export async function recordUsageCharge({
     await admin.from("credit_ledger").insert({
       user_id: userId,
       delta_cents: -chargedCents,
-      reason: "usage",
+      reason,
       reference: logId,
     });
   } catch {

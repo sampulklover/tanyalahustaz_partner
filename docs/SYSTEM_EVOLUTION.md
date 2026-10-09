@@ -14,7 +14,7 @@ A **partner platform** for websites that want Tanyalah Ustaz Islamic AI:
 
 ---
 
-## Evolution (3 phases)
+## Evolution (4 phases)
 
 ### Phase 1 — Developer portal + API keys
 
@@ -80,6 +80,31 @@ User message
 
 ---
 
+### Phase 4 — Partner portal hardening, billing & private knowledge
+
+**Goal:** Real multi-tenant SaaS: prepaid billing, admin CMS, and per-partner data.
+
+| Added | Why |
+|-------|-----|
+| **Hybrid search** (`match_knowledge_chunks_hybrid`) | Vector + full-text fused (RRF) — better recall than vectors alone |
+| **GCS sync** (`lib/gcs-sync.ts`) | Knowledge lives in Google Cloud; Supabase is a read-only mirror |
+| **Knowledge team roles** (`knowledge_team_members`) | admin / editor / viewer for the shared library |
+| **Prepaid billing** (`credit_ledger`, ToyyibPay) | Charge per request: cost × (1 + markup ≥ 30%) × USD→MYR |
+| **Usage tracking** (tokens, cost, `charged_cents`) | Every chat turn is priced and logged |
+| **Prompt modules** (`lib/prompts/router.ts`) | Fiqh / tafsir / hadith specialties routed per question |
+| **Semantic answer cache** (`chat_answer_cache`) | Repeat questions skip retrieval + the model |
+| **Partner knowledge** (`partner_knowledge_*`) | Partners upload their **own** files, private to their account |
+| **Streaming** + low-balance alerts | Better UX and spend safety |
+
+**Flow today** adds, on top of Phase 3: hybrid retrieval, an optional
+partner-private KB section, prepaid charge per call, and an answer cache.
+
+**Lesson:** Tenancy is a first-class concern — partner data (files, cache,
+ledger) is always scoped by `partner_id` with RLS, never mixed into the shared
+knowledge base.
+
+---
+
 ## Architecture (current)
 
 ```
@@ -98,6 +123,10 @@ Partner website          Portal (logged in)
                       ▼
                  Supabase (Postgres)
 ```
+
+Knowledge has two layers: the **shared** library (mirrored from GCS, managed by
+the knowledge team) and each partner's **private** uploads. Both are retrieved
+per request; only the shared one is visible to everyone.
 
 ---
 
@@ -130,7 +159,7 @@ Partner website          Portal (logged in)
 | Change | Also do |
 |--------|---------|
 | Add/edit `knowledge_articles` | `npm run embed-knowledge` |
-| **Change `OPENROUTER_EMBEDDING_MODEL`** | Update `EMBEDDING_DIMENSIONS` in `lib/embeddings.ts`, migrate DB vector size if needed, truncate `knowledge_chunks`, then **`npm run embed-knowledge`** |
+| **Change `OPENROUTER_EMBEDDING_MODEL`** | Update `EMBEDDING_DIMENSIONS` in `lib/embeddings.ts`, migrate DB vector size if needed, truncate `knowledge_chunks`, then **`npm run embed-knowledge`**. Also update `partner_knowledge_chunks` + `match_partner_knowledge_chunks_hybrid` and re-upload partner files. |
 | New migration | Run SQL in Supabase, in order |
 | New API endpoint | Auth with API key + log usage |
 | Deploy | Set all env vars on Vercel; never commit `.env` |
@@ -145,7 +174,7 @@ Different models output different vector sizes (e.g. **1536** for `openai/text-e
 
 1. Set new `OPENROUTER_EMBEDDING_MODEL` in `.env`
 2. Set matching `EMBEDDING_DIMENSIONS` in `lib/embeddings.ts`
-3. If dimensions changed: SQL migration on `knowledge_chunks` — truncate table, change `vector(N)`, update `match_knowledge_chunks`
+3. If dimensions changed: SQL migration on `knowledge_chunks` — truncate table, change `vector(N)`, update `match_knowledge_chunks`. Do the same for `partner_knowledge_chunks` + `match_partner_knowledge_chunks_hybrid` (partner files must be re-uploaded).
 4. Run **`npm run embed-knowledge`** to rebuild all chunks
 5. Test in playground
 
@@ -162,9 +191,9 @@ Different models output different vector sizes (e.g. **1536** for `openai/text-e
 
 ## Sensible next steps (not built yet)
 
-- Rate limits + billing per partner/key
-- Streaming responses for chat widgets
 - Stronger chunking/reranking as content grows
+- Semantic cache tuning + eviction policy
+- Per-partner knowledge quotas / admin review of uploads
 
 ---
 
@@ -174,14 +203,18 @@ Different models output different vector sizes (e.g. **1536** for `openai/text-e
 app/api/v1/chat/     → Public chat API
 app/dashboard/       → Portal + playground
 lib/chat.ts          → Orchestrates one chat request
-lib/knowledge.ts     → Vector search + fallback
+lib/knowledge.ts     → Shared retrieval (hybrid vector + keyword)
+lib/partner-knowledge.ts         → Partner file upload → embed → store
+lib/partner-knowledge-search.ts  → Partner-private retrieval
 lib/embeddings.ts    → Create vectors
 lib/openrouter.ts    → AI replies
 lib/chat-history.ts  → Multi-turn memory
+lib/credit.ts        → Prepaid ledger charges
 supabase/migrations/ → Schema history (run in order)
 scripts/embed-knowledge.ts → Build vectors CLI (re-run after article edits or model change)
 ```
 
 ---
 
-*Last updated: July 2026 — reflects Phase 3 (vector RAG + session memory) and admin knowledge CMS.*
+*Last updated: October 2026 — reflects Phase 4 (billing, GCS sync, admin CMS,
+and private per-partner knowledge).*

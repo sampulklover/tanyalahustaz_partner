@@ -27,6 +27,16 @@ export function captureMessage(message: string, context?: LogContext) {
 }
 
 export function logError(message: string, error?: unknown, context?: LogContext) {
+  // A local bulk sync hits many expected, per-file failures (a bad file, a
+  // transient DB blip). Printing a full stack for each floods the terminal, so
+  // SYNC_QUIET_ERRORS=1 logs one concise line and skips Sentry for them.
+  const quiet = process.env.SYNC_QUIET_ERRORS === "1" && context?.path;
+  if (quiet) {
+    const detail = error instanceof Error ? error.message : String(error ?? "");
+    console.error(`${message}: ${detail} (${String(context.path)})`);
+    return;
+  }
+
   console.error(message, error, context);
   if (error) {
     captureError(error, { message, ...context });

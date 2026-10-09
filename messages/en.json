@@ -76,6 +76,7 @@
     "documentation": "Documentation",
     "signOut": "Sign out",
     "prompt": "Custom instructions",
+    "knowledgeBase": "My knowledge",
     "settings": "Settings",
     "signOutConfirmTitle": "Sign out?",
     "signOutConfirm": "You will be signed out of your account and returned to the home page.",
@@ -402,8 +403,12 @@
       "activityEmpty": "No credit activity yet.",
       "reasonTopup": "Top up",
       "reasonUsage": "API usage",
+      "reasonEmbedding": "Knowledge files",
       "reasonRefund": "Refund",
-      "reasonAdjustment": "Adjustment"
+      "reasonAdjustment": "Adjustment",
+      "spendTitle": "Where your credit went",
+      "spendHint": "Total charges on your account, grouped by type.",
+      "spendEmpty": "No charges yet."
     },
     "playground": {
       "title": "Try it live",
@@ -1095,6 +1100,35 @@
     "userQuestion": "Can a traveler combine Dhuhr and Asr?",
     "assistantReply": "Yes. During a journey, a traveller may combine Dhuhr and Asr — either bringing Asr forward or delaying Dhuhr.",
     "sourceLabel": "Source"
+  },
+  "partnerKnowledge": {
+    "title": "My knowledge",
+    "description": "Upload your own documents to ground the AI for your app. These files are private to your account and are only used for requests made with your API keys.",
+    "uploadTitle": "Upload documents",
+    "uploadHint": "PDF, DOCX, TXT or Markdown. Each file is split into chunks and embedded so answers can cite it.",
+    "billingNote": "Processing a file uses the embedding model. Its cost is charged to your credit balance with the same markup as chat usage.",
+    "upload": "Upload",
+    "uploading": "Processing…",
+    "uploadedGeneric": "Files uploaded.",
+    "uploaded": "Added {count} file(s).",
+    "filesTitle": "Your files",
+    "empty": "You haven't added any files yet.",
+    "summary": "{files} file(s) · {chunks} knowledge chunks",
+    "fileMeta": "{chunks} chunks · {date}",
+    "delete": "Delete",
+    "deleted": "File deleted.",
+    "previewLabel": "Preview what the AI read",
+    "status": {
+      "processing": "Processing",
+      "ready": "Ready",
+      "failed": "Failed"
+    },
+    "errors": {
+      "noFiles": "Choose at least one file to upload.",
+      "tooMany": "You can have at most {max} files in your knowledge base.",
+      "unsupported": "{name} is not a supported file type.",
+      "tooLarge": "{name} is larger than {max} MB."
+    }
   },
   "partnerPrompt": {
     "title": "Custom instructions",

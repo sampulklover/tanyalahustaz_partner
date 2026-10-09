@@ -1,7 +1,7 @@
 {
   "brand": {
     "signIn": "Log masuk",
-    "getStarted": "Mula sekarang",
+    "getStarted": "Mari Mulakan",
     "developers": "Untuk Perniagaan",
     "dashboard": "Papan pemuka",
     "visitApp": "Lawati aplikasi"
@@ -32,7 +32,7 @@
   },
   "auth": {
     "email": "E-mel",
-    "password": "Kata laluan",
+    "password": "Katalaluan",
     "workEmail": "E-mel kerja",
     "companyName": "Nama syarikat",
     "optional": "(pilihan)",
@@ -76,6 +76,7 @@
     "documentation": "Dokumentasi",
     "signOut": "Log keluar",
     "prompt": "Arahan tersuai",
+    "knowledgeBase": "Pengetahuan saya",
     "settings": "Tetapan",
     "signOutConfirmTitle": "Log keluar?",
     "signOutConfirm": "Anda akan dilog keluar daripada akaun anda dan kembali ke laman utama.",
@@ -308,7 +309,7 @@
       "manageKeys": "Urus kunci",
       "chatRequests": "Permintaan sembang",
       "viewLogs": "Lihat log",
-      "knowledgeArticles": "Knowledge files",
+      "knowledgeArticles": "Fail pengetahuan",
       "manage": "Urus",
       "apiDocs": "Dokumentasi API",
       "apiVersion": "Versi API",
@@ -402,8 +403,12 @@
       "activityEmpty": "Tiada aktiviti kredit lagi.",
       "reasonTopup": "Tambah nilai",
       "reasonUsage": "Penggunaan API",
+      "reasonEmbedding": "Fail pengetahuan",
       "reasonRefund": "Bayaran balik",
-      "reasonAdjustment": "Pelarasan"
+      "reasonAdjustment": "Pelarasan",
+      "spendTitle": "Ke mana kredit anda pergi",
+      "spendHint": "Jumlah caj pada akaun anda, dikumpulkan mengikut jenis.",
+      "spendEmpty": "Tiada caj lagi."
     },
     "playground": {
       "title": "Cuba secara langsung",
@@ -1096,6 +1101,35 @@
     "userQuestion": "Bolehkah musafir jamak Zohor dan Asar?",
     "assistantReply": "Ya. Semasa musafir, seseorang boleh jamak Zohor dan Asar — sama ada mendahulukan Asar atau melambatkan Zohor.",
     "sourceLabel": "Sumber"
+  },
+  "partnerKnowledge": {
+    "title": "Pengetahuan saya",
+    "description": "Muat naik dokumen anda sendiri untuk memandu AI bagi apl anda. Fail ini peribadi kepada akaun anda dan hanya digunakan untuk permintaan menggunakan kekunci API anda.",
+    "uploadTitle": "Muat naik dokumen",
+    "uploadHint": "PDF, DOCX, TXT atau Markdown. Setiap fail dipecahkan kepada cebisan dan di-embed supaya jawapan boleh merujuknya.",
+    "billingNote": "Memproses fail menggunakan model embedding. Kosnya dicaj kepada baki kredit anda dengan kadar markup yang sama seperti penggunaan sembang.",
+    "upload": "Muat naik",
+    "uploading": "Memproses…",
+    "uploadedGeneric": "Fail dimuat naik.",
+    "uploaded": "{count} fail ditambah.",
+    "filesTitle": "Fail anda",
+    "empty": "Anda belum menambah sebarang fail lagi.",
+    "summary": "{files} fail · {chunks} cebisan pengetahuan",
+    "fileMeta": "{chunks} cebisan · {date}",
+    "delete": "Padam",
+    "deleted": "Fail dipadam.",
+    "previewLabel": "Pratonton apa yang AI baca",
+    "status": {
+      "processing": "Memproses",
+      "ready": "Sedia",
+      "failed": "Gagal"
+    },
+    "errors": {
+      "noFiles": "Pilih sekurang-kurangnya satu fail untuk dimuat naik.",
+      "tooMany": "Anda boleh mempunyai paling banyak {max} fail dalam pangkalan pengetahuan anda.",
+      "unsupported": "{name} bukan jenis fail yang disokong.",
+      "tooLarge": "{name} melebihi {max} MB."
+    }
   },
   "partnerPrompt": {
     "title": "Arahan tersuai",

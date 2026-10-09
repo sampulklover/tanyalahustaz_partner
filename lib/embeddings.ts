@@ -9,17 +9,39 @@ export const EMBEDDING_DIMENSIONS = 1536;
 
 /**
  * How many chunks to send per embedding request. Chunks are ~900 chars
- * (~230 tokens), so keep the batch small enough that one request stays well
- * under the model's per-call limits and a single bad chunk doesn't force a
- * costly re-send of the whole batch. 16 chunks ≈ 3–4k tokens per request.
+ * (~230 tokens). text-embedding-3-small accepts up to ~2048 inputs / 8k tokens
+ * per call, so 64 chunks ≈ 15k chars stays comfortably inside the limit while
+ * cutting the number of round-trips ~4x versus the old value of 16.
+ * Read per call so env changes take effect without a rebuild.
  */
-const EMBED_BATCH_SIZE = Math.max(1, Number(process.env.EMBED_BATCH_SIZE ?? 16));
+function embedBatchSize() {
+  return Math.max(1, Number(process.env.EMBED_BATCH_SIZE ?? 64));
+}
+
+/**
+ * How many embedding requests may be in flight at once. Batches are independent
+ * (each result carries its own index), so overlapping them hides most of the
+ * network latency that made bulk embedding slow. Kept modest by default so we
+ * don't trip OpenRouter rate limits; raise via EMBED_CONCURRENCY for backfills.
+ */
+function embedConcurrency() {
+  return Math.max(1, Number(process.env.EMBED_CONCURRENCY ?? 4));
+}
+
 const EMBED_MAX_RETRIES = 3;
 /**
  * Above this many texts, a failed batch is retried one item at a time so a
  * single bad chunk doesn't waste the tokens of its healthy neighbours.
  */
 const EMBED_SPLIT_THRESHOLD = 1;
+/**
+ * When an individual text cannot be embedded after all retries, skip it rather
+ * than failing the whole article — one bad chunk shouldn't cost the other 99.
+ * The omitted slot is left as an empty array and filtered out by callers.
+ */
+function skipFailedItems() {
+  return process.env.EMBED_SKIP_FAILED_ITEMS !== "false";
+}
 
 function getEmbeddingModel() {
   return process.env.OPENROUTER_EMBEDDING_MODEL ?? DEFAULT_EMBEDDING_MODEL;
@@ -166,7 +188,8 @@ async function requestWithRetry(texts: string[]): Promise<EmbeddingResult> {
 /**
  * Embed a batch. If it keeps failing, fall back to embedding each text on its
  * own so one bad chunk can't sink its healthy neighbours (and we don't re-pay
- * for the whole batch on every retry).
+ * for the whole batch on every retry). A text that still fails is skipped when
+ * EMBED_SKIP_FAILED_ITEMS is on, leaving an empty slot the caller drops.
  */
 async function embedBatch(texts: string[]): Promise<EmbeddingResult> {
   try {
@@ -178,13 +201,52 @@ async function embedBatch(texts: string[]): Promise<EmbeddingResult> {
     let usage = emptyUsage();
 
     for (const text of texts) {
-      const result = await requestWithRetry([text]);
-      embeddings.push(result.embeddings[0]);
-      usage = addUsage(usage, result.usage);
+      try {
+        const result = await requestWithRetry([text]);
+        embeddings.push(result.embeddings[0]);
+        usage = addUsage(usage, result.usage);
+      } catch (itemError) {
+        if (!skipFailedItems()) throw itemError;
+
+        // Leave a hole so the remaining vectors stay aligned with their texts.
+        embeddings.push([]);
+        console.warn(
+          `[embeddings] Skipping chunk that failed after retries: ${
+            itemError instanceof Error ? itemError.message : String(itemError)
+          }`,
+        );
+      }
     }
 
     return { embeddings, usage };
   }
+}
+
+/**
+ * Run async tasks with a fixed maximum in flight, preserving input order in the
+ * results. Used to overlap embedding requests without unbounded fan-out.
+ */
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  task: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let next = 0;
+
+  const workers = Array.from(
+    { length: Math.min(concurrency, items.length) },
+    async () => {
+      while (next < items.length) {
+        const index = next;
+        next += 1;
+        results[index] = await task(items[index], index);
+      }
+    },
+  );
+
+  await Promise.all(workers);
+  return results;
 }
 
 export async function embedTexts(texts: string[]): Promise<EmbeddingResult> {
@@ -192,12 +254,22 @@ export async function embedTexts(texts: string[]): Promise<EmbeddingResult> {
     return { embeddings: [], usage: emptyUsage() };
   }
 
+  // Split into batches, then run them through a bounded-concurrency pool so the
+  // network latency of one batch overlaps the next. Batch order is preserved.
+  const batchSize = embedBatchSize();
+  const batches: string[][] = [];
+  for (let index = 0; index < texts.length; index += batchSize) {
+    batches.push(texts.slice(index, index + batchSize));
+  }
+
+  const batchResults = await mapWithConcurrency(batches, embedConcurrency(), (batch) =>
+    embedBatch(batch),
+  );
+
   const embeddings: number[][] = [];
   let usage = emptyUsage();
 
-  for (let index = 0; index < texts.length; index += EMBED_BATCH_SIZE) {
-    const batch = texts.slice(index, index + EMBED_BATCH_SIZE);
-    const result = await embedBatch(batch);
+  for (const result of batchResults) {
     embeddings.push(...result.embeddings);
     usage = addUsage(usage, result.usage);
   }

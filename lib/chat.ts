@@ -5,6 +5,7 @@ import { loadChatHistory } from "@/lib/chat-history";
 import { maybeSendLowBalanceAlert } from "@/lib/credit-alerts";
 import { recordUsageCharge } from "@/lib/credit";
 import { buildKnowledgeContext, dedupeSources, findRelevantKnowledge } from "@/lib/knowledge";
+import { findPartnerKnowledge } from "@/lib/partner-knowledge-search";
 import { createTimer } from "@/lib/logger";
 import {
   createSessionId,
@@ -46,6 +47,7 @@ export type PreparedChatContext = {
   message: string;
   sessionId: string;
   knowledgeContext: string;
+  partnerKnowledgeContext: string;
   history: Awaited<ReturnType<typeof loadChatHistory>>;
   sources: KnowledgeSource[];
 };
@@ -62,8 +64,12 @@ export async function prepareChatContext(
   try {
     const sessionId = createSessionId(input.sessionId);
     const timer = createTimer("prepare");
-    const [retrievedKnowledge, history] = await Promise.all([
+    // Shared library and the partner's own files are retrieved together. The
+    // partner search is self-contained and returns [] on any failure, so a
+    // missing/empty partner KB never affects the shared path.
+    const [retrievedKnowledge, partnerKnowledge, history] = await Promise.all([
       findRelevantKnowledge(validation.message, input.category?.trim()),
+      findPartnerKnowledge(validation.message, input.partnerId),
       loadChatHistory({ partnerId: input.partnerId, sessionId }),
     ]);
     timer.mark("retrieval+history");
@@ -75,8 +81,12 @@ export async function prepareChatContext(
         message: validation.message,
         sessionId,
         knowledgeContext: buildKnowledgeContext(retrievedKnowledge),
+        // Only render the partner block when something matched; buildKnowledgeContext
+        // returns a sentinel string, so call the raw builder and blank it out.
+        partnerKnowledgeContext:
+          partnerKnowledge.length > 0 ? buildKnowledgeContext(partnerKnowledge) : "",
         history,
-        sources: dedupeSources(retrievedKnowledge),
+        sources: dedupeSources([...retrievedKnowledge, ...partnerKnowledge]),
       },
     };
   } catch (error) {
@@ -171,7 +181,8 @@ export async function executeChat(input: ExecuteChatInput): Promise<ExecuteChatR
   }
 
   try {
-    const { message, sessionId, knowledgeContext, history, sources } = prepared.data;
+    const { message, sessionId, knowledgeContext, partnerKnowledgeContext, history, sources } =
+      prepared.data;
     const timer = createTimer("chat");
 
     // First turn of a session: a near-duplicate question may already have an
@@ -198,6 +209,7 @@ export async function executeChat(input: ExecuteChatInput): Promise<ExecuteChatR
     const { reply, model, usage } = await generateChatReply({
       userMessage: message,
       knowledgeContext,
+      partnerKnowledgeContext,
       history,
       partnerId: input.partnerId,
     });
@@ -260,7 +272,8 @@ export async function streamChat(
     return { ok: false, error: prepared.error };
   }
 
-  const { message, sessionId, knowledgeContext, history, sources } = prepared.data;
+  const { message, sessionId, knowledgeContext, partnerKnowledgeContext, history, sources } =
+    prepared.data;
 
   const stream = createChatSseStream(async (send) => {
     send({ type: "meta", session_id: sessionId, sources });
@@ -284,6 +297,7 @@ export async function streamChat(
     const { model, stream: tokenStream } = await streamChatReply({
       userMessage: message,
       knowledgeContext,
+      partnerKnowledgeContext,
       history,
       signal: input.signal,
       partnerId: input.partnerId,

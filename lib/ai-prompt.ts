@@ -89,12 +89,17 @@ export function composeModuleBlock(
  * When `modules` is provided, the matching specialty prompt(s) are placed
  * with the instructions (after the base, before the knowledge block) so the
  * model reads identity first, then the specialty rules, then the evidence.
+ *
+ * `partnerKnowledgeContext` is the partner's own uploaded material. It is added
+ * as a separate, clearly labelled section so the model can tell the shared
+ * library apart from the partner's private files.
  */
 export function composeSystemPrompt(
   baseInstructions: string,
   knowledgeContext: string,
   modules: PromptModuleId[] = [],
   modulePromptText?: Partial<Record<PromptModuleId, string>>,
+  partnerKnowledgeContext?: string,
 ): string {
   const base = (baseInstructions || DEFAULT_SYSTEM_PROMPT).trim();
   const hasContext = knowledgeContext !== NO_KNOWLEDGE_CONTEXT;
@@ -109,7 +114,13 @@ export function composeSystemPrompt(
         "IMPORTANT: No reference material matched this question. You MUST NOT answer this question from your own knowledge. Say you could not find it in the reference library and recommend consulting a qualified local scholar. You may greet the user, ask what they need, or explain what you can help with.",
       ].join("\n");
 
-  const sections = [base, moduleBlock, knowledgeBlock].filter(Boolean);
+  // A partner's private files are optional and only added when they matched.
+  const partnerBlock =
+    partnerKnowledgeContext && partnerKnowledgeContext.trim().length > 0
+      ? `PARTNER KNOWLEDGE (private files uploaded by the API owner):\n${partnerKnowledgeContext}`
+      : "";
+
+  const sections = [base, moduleBlock, knowledgeBlock, partnerBlock].filter(Boolean);
   const combined = sections.join("\n\n");
 
   if (combined.includes(KNOWLEDGE_PLACEHOLDER)) {

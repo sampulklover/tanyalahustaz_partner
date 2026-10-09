@@ -26,8 +26,8 @@ function getConfig(tier: RateLimitTier): RateLimitConfig {
   switch (tier) {
     case "chat":
       return {
-        perMinute: Number(process.env.RATE_LIMIT_CHAT_PER_MINUTE ?? 20),
-        perDay: Number(process.env.RATE_LIMIT_CHAT_PER_DAY ?? 500),
+        perMinute: Number(process.env.RATE_LIMIT_CHAT_PER_MINUTE ?? 120),
+        perDay: Number(process.env.RATE_LIMIT_CHAT_PER_DAY ?? 50000),
       };
     case "playground":
       return {
@@ -36,8 +36,8 @@ function getConfig(tier: RateLimitTier): RateLimitConfig {
       };
     case "api":
       return {
-        perMinute: Number(process.env.RATE_LIMIT_API_PER_MINUTE ?? 60),
-        perDay: Number(process.env.RATE_LIMIT_API_PER_DAY ?? 2000),
+        perMinute: Number(process.env.RATE_LIMIT_API_PER_MINUTE ?? 300),
+        perDay: Number(process.env.RATE_LIMIT_API_PER_DAY ?? 100000),
       };
   }
 }
